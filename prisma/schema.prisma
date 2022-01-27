@@ -17,6 +17,7 @@ model User{
     email String @unique
     ownerOf Project[] @relation(name: "owner")
     memberOf Project[] @relation(name: "members")
+    bannedFrom Project[] @relation(name: "ban")
     joins joinRequest[]
     passwordHash String
     bio Json
@@ -36,10 +37,10 @@ model Project{
     joinRequests joinRequest[]
     details Json
     additional Json?
+    banList User[] @relation(name: "ban")
 }
 
 model joinRequest{
-    uuid Int @id
     senderId Int
     sender User @relation(fields: [senderId], references: [uuid])
     createdAt DateTime @default(now())
@@ -47,4 +48,5 @@ model joinRequest{
     receiver Project @relation(fields: [receiverId], references: [id])
     message String
     additional Json?
+    @@id([senderId, receiverId])
 }
