@@ -70,7 +70,7 @@ async function main() {
     // const update = await prisma.user.update({
     //     data: {
     //         ownerOf: {
-    //             set: {
+    //             connect: {
     //                 id: (await prisma.project.findFirst({
     //                     select: {
     //                         id: true
@@ -89,7 +89,13 @@ async function main() {
 
     // let samirequest = await prisma.joinRequest.create({
     //     data: {
-    //         senderId: 1537958916,
+    //         senderId: (await prisma.user.findFirst({
+    //             where: {
+    //                 NOT: {
+    //                     email: "987654321boom.s@gmail.com"
+    //                 }
+    //             }
+    //         })).uuid,
     //         receiverId: 2,
     //         message: "Ich will mitmachen :)",
     //         additional: {
@@ -112,18 +118,6 @@ async function main() {
     //             id: r.receiverId
     //         }
     //     });
-    //     await prisma.user.update({
-    //         data: {
-    //             memberOf: {
-    //                 connect: {
-    //                     id: r.receiverId
-    //                 }
-    //             }
-    //         },
-    //         where: {
-    //             uuid: r.senderId
-    //         }
-    //     });
     //     await prisma.joinRequest.delete({
     //         where: {
     //             senderId_receiverId: {
@@ -137,32 +131,94 @@ async function main() {
     //     await acceptJoinRequest(r);
     // }
 
-    let users = await prisma.user.findMany({
+    const resp = await prisma.user.findUnique({
+        where: {
+            uuid: 1310344697
+        },
         include: {
-            ownerOf: true,
-            memberOf: true,
-            joins: true
+            memberOf: {
+                select: {
+                    members: {
+                        where: {
+                            NOT: {
+                                uuid: 1310344697
+                            }
+                        }
+                    },
+                    owner: {
+                        select: {
+                            name: true,
+                            uuid: true
+                        }
+                    },
+                    id: true
+                }
+            },
+            ownerOf: {
+                select: {
+                    members: {
+                        select: {
+                            name: true,
+                            uuid: true
+                        }
+                    },
+                    owner: {
+                        select: {
+                            name: true,
+                            uuid: true
+                        }
+                    },
+                    id: true
+                }
+            }
         }
     });
-    console.log(users);
-    let projects = await prisma.project.findMany({
-        include:{
-            joinRequests: true,
-            members: true,
-            owner: true
+
+    let people = {};
+    for (let p of resp.memberOf) {
+        if (!(p.id in people)) {
+            people[p.id] = [];
         }
-    })
-    console.log(projects);
-    let requests = await prisma.joinRequest.findMany();
-    console.log(requests);
+        people[p.id].push(p.owner);
+        people[p.id].push(...p.members);
+    }
+    for (let p of resp.ownerOf) {
+        if (!(p.id in people)) {
+            people[p.id] = [];
+        }
+        // people[p.id].push(p.owner);
+        people[p.id].push(...p.members);
+    }
+
+    console.log(people);
+
+
+    // let users = await prisma.user.findMany({
+    //     include: {
+    //         joins: true,
+    //         memberOf: true,
+    //         ownerOf: true
+    //     }
+    // });
+    // console.log(users);
+    // let projects = await prisma.project.findMany({
+    //     include:{
+    //         joinRequests: true,
+    //         members: true,
+    //         owner: true
+    //     }
+    // })
+    // console.log(projects);
+    // let requests = await prisma.joinRequest.findMany();
+    // console.log(requests);
 }
 
 main()
-  .catch((e) => {
-    console.error(e)
-    process.exit(1)
-  })
-  .finally(async () => {
-    // Disconnect Prisma Client
-    await prisma.$disconnect();
-  })
+    .catch((e) => {
+        console.error(e)
+        process.exit(1)
+    })
+    .finally(async () => {
+        // Disconnect Prisma Client
+        await prisma.$disconnect();
+    })
