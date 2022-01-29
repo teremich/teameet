@@ -1,7 +1,7 @@
 "use strict";
-import express from "express";
-import cors from "cors";
-import path from "path";
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
 
 class Server {
     constructor(database=null) {
@@ -48,4 +48,6 @@ class Server {
     }
 }
 
-module.exports = Server;
+module.exports = {
+    Server
+}

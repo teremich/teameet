@@ -1,5 +1,5 @@
 "use strict";
-import PrismaClient from '@prisma/client';
+const {PrismaClient} = require('@prisma/client');
 
 class Database{
     #prisma;
@@ -15,9 +15,9 @@ class Database{
             bio {???} // not nullable! pls empty Obj
         }
         **/
-        loop: while (true) {
+        loop: for (let i = 0; i < 0x1000000; i++) {
             try {
-                await this.#prisma.user.create({
+                const p = await this.#prisma.user.create({
                     data: {
                         uuid: Math.floor(Math.random()*0x100000000),
                         name: userdata.name,
@@ -26,22 +26,22 @@ class Database{
                         bio: userdata.bio
                     }
                 });
-                break loop;
+                return {code: 0, msg: "success", detail: p};
             } catch (e) {
                 if (e.code === "P2002") {
                     switch(e.meta.target[0]) {
                         case "uuid":
                             continue loop;
                         case "email":
-                            return 1
+                            return {code: 1, msg: "failure", detail: "duplicate email"}
                         default:
                             console.error(e);
-                            return 2
+                            return {code: 2, msg: "failure", detail: "unknown error, check console", value: e}
                     }
                 }
             }
         }
-        return 0;
+        return {code: 3, msg: "failure", detail: "0x1000000 userids checked, non were available"};
     }
     async updateUser(userId, data) {
         /**
@@ -53,8 +53,9 @@ class Database{
         **/
         let newData = data;
         for (let item of newData) {
-            if (item != "name" && item != "email" && item != "bio" && item != "additional") {
+            if (!(item in ["name", "email", "bio", "additional"])) {
                 delete newData[item]
+                console.warn("someone tried to update wrong data");
             }
         }
         if (newData)
@@ -170,4 +171,6 @@ class Database{
     }
 }
 
-module.exports = {Database};
+module.exports = {
+    Database
+}

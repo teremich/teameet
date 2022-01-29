@@ -1,13 +1,13 @@
 "use strict";
-import {PrismaClient, Prisma} from '@prisma/client';
-import {question} from "readline-sync";
+const {PrismaClient, Prisma} = require('@prisma/client');
+const {question} = require("readline-sync");
 
 const prisma = new PrismaClient()
 
 // A `main` function so that we can use async/await
 async function main() {
 //     console.warn('\x1b[31m%s\x1b[0m', 'You are deleting all data!');
-//     if (question("Are you sure? (Y/N)\n> ") != "Y") {
+//     if (readline.question("Are you sure? (Y/N)\n> ") != "Y") {
 //         process.exit(1);
 //     }
 //     await prisma.project.deleteMany({});
@@ -193,21 +193,24 @@ async function main() {
     // }
 
     // console.log(people);
-    try {
-        const newUser = await prisma.user.create({
-            data: {
-                uuid: Math.floor(Math.random()*0x100000000),
-                email: "987654321boom.s@gmail.com",
-                name: "newName",
-                bio: {},
-                passwordHash: "fsjakldfhasfjklskdajfFSDJKAFJASDFJSAD"
-            }
-        });
-        console.log("no error thrown");
-    } catch (e) {
-        console.log(e.meta, e.code === "P2002");
-        console.log("that was the error");
-    }
+    // try {
+    //     const newUser = await prisma.user.create({
+    //         data: {
+    //             uuid: Math.floor(Math.random()*0x100000000),
+    //             email: "987654321boom.s@gmail.com",
+    //             name: "newName",
+    //             bio: {},
+    //             passwordHash: "fsjakldfhasfjklskdajfFSDJKAFJASDFJSAD"
+    //         }
+    //     });
+    //     console.log("no error thrown");
+    // } catch (e) {
+    //     console.log(e.meta, e.code === "P2002");
+    //     console.log("that was the error");
+    // }
+
+    const Database = require("../modules/database");
+    Database
 
     // let users = await prisma.user.findMany({
     //     include: {
