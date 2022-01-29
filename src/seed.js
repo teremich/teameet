@@ -1,14 +1,13 @@
 "use strict";
-const PrismaClient = require('@prisma/client').PrismaClient;
-const Prisma = require('@prisma/client').Prisma;
-const readline = require("readline-sync");
+import {PrismaClient, Prisma} from '@prisma/client';
+import {question} from "readline-sync";
 
 const prisma = new PrismaClient()
 
 // A `main` function so that we can use async/await
 async function main() {
 //     console.warn('\x1b[31m%s\x1b[0m', 'You are deleting all data!');
-//     if (readline.question("Are you sure? (Y/N)\n> ") != "Y") {
+//     if (question("Are you sure? (Y/N)\n> ") != "Y") {
 //         process.exit(1);
 //     }
 //     await prisma.project.deleteMany({});
@@ -132,69 +131,83 @@ async function main() {
     //     await acceptJoinRequest(r);
     // }
 
-    const resp = await prisma.user.findUnique({
-        where: {
-            uuid: 1697772467
-        },
-        include: {
-            memberOf: {
-                select: {
-                    members: {
-                        where: {
-                            NOT: {
-                                uuid: 1697772467
-                            }
-                        }
-                    },
-                    owner: {
-                        select: {
-                            name: true,
-                            uuid: true
-                        }
-                    },
-                    id: true,
-                    name: true
-                }
-            },
-            ownerOf: {
-                select: {
-                    members: {
-                        select: {
-                            name: true,
-                            uuid: true
-                        }
-                    },
-                    owner: {
-                        select: {
-                            name: true,
-                            uuid: true
-                        }
-                    },
-                    id: true,
-                    name: true
-                }
+    // const resp = await prisma.user.findUnique({
+    //     where: {
+    //         uuid: 1697772467
+    //     },
+    //     include: {
+    //         memberOf: {
+    //             select: {
+    //                 members: {
+    //                     where: {
+    //                         NOT: {
+    //                             uuid: 1697772467
+    //                         }
+    //                     }
+    //                 },
+    //                 owner: {
+    //                     select: {
+    //                         name: true,
+    //                         uuid: true
+    //                     }
+    //                 },
+    //                 id: true,
+    //                 name: true
+    //             }
+    //         },
+    //         ownerOf: {
+    //             select: {
+    //                 members: {
+    //                     select: {
+    //                         name: true,
+    //                         uuid: true
+    //                     }
+    //                 },
+    //                 owner: {
+    //                     select: {
+    //                         name: true,
+    //                         uuid: true
+    //                     }
+    //                 },
+    //                 id: true,
+    //                 name: true
+    //             }
+    //         }
+    //     }
+    // });
+
+    // let people = {};
+    // for (let p of resp.memberOf) {
+    //     if (!(p.name in people)) {
+    //         people[p.name] = [];
+    //     }
+    //     people[p.name].push(p.owner);
+    //     people[p.name].push(...p.members);
+    // }
+    // for (let p of resp.ownerOf) {
+    //     if (!(p.name in people)) {
+    //         people[p.name] = [];
+    //     }
+    //     // people[p.name].push(p.owner);
+    //     people[p.name].push(...p.members);
+    // }
+
+    // console.log(people);
+    try {
+        const newUser = await prisma.user.create({
+            data: {
+                uuid: Math.floor(Math.random()*0x100000000),
+                email: "987654321boom.s@gmail.com",
+                name: "newName",
+                bio: {},
+                passwordHash: "fsjakldfhasfjklskdajfFSDJKAFJASDFJSAD"
             }
-        }
-    });
-
-    let people = {};
-    for (let p of resp.memberOf) {
-        if (!(p.name in people)) {
-            people[p.name] = [];
-        }
-        people[p.name].push(p.owner);
-        people[p.name].push(...p.members);
+        });
+        console.log("no error thrown");
+    } catch (e) {
+        console.log(e.meta, e.code === "P2002");
+        console.log("that was the error");
     }
-    for (let p of resp.ownerOf) {
-        if (!(p.name in people)) {
-            people[p.name] = [];
-        }
-        // people[p.name].push(p.owner);
-        people[p.name].push(...p.members);
-    }
-
-    console.log(people);
-
 
     // let users = await prisma.user.findMany({
     //     include: {

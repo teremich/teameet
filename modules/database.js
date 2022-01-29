@@ -1,5 +1,5 @@
 "use strict";
-const PrismaClient = require('@prisma/client').PrismaClient;
+import PrismaClient from '@prisma/client';
 
 class Database{
     #prisma;
@@ -15,15 +15,33 @@ class Database{
             bio {???} // not nullable! pls empty Obj
         }
         **/
-        return await this.#prisma.user.create({
-            data: {
-                uuid: Math.floor(Math.random()*0x100000000),
-                name: userdata.name,
-                email: userdata.email,
-                passwordHash: userdata.passwordHash,
-                bio: userdata.bio
+        loop: while (true) {
+            try {
+                await this.#prisma.user.create({
+                    data: {
+                        uuid: Math.floor(Math.random()*0x100000000),
+                        name: userdata.name,
+                        email: userdata.email,
+                        passwordHash: userdata.passwordHash,
+                        bio: userdata.bio
+                    }
+                });
+                break loop;
+            } catch (e) {
+                if (e.code === "P2002") {
+                    switch(e.meta.target[0]) {
+                        case "uuid":
+                            continue loop;
+                        case "email":
+                            return 1
+                        default:
+                            console.error(e);
+                            return 2
+                    }
+                }
             }
-        })
+        }
+        return 0;
     }
     async updateUser(userId, data) {
         /**

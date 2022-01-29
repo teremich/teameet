@@ -1,7 +1,7 @@
 "use strict";
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
+import express from "express";
+import cors from "cors";
+import path from "path";
 
 class Server {
     constructor(database=null) {
@@ -33,8 +33,6 @@ class Server {
 
     // Bind controllers to routes
     routes() {
-        this.app.use(this.paths.auth, require("../routes/auth"));
-        this.app.use(this.paths.homepage, require("../routes/homepage"));
         // Catch all requests that don't match any route
         this.app.get("*", (req, res) => {
             res.sendFile(
