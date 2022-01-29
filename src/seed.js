@@ -1,3 +1,4 @@
+"use strict";
 const PrismaClient = require('@prisma/client').PrismaClient;
 const Prisma = require('@prisma/client').Prisma;
 const readline = require("readline-sync");
@@ -133,7 +134,7 @@ async function main() {
 
     const resp = await prisma.user.findUnique({
         where: {
-            uuid: 1310344697
+            uuid: 1697772467
         },
         include: {
             memberOf: {
@@ -141,7 +142,7 @@ async function main() {
                     members: {
                         where: {
                             NOT: {
-                                uuid: 1310344697
+                                uuid: 1697772467
                             }
                         }
                     },
@@ -151,7 +152,8 @@ async function main() {
                             uuid: true
                         }
                     },
-                    id: true
+                    id: true,
+                    name: true
                 }
             },
             ownerOf: {
@@ -168,7 +170,8 @@ async function main() {
                             uuid: true
                         }
                     },
-                    id: true
+                    id: true,
+                    name: true
                 }
             }
         }
@@ -176,18 +179,18 @@ async function main() {
 
     let people = {};
     for (let p of resp.memberOf) {
-        if (!(p.id in people)) {
-            people[p.id] = [];
+        if (!(p.name in people)) {
+            people[p.name] = [];
         }
-        people[p.id].push(p.owner);
-        people[p.id].push(...p.members);
+        people[p.name].push(p.owner);
+        people[p.name].push(...p.members);
     }
     for (let p of resp.ownerOf) {
-        if (!(p.id in people)) {
-            people[p.id] = [];
+        if (!(p.name in people)) {
+            people[p.name] = [];
         }
-        // people[p.id].push(p.owner);
-        people[p.id].push(...p.members);
+        // people[p.name].push(p.owner);
+        people[p.name].push(...p.members);
     }
 
     console.log(people);
