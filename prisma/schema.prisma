@@ -2,51 +2,10 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url = env("DATABASE_URL")
-}
-
-model User{
-    uuid Int @id
-    name String @db.VarChar(63)
-    createdAt DateTime @default(now())
-    email String @unique
-    ownerOf Project[] @relation(name: "owner")
-    memberOf Project[] @relation(name: "members")
-    bannedFrom Project[] @relation(name: "ban")
-    joins joinRequest[]
-    passwordHash String
-    bio Json
-    additional Json?
-}
-
-model Project{
-    id Int @id @default(autoincrement())
-    ownerId Int
-    owner User @relation(name: "owner", references: [uuid], fields: [ownerId])
-    members User[] @relation(name: "members")
-    name String @db.VarChar(255)
-    description String
-    tasks Json
-    createdAt DateTime @default(now())
-    // links String[]
-    joinRequests joinRequest[]
-    details Json
-    additional Json?
-    banList User[] @relation(name: "ban")
-}
-
-model joinRequest{
-    senderId Int
-    sender User @relation(fields: [senderId], references: [uuid])
-    createdAt DateTime @default(now())
-    receiverId Int
-    receiver Project @relation(fields: [receiverId], references: [id])
-    message String
-    additional Json?
-    @@id([senderId, receiverId])
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
