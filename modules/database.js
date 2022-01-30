@@ -1,29 +1,32 @@
 "use strict";
 const {PrismaClient} = require('@prisma/client');
+const e = require('express');
 
 class Database{
-    #prisma;
+    prisma;
     constructor() {
-        this.#prisma = new PrismaClient();
+        this.prisma = new PrismaClient();
     }
     async addUser(userdata) {
         /**
         userdata={
-            name,
-            email,
-            passwordHash,
-            bio {???} // not nullable! pls empty Obj
+            name: String,
+            email: String,
+            passwordHash: String,
+            bio: Object // not nullable! pls empty Obj,
+            additional: Object?
         }
         **/
-        loop: for (let i = 0; i < 0x1000000; i++) {
+        for (let i = 0; i < 0x100; i++) {
             try {
-                const p = await this.#prisma.user.create({
+                const p = await this.prisma.user.create({
                     data: {
                         uuid: Math.floor(Math.random()*0x100000000),
                         name: userdata.name,
                         email: userdata.email,
                         passwordHash: userdata.passwordHash,
-                        bio: userdata.bio
+                        bio: userdata.bio,
+                        additional: userdata.additional
                     }
                 });
                 return {code: 0, msg: "success", detail: p};
@@ -31,43 +34,50 @@ class Database{
                 if (e.code === "P2002") {
                     switch(e.meta.target[0]) {
                         case "uuid":
-                            continue loop;
+                            break;
                         case "email":
                             return {code: 1, msg: "failure", detail: "duplicate email"}
                         default:
                             console.error(e);
-                            return {code: 2, msg: "failure", detail: "unknown error, check console", value: e}
+                            return {code: 2, msg: "failure", detail: "something duplicate, dont know what", value: e}
                     }
+                } else if (e.code === "P2000") {
+                    // console.log(e.meta);
+                    return {
+                        code: 4,
+                        msg: "failure",
+                        detail: `${e.meta.column_name} was too long, if not available it's the name`
+                    };
+                } else {
+                    throw e;
                 }
             }
         }
-        return {code: 3, msg: "failure", detail: "0x1000000 userids checked, non were available"};
+        return {code: 3, msg: "failure", detail: "0x100 userids checked, non were available"};
     }
     async updateUser(userId, data) {
         /**
         data={
             name,
             email,
-            bio
+            bio,
+            additional
         }
         **/
-        let newData = data;
-        for (let item of newData) {
-            if (!(item in ["name", "email", "bio", "additional"])) {
-                delete newData[item]
-                console.warn("someone tried to update wrong data");
+        return await this.prisma.user.update({
+            where: {
+                uuid: userId
+            },
+            data: {
+                name: data.name,
+                email: data.email,
+                bio: data.bio,
+                additional: data.additional
             }
-        }
-        if (newData)
-            return await this.#prisma.user.update({
-                where: {
-                    uuid: userId
-                },
-                data: newData
-            });
+        });
     }
     async changePassword(userId, newPasswordHash) {
-        return await this.#prisma.user.update({
+        return await this.prisma.user.update({
             where: {
                 uuid: userId
             },
@@ -77,14 +87,22 @@ class Database{
         });
     }
     async deleteUser(userId) {
-        return await this.#prisma.user.delete({
-            where: {
-                uuid: userId
+        try {
+            await this.prisma.user.delete({
+                where: {
+                    uuid: userId
+                }
+            });
+        } catch (e) {
+            if (e.code === "P2025") {
+                console.log("already deleted");
+            } else {
+                throw e;
             }
-        });
+        }
     }
     async makeJoinRequest(userId, projectId, msg) {
-        await this.#prisma.joinRequest.create({
+        await this.prisma.joinRequest.create({
             data: {
                 message: msg,
                 receiverId: projectId,
@@ -93,7 +111,7 @@ class Database{
         });
     }
     async acceptJoin(acceptedUserId, projectId) {
-        await this.#prisma.project.update({
+        await this.prisma.project.update({
             data: {
                 members: {
                     connect: {
@@ -105,7 +123,7 @@ class Database{
                 id: projectId
             }
         });
-        await this.#prisma.joinRequest.delete({
+        await this.prisma.joinRequest.delete({
             where: {
                 senderId_receiverId: {
                     receiverId: projectId,
@@ -115,7 +133,7 @@ class Database{
         });
     }
     async kickUser(kickedId, kickedFromId) {
-        await this.#prisma.user.update({
+        await this.prisma.user.update({
             where: {
                 uuid: kickedId
             },
@@ -129,7 +147,7 @@ class Database{
         });
     }
     async rejectJoin(acceptedUserId, projectId) {
-        await this.#prisma.joinRequest.delete({
+        await this.prisma.joinRequest.delete({
             where: {
                 senderId_receiverId: {
                     receiverId: projectId,
@@ -139,6 +157,9 @@ class Database{
         });
     }
     async ban(bannedId, bannedFromId) {
+
+    }
+    async unban(bannedId, bannedFromId) {
 
     }
     async makeProject() {
@@ -160,7 +181,7 @@ class Database{
 
     }
     async getBans(projectId) {
-        return (await this.#prisma.project.findUnique({
+        return (await this.prisma.project.findUnique({
             select: {
                 banList: true
             },

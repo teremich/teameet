@@ -1,12 +1,19 @@
 # Teameet
 
-description missing
+*description missing*
 
-<br>
+<br/>
 
-## TODO
+---
+
+## TODO:
 * [ ] write description
 * [ ] front end
 * [ ] API
 * [ ] back end
+    * [ ] routers
+    * [ ] controllers
+    * [ ] services
+    * [ ] integrate redis for authorization
+    * [X] set up redis for authorization
 * [X] model and set up Database

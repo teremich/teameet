@@ -2,6 +2,7 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const redis = require("redis");
 
 class Server {
     constructor(database=null) {
@@ -14,17 +15,18 @@ class Server {
         this.middlewares();
         this.routes();
         this.database = database;
+        this.redisClient = redis.createClient();
     }
 
     query(queryString) {
-        queryString = this.database.escape()
-
+        queryString = encodeURI(queryString)
     }
 
     middlewares() {
         this.app.use(cors());
         this.app.use(express.json());
-
+        // TODO: AUTHORIZATION
+        
         // Pick up React index.html file
         this.app.use(
             express.static(path.join(__dirname, "../client/build"))
@@ -34,14 +36,14 @@ class Server {
     // Bind controllers to routes
     routes() {
         // Catch all requests that don't match any route
-        this.app.get("*", (req, res) => {
+        this.app.get("/", (req, res) => {
             res.sendFile(
                 path.join(__dirname, "../client/build/index.html")
             );
         });
     }
 
-    listen() {
+    start() {
         this.app.listen(this.port, () => {
             console.log("Server running on port: ", this.port);
         });

@@ -209,8 +209,29 @@ async function main() {
     //     console.log("that was the error");
     // }
 
-    const Database = require("../modules/database");
-    Database
+    // const {Database} = require("../modules/database");
+    // const db = new Database();
+    // let newU = await db.addUser({
+    //     name: "Sehrgay",
+    //     email: "ok, some email",
+    //     passwordHash: "top secret",
+    //     bio: {}
+    // });
+    // newU = await db.deleteUser(380761544);
+    // newU = await db.deleteUser(380761544);
+    // if (newU.code) {
+    //     console.log(newU.detail);
+    //     process.exit(1);
+    // }
+    // const ret = await db.updateUser(-1050641144, {
+    //     email: "michi.tereschenko@gmail.com",
+    //     additional: {
+    //         "wow": true
+    //     },
+    //     forbidden: false,
+    //     passwordHash: "OHNO!ANYWAY."
+    // });
+    // console.log(ret);
 
     // let users = await prisma.user.findMany({
     //     include: {
