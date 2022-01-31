@@ -4,8 +4,12 @@ class Server{
     constructor() {
         this.database = new Database();
     }
-    middleware() {}
-    routes() {}
+    middleware() {
+
+    }
+    routes() {
+        
+    }
     start() {
         this.middleware();
         this.routes();

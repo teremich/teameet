@@ -1,3 +1,3 @@
-const {Server} = require("./models/server");
+const {Server} = require("./models/express");
 const s = new Server();
 s.start();
