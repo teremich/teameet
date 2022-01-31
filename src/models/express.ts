@@ -1,6 +1,6 @@
 const {Database} = require("./database");
 
-class Server{
+export class Server{
     constructor() {
         this.database = new Database();
     }
@@ -15,7 +15,3 @@ class Server{
         this.routes();
     }
 }
-
-module.exports = {
-    Server
-};
