@@ -1,18 +1,26 @@
-const client = require("redis").createClient();
-const auth = require("../controllers/auth");
-client.connect();
+import {createClient} from "redis";
+import { randomToken } from "../controllers/auth";
+const c = {client: createClient(), connected: false};
+// client.connected = false;
 
-async function getUser(token) {
-    return await client.get(token);
+export async function getUser(token: string): Promise<number | null> {
+    if (!c.connected) {
+        await c.client.connect();
+        c.connected = true;
+    }
+    const res = await c.client.get(token);
+    if (res === null) {
+        return null
+    }
+    return Number.parseInt(res);
 }
 
-async function setUser(userId, expiration) {
-    await client.set(userId, auth.randomToken(), {
-        EX: expiration
-    });
+export async function setUser(uuid: number): Promise<string> {
+    if (!c.connected) {
+        await c.client.connect();
+        c.connected = true;
+    }
+    const token = randomToken();
+    await c.client.set(token, uuid.toString());
+    return token;
 }
-
-module.exports = {
-    getUser,
-    setUser
-};
