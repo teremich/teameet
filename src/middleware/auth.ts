@@ -4,8 +4,7 @@ import {Request,  RequestHandler,  Response, NextFunction, } from "express-serve
 export {level};
 export function requireAuth(lvl: level): RequestHandler {
     return function(req: Request, res: Response, next: NextFunction): any | void {
-        console.log(req, req.cookies, "if req.cookies is undefinded please remove requireAuth function");
-        getUserLevel(req.cookies["userToken"], req.query["project"]?.toString()).then( userLevel => {
+        getUserLevel(req.cookies["AuthToken"], req.query["project"]?.toString()).then( userLevel => {
             if (lvl > userLevel) {
                 if (userLevel) {
                     _401(res);

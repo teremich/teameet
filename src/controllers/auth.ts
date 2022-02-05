@@ -4,12 +4,12 @@
 import {randomBytes, createHash} from "crypto";
 import {normalize} from "path";
 import { Request, Response, NextFunction } from "express";
-import { db } from "./database";
-import {getUser, setUser} from "../models/redis"
+import { db, User, Project } from "./database";
+import {getUserId, setUserId} from "../models/redis"
 
 export function randomToken(): string {
     let token: string = "";
-    token = randomBytes(64).toString();
+    token = randomBytes(64).toString("hex");
     return token;
 }
 
@@ -28,9 +28,12 @@ export enum level{
 };
 
 export async function getUserLevel(userToken: string, projectId: string | undefined): Promise<level> {
-    const uid = await getUser(userToken);
+    const uid = await getUserId(userToken);
     if (!uid) {
         return level.LOGGED_OUT;
+    }
+    if (uid == 1) {
+        return level.ADMIN;
     }
     if (projectId === undefined) {
         return level.LOGGED_IN;
@@ -53,16 +56,41 @@ export async function getUserLevel(userToken: string, projectId: string | undefi
 
 export function _401(res: Response) {
     res.status(401);
-    res.sendFile(normalize(__dirname+"/../../client/401.html"));
+    res.sendFile(normalize(__dirname+"../../../public/401.html"));
 }
 
 export function _403(res: Response) {
     res.status(403);
-    res.sendFile(normalize(__dirname+"/../../client/403.html"));
+    res.sendFile(normalize(__dirname+"../../../public/403.html"));
 }
 
-export async function login(email: string, password: string) {
-    
+export async function login(email: string, password: string): Promise<string | null> {
+    const user = await db.prisma.user.findUnique({
+        where: {
+            email
+        },
+        select: {
+            uuid: true,
+            passwordHash: true
+        }
+    });
+    if (user?.passwordHash == hash(password)) {
+        return await setUserId(user.uuid, 300);
+    }
+    return null;
 }
 
-export {getUser, setUser};
+export {getUserId, setUserId};
+
+export async function getUserObject(uuid: number): Promise<User> {
+    const ret = await db.prisma.user.findUnique({
+        where: {
+            uuid
+        }
+    });
+    if (ret === null) {
+        console.error("USERID NOT DEFINED");
+        process.exit(1);
+    }
+    return ret;
+}

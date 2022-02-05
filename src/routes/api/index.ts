@@ -2,7 +2,7 @@ import {Router, Request, Response, NextFunction} from "express";
 
 export const router = Router();
 
-router.route("/api")
+router.route("/")
     .get((req: Request, res: Response) => {
         res.send("get api");
     })

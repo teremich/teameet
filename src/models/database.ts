@@ -1,14 +1,14 @@
 "use strict";
-import {PrismaClient} from "@prisma/client";
+import {PrismaClient, User, Project} from "@prisma/client";
 import {hash} from "../controllers/auth"
-
+export {User, Project};
 export class Database{
     prisma: PrismaClient;
     constructor() {
         this.prisma = new PrismaClient();
     }
-    async isMember(userId: number, projectId: number) {
-        return userId in (await this.prisma.project.findUnique({
+    async isMember(userId: number, projectId: number): Promise<boolean> {
+        const members: {members: {uuid: number}[]} | null = (await this.prisma.project.findUnique({
             where: {
                 id: projectId,
             },
@@ -19,7 +19,13 @@ export class Database{
                     }
                 }
             }
-        })).members.values();
+        }))
+        if (!(members?.members)) {
+            return false;
+        }
+        return members.members.find((value, index, object) => {
+            return value.uuid == userId;
+        })?.uuid == userId;
     }
     async isOwner(userId: number, projectId: number) {
         return userId == (await this.prisma.project.findUnique({
@@ -29,18 +35,7 @@ export class Database{
             select: {
                 ownerId: true
             }
-        })).ownerId
-    }
-
-    async getHash(email: string) {
-        return (await this.prisma.user.findUnique({
-            where: {
-                email: email
-            },
-            select: {
-                passwordHash: true
-            }
-        })).passwordHash
+        }))?.ownerId
     }
 
     async createUser(detail: {bio: any, email: string, name: string, password: string}) {
@@ -50,7 +45,7 @@ export class Database{
                 email: detail.email,
                 name: detail.name,
                 passwordHash: hash(detail.password),
-                uuid: Math.floor(Math.random()*Number.MAX_SAFE_INTEGER)
+                uuid: Math.floor(Math.random()*0x100000000)
             },
             select: {
                 uuid: true
@@ -58,40 +53,23 @@ export class Database{
         })).uuid
     }
 
-    async seed(): Promise<boolean> {
-        const id: number = (await this.prisma.project.create({
+    async seed(): Promise<number> {
+        const a = await this.prisma.user.create({
             data: {
-                name: "awsome proj",
-                description: "",
-                details: {},
-                tasks: {},
-                owner: {
-                    create: {
-                        uuid: 471894,
-                        bio: {},
-                        email: "",
-                        passwordHash: "pwhash",
-                        name: "{}"
-                    }
-                }
-            }
-        })).id;
-        const a = await this.prisma.project.findUnique({
-            where: {
-                id
+                email: "someEmail@mail.test",
+                passwordHash: hash("bestPasswordInTheWorld"),
+                bio: {},
+                name: "my Name",
+                uuid: Math.floor(Math.random()*0x100000000)
             },
             select: {
-                members: {
-                    select: {
-                        uuid: true
-                    }
-                }
+                uuid: true
             }
         })
         if (a === null) {
             console.error("found nothing");
             process.exit(1);
         }
-        return 47238 in a.members.values();
+        return a.uuid;
     }
 }

@@ -26,7 +26,7 @@ export class Server{
             process.exit(1);
         }
         this.app.listen(this.PORT, () => {
-            console.info(`listening on port: ${this.PORT}`);
+            console.info(`listening on port http://teameet.localhost:${this.PORT}`);
         });
     }
 }
