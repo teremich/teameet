@@ -1,10 +1,8 @@
 "use strict"
-//TODO: difference between controllers/auth.ts and middleware/auth.ts?????
-// I think controllers can call redis and database functions, middleware can only call controllers/auth
 import {randomBytes, createHash} from "crypto";
 import {normalize} from "path";
 import { Request, Response, NextFunction } from "express";
-import { db, User, Project } from "./database";
+import { db, User, Project, statusCode} from "./database";
 import {getUserId, setUserId} from "../models/redis"
 
 export function randomToken(): string {
@@ -64,7 +62,23 @@ export function _403(res: Response) {
     res.sendFile(normalize(__dirname+"../../../public/403.html"));
 }
 
-export async function login(email: string, password: string): Promise<string | null> {
+export async function register(data: {email: string, password: string, bio: any, name: string, additional?: any}): Promise<{code: statusCode, token?: string}> {
+    // returns AuthToken or null when error
+    const newUser = await db.addUser({
+        email: data.email,
+        bio: data.bio,
+        name: data.name,
+        passwordHash: hash(data.password),
+        additional: data.additional
+    });
+    if (newUser.code != 0 || !newUser.value) {
+        console.error(newUser);
+        return {code: newUser.code};
+    }
+    return {code: newUser.code, token: await setUserId(newUser.value.uuid)};
+}
+
+export async function login(email: string, password: string): Promise<{token: string, uuid: number} | null> {
     const user = await db.prisma.user.findUnique({
         where: {
             email
@@ -75,7 +89,7 @@ export async function login(email: string, password: string): Promise<string | n
         }
     });
     if (user?.passwordHash == hash(password)) {
-        return await setUserId(user.uuid, 300);
+        return {token: await setUserId(user.uuid, 300), uuid: user.uuid};
     }
     return null;
 }
@@ -93,4 +107,14 @@ export async function getUserObject(uuid: number): Promise<User> {
         process.exit(1);
     }
     return ret;
+}
+// TODO make registration work
+export async function getCredsFromReq(req: Request): Promise<{email: string, password: string} | null> {
+    const email = req.body["email"];
+    const password = req.body["password"];
+    // const name 
+    if (!email || !password) {
+        return null;
+    }
+    return {email, password};
 }

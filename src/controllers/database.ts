@@ -1,4 +1,4 @@
-import {Database, User, Project} from "../models/database";
+import {Database, User, Project, statusCode} from "../models/database";
 
 export const db = new Database();
-export {User, Project};
+export {User, Project, statusCode};

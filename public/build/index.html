@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="UTF-16" />
+        <title>Teameet</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            h1 {
+                text-align: center;
+                text-decoration: underline;
+            }
+            #projectstable{
+                margin-left: 5vw;
+                padding: 0;
+            }
+            .projecttableheader{
+                text-align: left;
+            }
+            .projectrow{
+                width: 90vw;
+                height: 50pt;
+            }
+            .projectname{
+                width: 15vw;
+            }
+            .projectowner{
+                width: 15vw;
+            }
+            .projectdescription{
+                width: 30vw;
+            }
+            .projectlanguages{
+                width: 30vw;
+            }
+            .projectrow:hover{
+                background-color: #bebebe
+            }
+        </style>
+        <script>
+            function makeVisit(id) {
+                return () => {visit(id);};
+            }
+            function visit(project) {
+                window.location.href = "/project/?p="+project;
+            }
+            function getDataAndLogin() {
+                const pw = document.querySelector("#loginPassword").value;
+                const mail = document.querySelector("#loginEmail").value;
+                login(mail, pw, "/");
+            }
+            function login(mail, pw, redirect) {
+                fetch("/api/login", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: mail,
+                        password: pw
+                    })
+                }).then(j => j.json()).then(window.location.href = redirect);
+            }
+            (async () => {
+                const p = await fetch("/api/projects").then(r => r.json());
+                const projectList = p.body["projects"];
+                const table = document.querySelector("#projectstablebody");
+                const template = document.querySelector("#projecttemplate");
+                projectList.forEach(project => {
+                    let clone = document.importNode(template.content, true);
+                    clone.querySelector(".projectname").innerText = project.name;
+                    clone.querySelector(".projectowner").innerText = project.owner;
+                    clone.querySelector(".projectdescription").innerText = project.description;
+                    clone.querySelector(".projectlanguages").innerText = project.languages;
+                    clone.querySelector(".projectrow").onclick = makeVisit(project.id);
+                    table.appendChild(clone);
+                });
+                document.querySelector("#loginButton").addEventListener("onsubmit", event => {
+                    event.preventDefault();
+                });
+                document.querySelector("#loginButton").addEventListener("onclick", event => {
+                    event.preventDefault();
+                });
+            })();
+        </script>
+    </head>
+    <body>
+        <head>
+            <h1>Welcome to Teameet</h1>
+        </head>
+        <main>
+            <div id="main">
+                <div id="projectsdiv">
+                    <span id="projectsheading">Projects: </span>
+                    <div id="projectscontainer">
+                        <table id="projectstable">
+                            <tbody id="projectstablebody">
+                                <tr id="projectsrowheader">
+                                    <th class="projecttableheader projectname">Name</th>
+                                    <th class="projecttableheader projectowner">Owner</th>
+                                    <th class="projecttableheader projectdescription">Description</th>
+                                    <th class="projecttableheader projectlanguages">Languages</th>
+                                </tr>
+                            </tbody>
+                            <template id="projecttemplate">
+                                <tr class="projectrow">
+                                    <td class="projectcolumn projectname"></td>
+                                    <td class="projectcolumn projectowner"></td>
+                                    <td class="projectcolumn projectdescription"></td>
+                                    <td class="projectcolumn projectlanguages"></td>
+                                </tr>
+                            </template>
+                        </table>
+                    </div>
+                </div>
+                <!-- <form> -->
+                    <input id="loginEmail" type="text" placeholder="e-Mail" name="email" />
+                    <input id="loginPassword" type="password" placeholder="password" name="password">
+                    <button id="loginButton" onclick="getDataAndLogin()">log in</button>
+                <!-- </form> -->
+            </div>
+        </main>
+    </body>
+
+</html>
