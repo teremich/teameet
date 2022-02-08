@@ -4,6 +4,7 @@ import express from "express";
 import {router} from "../routes";
 import CookieParser from "cookie-parser";
 import bodyParser from "body-parser";
+import {normalize} from "path";
 
 export class Server{
     app: express.Express;
@@ -15,6 +16,7 @@ export class Server{
     middleware() {
         this.app.use(CookieParser());
         this.app.use(express.json());
+        this.app.use(express.static(normalize(__dirname + "/../../public")));
         this.app.use(bodyParser.json());
     }
     routes() {
