@@ -3,7 +3,9 @@ import {randomBytes, createHash} from "crypto";
 import {normalize} from "path";
 import { Request, Response, NextFunction } from "express";
 import { db, User, Project, statusCode} from "./database";
-import {getUserId, setUserId} from "../models/redis"
+import {getUserId, setUserId} from "../models/redis";
+
+export const BUILD_ROUTE = normalize(__dirname + "/../../public/build");
 
 export function randomToken(): string {
     let token: string = "";
@@ -30,9 +32,7 @@ export async function getUserLevel(userToken: string, projectId: string | undefi
     if (!uid) {
         return level.LOGGED_OUT;
     }
-    if (uid == 1) {
-        return level.ADMIN;
-    }
+    // TODO: admin
     if (projectId === undefined) {
         return level.LOGGED_IN;
     }
@@ -40,9 +40,9 @@ export async function getUserLevel(userToken: string, projectId: string | undefi
     try{
         pid = Number.parseInt(projectId);
     } catch (e) {
-        console.error(e);
-        process.exit(1);
+        return level.LOGGED_IN;
     }
+    // TODO
     // if (await db.isMember(uid, pid)) {
     //     return level.MEMBER;
     // }
@@ -54,12 +54,12 @@ export async function getUserLevel(userToken: string, projectId: string | undefi
 
 export function _401(res: Response) {
     res.status(401);
-    res.sendFile(normalize(__dirname+"../../../public/401.html"));
+    res.sendFile(BUILD_ROUTE + "/401.html");
 }
 
 export function _403(res: Response) {
     res.status(403);
-    res.sendFile(normalize(__dirname+"../../../public/403.html"));
+    res.sendFile(BUILD_ROUTE + "/403.html");
 }
 
 export async function register(data: {email: string, password: string, bio: any, name: string, additional?: any}): Promise<{code: statusCode, token?: string}> {
@@ -72,7 +72,6 @@ export async function register(data: {email: string, password: string, bio: any,
         additional: data.additional
     });
     if (newUser.code != 0 || !newUser.value) {
-        console.error(newUser);
         return {code: newUser.code};
     }
     return {code: newUser.code, token: await setUserId(newUser.value.uuid)};
@@ -109,12 +108,12 @@ export async function getUserObject(uuid: number): Promise<User> {
     return ret;
 }
 // TODO make registration work
-export async function getCredsFromReq(req: Request): Promise<{email: string, password: string} | null> {
+export async function getCredsFromReq(req: Request): Promise<{email: string, password: string, name: string} | null> {
     const email = req.body["email"];
     const password = req.body["password"];
-    // const name 
+    const name = req.body["name"];
     if (!email || !password) {
         return null;
     }
-    return {email, password};
+    return {email, password, name};
 }

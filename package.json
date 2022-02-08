@@ -1,6 +1,6 @@
 {
-  "name": "teameetneustart",
-  "version": "1.0.0",
+  "name": "teameet",
+  "version": "0.1.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {

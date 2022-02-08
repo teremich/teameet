@@ -67,7 +67,7 @@
                 }).then(j => j.json()).then(window.location.href = redirect);
             }
             (async () => {
-                const p = await fetch("/api/projects").then(r => r.json());
+                const p = await fetch("/api/projects");
                 const projectList = p.body["projects"];
                 const table = document.querySelector("#projectstablebody");
                 const template = document.querySelector("#projecttemplate");
@@ -118,11 +118,17 @@
                         </table>
                     </div>
                 </div>
-                <!-- <form> -->
-                    <input id="loginEmail" type="text" placeholder="e-Mail" name="email" />
-                    <input id="loginPassword" type="password" placeholder="password" name="password">
-                    <button id="loginButton" onclick="getDataAndLogin()">log in</button>
-                <!-- </form> -->
+                <div id="login"></div>
+                <script>
+                    const loginInput = '<input id="loginEmail" type="text" placeholder="e-Mail" name="email" />\
+                    <input id="loginPassword" type="password" placeholder="password" name="password">\
+                    <button id="loginButton" onclick="getDataAndLogin()">log in</button>'
+                    fetch("/login").then(r => {
+                        if (r.status != 200) {
+                            document.querySelector("#login").innerHTML = loginInput;
+                        }
+                    });
+                </script>
             </div>
         </main>
     </body>
