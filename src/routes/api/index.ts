@@ -1,8 +1,12 @@
 import {Router, Request, Response, NextFunction} from "express";
 import { requireAuth, level } from "../../middleware/auth";
 import {getProjects} from "../../controllers/database"
+import * as auth from "../auth"
 
 export const router = Router();
+
+// /login /register
+router.use(auth.router);
 
 router.route("/")
     .all(requireAuth(level.ADMIN))
