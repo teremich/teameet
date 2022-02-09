@@ -14,6 +14,7 @@ export function randomToken(): string {
 }
 
 export function hash(password: string): string {
+    // TODO: salt and pepper
     const hash = createHash("SHA256");
     hash.update(password);
     return hash.digest("hex");

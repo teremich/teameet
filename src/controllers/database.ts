@@ -1,4 +1,4 @@
-import {Database, User, Project, statusCode} from "../models/database";
+import {Database} from "../models/database";
 
 export const db = new Database();
 export type proj = {id: number, name: string, owner: string, description: string, languages?: string, additional?: any};
@@ -31,4 +31,4 @@ export async function getProjects(): Promise<proj[]> {
     return resList;
 }
 
-export {User, Project, statusCode};
+export {User, Project, statusCode} from "../models/database";
