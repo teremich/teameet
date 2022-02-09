@@ -1,6 +1,6 @@
 "use strict";
-import {PrismaClient, User, Project} from "@prisma/client";
-import { PrismaClientUnknownRequestError } from "@prisma/client/runtime";
+import {PrismaClient, User, Project, Prisma} from "@prisma/client";
+export type JsonObject = Prisma.JsonObject;
 import {hash} from "../controllers/auth"
 export {User, Project};
 

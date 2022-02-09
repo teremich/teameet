@@ -4,27 +4,30 @@ import { statusCode } from "../../controllers/database";
 export const router = Router();
 
 router.route("/login")
+    // sets a variable if user is already logged in
     .all((req, res, next) => {
         getUserId(req.cookies["AuthToken"]).then(id => {
             // if user is logged in useruuid is not null
-            req["useruuid"] = id;
+            (req as any)["useruuid"] = id;
             next();
         });
     })
+    // returns whether you're already loggeed in
     .get((req, res) => {
-        if (req["useruuid"] !== null) {
-            res.json({status: 200, body: {id: req["useruuid"]}});
+        if ((req as any)["useruuid"] !== null) {
+            res.json({status: 200, body: {id: (req as any)["useruuid"]}});
         } else {
             res.json({status: 401})
         }
     })
+    // logs you in
     .post((req, res) => {
-        // if logged in
-        if (req["useruuid"] !== null) {
+        // if logged in send current user id
+        if ((req as any)["useruuid"] !== null) {
             res.json({
                 status:200,
                 body: {
-                    id: req["useruuid"]
+                    id: (req as any)["useruuid"]
                 }
             });
         } else {
@@ -63,7 +66,7 @@ router.route("/login")
 // TODO
 router.post("/register", (req, res) => {
     getUserId(req.cookies["AuthToken"]).then(r => {
-        // if logged in
+        // if logged in send current user id
         if (r !== null) {
             res.json({
                 status:200,

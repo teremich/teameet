@@ -1,9 +1,9 @@
-import {Database} from "../models/database";
+import {Database, JsonObject} from "../models/database";
 
 export const db = new Database();
 export type proj = {id: number, name: string, owner: string, description: string, languages?: string, additional?: any};
 export async function getProjects(): Promise<proj[]> {
-    let resList: proj[];
+    let resList: proj[] = [];
     const res = await db.prisma.project.findMany({
         select: {
             additional: true,
@@ -25,7 +25,7 @@ export async function getProjects(): Promise<proj[]> {
             owner: item.owner.name,
             additional: item.additional,
             description: item.description,
-            languages: item.details.valueOf()["languages"].toString(),
+            languages: ((item.details as JsonObject)["languages"] as string[] | undefined)?.join(", ") ?? "",
         });
     });
     return resList;

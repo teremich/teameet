@@ -18,13 +18,10 @@
             #projectstable{
                 margin-left: 5vw;
                 padding: 0;
+                table-layout: fixed;
             }
             .projecttableheader{
                 text-align: left;
-            }
-            .projectrow{
-                width: 90vw;
-                height: 50pt;
             }
             .projectname{
                 width: 15vw;
@@ -40,6 +37,15 @@
             }
             .projectrow:hover{
                 background-color: #bebebe
+            }
+            .projectrow{
+                width: 90vw;
+                height: 50px;
+            }
+            .projectcolumndiv{
+                max-height: 50px;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
         </style>
         <script>
@@ -64,10 +70,17 @@
                         email: mail,
                         password: pw
                     })
-                }).then(j => j.json()).then(window.location.href = redirect);
+                }).then(r => r.json()).then(r => {
+                    if (r.status == 200) {
+                        window.location.href = redirect;
+                    } else {
+                        document.writeln("there has been a problem with your login\n\
+probably your username and/or password was incorrect");
+                    }
+                });
             }
             (async () => {
-                const p = await fetch("/api/projects");
+                const p = await fetch("/api/projects").then(r => r.json());
                 const projectList = p.body["projects"];
                 const table = document.querySelector("#projectstablebody");
                 const template = document.querySelector("#projecttemplate");
@@ -80,10 +93,10 @@
                     clone.querySelector(".projectrow").onclick = makeVisit(project.id);
                     table.appendChild(clone);
                 });
-                document.querySelector("#loginButton").addEventListener("onsubmit", event => {
+                document.querySelector("#loginButton")?.addEventListener("onsubmit", event => {
                     event.preventDefault();
                 });
-                document.querySelector("#loginButton").addEventListener("onclick", event => {
+                document.querySelector("#loginButton")?.addEventListener("onclick", event => {
                     event.preventDefault();
                 });
             })();
@@ -101,29 +114,37 @@
                         <table id="projectstable">
                             <tbody id="projectstablebody">
                                 <tr id="projectsrowheader">
-                                    <th class="projecttableheader projectname">Name</th>
-                                    <th class="projecttableheader projectowner">Owner</th>
-                                    <th class="projecttableheader projectdescription">Description</th>
-                                    <th class="projecttableheader projectlanguages">Languages</th>
+                                    <th class="projecttableheader projectname">name</th>
+                                    <th class="projecttableheader projectowner">owner</th>
+                                    <th class="projecttableheader projectdescription">description</th>
+                                    <th class="projecttableheader projectlanguages">technologies</th>
                                 </tr>
                             </tbody>
                             <template id="projecttemplate">
                                 <tr class="projectrow">
-                                    <td class="projectcolumn projectname"></td>
-                                    <td class="projectcolumn projectowner"></td>
-                                    <td class="projectcolumn projectdescription"></td>
-                                    <td class="projectcolumn projectlanguages"></td>
+                                    <td class="projectcolumn">
+                                        <div class="projectcolumndiv projectname"></div>
+                                    </td>
+                                    <td class="projectcolumn">
+                                        <div class="projectcolumndiv projectowner"></div>
+                                    </td>
+                                    <td class="projectcolumn">
+                                        <div class="projectcolumndiv projectdescription"></div>
+                                    </td>
+                                    <td class="projectcolumn">
+                                        <div class="projectcolumndiv projectlanguages"></div>
+                                    </td>
                                 </tr>
                             </template>
                         </table>
                     </div>
                 </div>
                 <div id="login"></div>
-                <script>
+                <script defer>
                     const loginInput = '<input id="loginEmail" type="text" placeholder="e-Mail" name="email" />\
                     <input id="loginPassword" type="password" placeholder="password" name="password">\
                     <button id="loginButton" onclick="getDataAndLogin()">log in</button>'
-                    fetch("/login").then(r => {
+                    fetch("/api/login").then(r => r.json()).then(r => {
                         if (r.status != 200) {
                             document.querySelector("#login").innerHTML = loginInput;
                         }
