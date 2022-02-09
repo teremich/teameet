@@ -25,7 +25,7 @@ export async function getProjects(): Promise<proj[]> {
             owner: item.owner.name,
             additional: item.additional,
             description: item.description,
-            languages: item.details["languages"].toString(),
+            languages: item.details.valueOf()["languages"].toString(),
         });
     });
     return resList;

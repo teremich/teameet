@@ -6,6 +6,7 @@ export const router = Router();
 router.route("/login")
     .all((req, res, next) => {
         getUserId(req.cookies["AuthToken"]).then(id => {
+            // if user is logged in useruuid is not null
             req["useruuid"] = id;
             next();
         });
