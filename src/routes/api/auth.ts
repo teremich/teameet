@@ -1,6 +1,6 @@
 import {Router} from "express";
-import {getUserId, getCredsFromReq, login, register}  from "../controllers/auth";
-import { statusCode } from "../controllers/database";
+import {getUserId, getCredsFromReq, login, register}  from "../../controllers/auth";
+import { statusCode } from "../../controllers/database";
 export const router = Router();
 
 router.route("/login")
