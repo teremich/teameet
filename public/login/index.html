@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-16" />
+        <title>Login | Teameet</title>
+        <style>
+            #loginfailed{
+                color: red;
+                display: none;
+                width: fit-content;
+            }
+            #loginfailed:hover{
+                cursor: text;
+            }
+            input{
+                margin-bottom: 20px;
+            }
+        </style>
+        <script>
+            (function(){
+                fetch("/api/login").then(r => r.json()).then(res => {
+                    if (res.status == 200) {
+                        location.href = "/"
+                    }
+                });
+            })();
+            function login() {
+                fetch("/api/login", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: document.querySelector("#email").value,
+                        password: document.querySelector("#password").value
+                    })
+                }).then(r => r.json()).then(res => {
+                    if (res.status == 200) {
+                        location.href = "/"
+                    } else {
+                        document.querySelector("#loginfailed").style.display = "block";
+                    }
+                });
+            }
+        </script>
+    </head>
+    <body>
+        <header>
+            <h1>login to Teameet accout</h1>
+        </header>
+        <main>
+            <input id="email" placeholder="E-Mail" type="email" />
+            <br />
+            <input id="password" placeholder="Password" type="password" />
+            <br />
+            <button onclick="login()">Log In</button>
+            <p>
+                <span id="loginfailed">You typed in the wrong E-Mail or Password</span>
+            </p>
+        </main>
+    </body>
+</html>
