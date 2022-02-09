@@ -1,0 +1,17 @@
+{
+  "name": "view",
+  "version": "0.1.0",
+  "description": "the front end for teameet",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "vue": "^3.2.30"
+  },
+  "devDependencies": {
+    "@vue/cli": "^4.5.15"
+  }
+}

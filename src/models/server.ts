@@ -16,7 +16,6 @@ export class Server{
         this.app.use(CookieParser());
         this.app.use(express.urlencoded({extended: true}));
         this.app.use(express.json());
-        this.app.use(express.static(normalize(__dirname + "/../../public")));
     }
     routes() {
         this.app.use("/", router);

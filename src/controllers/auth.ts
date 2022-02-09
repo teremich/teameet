@@ -4,8 +4,7 @@ import {normalize} from "path";
 import { Request, Response, NextFunction } from "express";
 import { db, User, Project, statusCode} from "./database";
 import {getUserId, setUserId} from "../models/redis";
-
-export const BUILD_ROUTE = normalize(__dirname + "/../../public/build");
+import {BUILD_ROUTE} from "./views"
 
 export function randomToken(): string {
     let token: string = "";

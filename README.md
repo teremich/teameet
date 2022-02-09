@@ -1,7 +1,7 @@
 # Teameet
 
 TODO:
-- Front end (at least route structure)
+- Front end (watch a Vue tutorial god dammit)
 - testing user crud
 - making project crud
 - joining projects
