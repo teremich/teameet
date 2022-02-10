@@ -61,7 +61,7 @@
                 return () => {visit(id);};
             }
             function visit(project) {
-                window.location.href = "/project/?p="+project;
+                window.location.href = "/project/?id="+project;
             }
             function getDataAndLogin() {
                 const pw = document.querySelector("#loginPassword").value;
@@ -163,7 +163,7 @@ probably your username and/or password was incorrect");
                             document.querySelector("#login").style.display = "";
                         } else {
                             let element = document.querySelector("#profile");
-                            element.href = "/profile?id="+r.body.id
+                            element.href = "/profile/?id="+r.body.id
                             element.style.display = "";
                         }
                     });
