@@ -1,0 +1,22 @@
+
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    --primary-color: #ccd3e9;
+    color: var(--primary-color);
+    --secondary-color: #2c2727;
+    background-color: var(--secondary-color);
+}
+.account{
+    position: fixed;
+    right: 50px;
+    top: 20px;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    padding: 0.4rem;
+}
+a.account{
+    text-decoration: none;
+}
