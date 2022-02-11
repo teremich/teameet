@@ -23,8 +23,13 @@ router.route("/")
         res.send("delete api");
     });
 
-router.get("/projects", (req, res) => {
-    getProjects().then(projects => {
+router.route("/project").get((req, res) => {
+    const ids = req.query["id"];
+    let idn: number | undefined;
+    if (ids instanceof String) {
+        idn = Number.parseInt(<string>ids);
+    }
+    getProjects({id: idn}).then(projects => {
         res.json({
             status: 200,
             body: {

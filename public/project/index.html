@@ -1,4 +1,61 @@
-<script>
-    let params = new URLSearchParams(document.location.search);
-    document.write(params.get("id"));
-</script>
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-16">
+        <title> | Teameet</title>
+        <link rel="stylesheet" href="/globalstyle.css" />
+        <script>
+            let params = new URLSearchParams(document.location.search);
+            // document.write(params.get("id"));
+            let PROJECT;
+            fetch("/api/project?id="+ params.get("id")).then(r => r.json()).then(res => {
+                if (res.status != 200) {
+                    console.error(res);
+                    return;
+                }
+                // document.write(res.body.projects[0].description);
+                PROJECT = res.body.projects[0];
+                document.title = PROJECT.name + document.title
+                main();
+            });
+        </script>
+    </head>
+    <body>
+        <header>
+            <h2><span id="name"></span></h2>
+        </header>
+        <main>
+            <div>
+                <p id="description"></p>
+            </div>
+            <div>
+                <p>
+                    <a class="account" id="login" style="display:none;" href='/login'>login</a>
+                    <!--<button onclick="location.href = '/login'">login</button>-->
+                </p>
+                <p>
+                    <a class="account" id="profile" style="display:none;"></a>
+                    <!--<button onclick="location.href = '/login'">login</button>-->
+                </p>
+            </div>
+        </main>
+        <footer>
+            <script>
+                function main() {
+                    document.querySelector("#name").innerText = PROJECT.name;
+                    document.querySelector("#description").innerText = PROJECT.description;
+                }
+                fetch("/api/login").then(r => r.json()).then(r => {
+                    if (r.status != 200) {
+                        document.querySelector("#login").style.display = "";
+                    } else {
+                        let element = document.querySelector("#profile");
+                        element.href = "/profile/?id=" + r.body.uuid;
+                        element.style.display = "";
+                        element.innerText = r.body.name;
+                    }
+                });
+            </script>
+        </footer>
+    </body>
+</html>

@@ -1,5 +1,5 @@
 import {Router} from "express";
-import {getUserId, getCredsFromReq, login, register}  from "../../controllers/auth";
+import {getUserId, getCredsFromReq, login, register, getUserObject}  from "../../controllers/auth";
 import { statusCode } from "../../controllers/database";
 export const router = Router();
 
@@ -15,7 +15,9 @@ router.route("/login")
     // returns whether you're already loggeed in
     .get((req, res) => {
         if ((req as any)["useruuid"] !== null) {
-            res.json({status: 200, body: {id: (req as any)["useruuid"]}});
+            getUserObject((req as any)["useruuid"]).then(user => {
+                res.json({status: 200, body: user});
+            });
         } else {
             res.json({status: 401})
         }
@@ -50,7 +52,7 @@ router.route("/login")
                                 }
                             });
                         } else {
-                            res.cookie("AuthToken", loginRes.token);
+                            res.cookie("AuthToken", loginRes.token, {maxAge: 0x2932e00/*12 Hours*/});
                             res.json({
                                 status: 200,
                                 body: {

@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-16" />
         <title>Login | Teameet</title>
+        <link rel="stylesheet" href="/globalstyle.css" />
         <style>
             #loginfailed{
                 color: red;
@@ -14,6 +15,16 @@
             }
             input{
                 margin-bottom: 20px;
+            }
+            header{
+                margin-left: 20vw;
+                margin-bottom: 10vh;
+            }
+            main{
+                margin-left: 10vw;
+            }
+            input{
+                
             }
         </style>
         <script>
@@ -49,14 +60,16 @@
             <h1>login to Teameet accout</h1>
         </header>
         <main>
-            <input id="email" placeholder="E-Mail" type="email" />
-            <br />
-            <input id="password" placeholder="Password" type="password" />
-            <br />
-            <button onclick="login()">Log In</button>
-            <p>
-                <span id="loginfailed">You typed in the wrong E-Mail or Password</span>
-            </p>
+            <form>
+                <input id="email" placeholder="E-Mail" type="email" />
+                <br />
+                <input id="password" placeholder="Password" type="password" />
+                <br />
+                <button type="submit" onclick="login()">Log In</button>
+                <p>
+                    <span id="loginfailed">You typed in the wrong E-Mail or Password</span>
+                </p>
+            </form>
         </main>
     </body>
 </html>

@@ -1,6 +1,6 @@
 "use strict"
 import {randomBytes, createHash} from "crypto";
-import {normalize} from "path";
+import {Prisma} from "@prisma/client";
 import { Request, Response, NextFunction } from "express";
 import { db, User, Project, statusCode} from "./database";
 import {getUserId, setUserId} from "../models/redis";
@@ -88,17 +88,30 @@ export async function login(email: string, password: string): Promise<{token: st
         }
     });
     if (user?.passwordHash == hash(password)) {
-        return {token: await setUserId(user.uuid, 300), uuid: user.uuid};
+        return {token: await setUserId(user.uuid), uuid: user.uuid};
     }
     return null;
 }
 
 export {getUserId, setUserId};
 
-export async function getUserObject(uuid: number): Promise<User> {
+export async function getUserObject(uuid: number): Promise<{
+    uuid: number;
+    name: string;
+    email: string;
+    bio: Prisma.JsonValue;
+    additional: Prisma.JsonValue;
+}> {
     const ret = await db.prisma.user.findUnique({
         where: {
             uuid
+        },
+        select: {
+            additional: true,
+            bio: true,
+            email: true,
+            name: true,
+            uuid: true
         }
     });
     if (ret === null) {

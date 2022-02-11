@@ -2,9 +2,12 @@ import {Database, JsonObject} from "../models/database";
 
 export const db = new Database();
 export type proj = {id: number, name: string, owner: string, description: string, languages?: string, additional?: any};
-export async function getProjects(): Promise<proj[]> {
+export async function getProjects(where?: {id: number | undefined}): Promise<proj[]> {
     let resList: proj[] = [];
     const res = await db.prisma.project.findMany({
+        where: {
+            id: where?.id
+        },
         select: {
             additional: true,
             description: true,
