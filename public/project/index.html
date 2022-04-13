@@ -1,23 +1,26 @@
 <!DOCTYPE html>
-    <html lang="en">
+<html lang="de">
     <head>
-        <meta charset="UTF-16">
-        <title> | Teameet</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" integrity="sha512-EZLkOqwILORob+p0BXZc+Vm3RgJBOe1Iq/0fiI7r/wJgzOFZMlsqTa29UEl6v6U6gsV4uIpsNZoV32YZqrCRCQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <meta charset="UTF-8">
+        <title>| Teameet</title>
         <link rel="stylesheet" href="/globalstyle.css" />
         <script>
             let params = new URLSearchParams(document.location.search);
             // document.write(params.get("id"));
             let PROJECT;
-            fetch("/api/project?id="+ params.get("id")).then(r => r.json()).then(res => {
-                if (res.status != 200) {
-                    console.error(res);
-                    return;
-                }
-                // document.write(res.body.projects[0].description);
-                PROJECT = res.body.projects[0];
-                document.title = PROJECT.name + document.title
-                main();
-            });
+            if (params.get("id")) {
+                fetch("/api/project?id="+ params.get("id")).then(r => r.json()).then(res => {
+                    if (res.status != 200) {
+                        console.error(res);
+                        return;
+                    }
+                    // document.write(res.body.projects[0].description);
+                    PROJECT = res.body.projects[0];
+                    document.title = `${PROJECT.name} ${document.title}`
+                    main();
+                });
+            }
         </script>
     </head>
     <body>
@@ -30,7 +33,7 @@
             </div>
             <div>
                 <p>
-                    <a class="account" id="login" style="display:none;" href='/login'>login</a>
+                    <a class="account" id="login" style="display:none;">login</a>
                     <!--<button onclick="location.href = '/login'">login</button>-->
                 </p>
                 <p>
@@ -41,6 +44,7 @@
         </main>
         <footer>
             <script>
+                document.querySelector("#login").href = '/login?ref='+ encodeURI("/project/?id=" + params.get("id"));
                 function main() {
                     document.querySelector("#name").innerText = PROJECT.name;
                     document.querySelector("#description").innerText = PROJECT.description;

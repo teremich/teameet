@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-16" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" integrity="sha512-EZLkOqwILORob+p0BXZc+Vm3RgJBOe1Iq/0fiI7r/wJgzOFZMlsqTa29UEl6v6U6gsV4uIpsNZoV32YZqrCRCQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <meta charset="UTF-8" />
         <title>Login | Teameet</title>
         <link rel="stylesheet" href="/globalstyle.css" />
         <style>
@@ -24,14 +25,16 @@
                 margin-left: 10vw;
             }
             input{
-                
+                font-size: large;
             }
         </style>
         <script>
             (function(){
+                let params = new URLSearchParams(document.location.search);
+                window.referer = decodeURI(params.get("ref"));
                 fetch("/api/login").then(r => r.json()).then(res => {
                     if (res.status == 200) {
-                        location.href = "/"
+                        location.href = referer || "/";
                     }
                 });
             })();
@@ -47,7 +50,7 @@
                     })
                 }).then(r => r.json()).then(res => {
                     if (res.status == 200) {
-                        location.href = "/"
+                        location.href = referer || "/";
                     } else {
                         document.querySelector("#loginfailed").style.display = "block";
                     }
@@ -57,7 +60,7 @@
     </head>
     <body>
         <header>
-            <h1>login to Teameet accout</h1>
+            <h1>login to your Teameet accout</h1>
         </header>
         <main>
             <form>
@@ -71,5 +74,10 @@
                 </p>
             </form>
         </main>
+        <script>
+            document.addEventListener("submit", event => {
+                event.preventDefault();
+            });
+        </script>
     </body>
 </html>
