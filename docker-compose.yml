@@ -16,5 +16,16 @@ services:
     ports:
       - '5432:5432'
 
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - redis:/var/lib/redis/data
+
 volumes:
   postgres:
+  redis:
+    driver: local
