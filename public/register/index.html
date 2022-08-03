@@ -24,22 +24,14 @@
         }
     </style>
     <script>
-        (function () {
-            let params = new URLSearchParams(document.location.search);
-            window.referer = decodeURI(params.get("ref"));
-            // fetch("/api/login").then(r => r.json()).then(res => {
-            //     if (res.status == 200) {
-            //         location.href = referer || "/";
-            //     }
-            // });
-        })();
-        function login() {
-            fetch("/api/login", {
+        function register() {
+            fetch("/api/register", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
+                    name: document.querySelector("#name").value,
                     email: document.querySelector("#email").value,
                     password: document.querySelector("#password").value
                 })
@@ -47,7 +39,8 @@
                 if (res.status == 200) {
                     location.href = referer || "/";
                 } else {
-                    document.querySelector("#loginfailed").style.display = "block";
+                    document.querySelector(".failed").style.display = "block";
+                    document.querySelector("#failed").innerHTML += `<span class="failed">${res.body}</span>`
                 }
             });
         }
@@ -56,17 +49,19 @@
 
 <body>
     <header>
-        <h1>login to your Teameet accout</h1>
+        <h1>Register a new Teameet accout</h1>
     </header>
     <main>
         <form>
+            <input id="name" placeholder="Name" type="text" />
+            <br />
             <input id="email" placeholder="E-Mail" type="email" />
             <br />
             <input id="password" placeholder="Password" type="password" />
             <br />
-            <button type="submit" onclick="login()">Log In</button>
-            <p>
-                <span class="failed" id="loginfailed">You typed in the wrong E-Mail or Password</span>
+            <button type="submit" onclick="register()">Register Now</button>
+            <p id="failed">
+                <span class="failed">something has gone wrong</span>
             </p>
         </form>
     </main>

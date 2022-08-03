@@ -8,7 +8,44 @@
 </head>
 
 <body>
-    new proj
+    <header>
+        <p style="padding-left:15px; font-size: 20pt;">Make A New Project</p>
+    </header>
+    <main>
+        <form>
+            <!--
+                [X] name
+                [X] description
+                [ ] technologies ?
+                [ ] details ?
+                [ ] additional (optional)
+            -->
+            <input id="newprojname" style="margin: 10px;" placeholder="Project Name" type="text" name="name" /><br />
+            <textarea id="newprojdescription" style="margin: 10px; width: 200pt; height: 100pt;" name="description"
+                placeholder="Tell us about your project…"></textarea>
+            <!-- details???? HOW WHAT? Is it even provided by the user? -->
+            <p>
+                <span class="failed">Please provide a name for your project as well as a
+                    description.</span>
+            </p>
+            <button type="submit" style="margin-left: 30px; font-size: larger;" onclick="submit()">CREATE</button>
+        </form>
+    </main>
+    <footer>
+        <script>
+            document.addEventListener("submit", evt => {
+                evt.preventDefault();
+            });
+            function submit() {
+                let name = document.querySelector("#newprojname").value;
+                let description = document.querySelector("#newprojdescription").value;
+                document.write(name, description);
+                if (!name || !description) {
+                    document.querySelector(".failed").style.display = "block";
+                }
+            }
+        </script>
+    </footer>
 </body>
 
 </html>

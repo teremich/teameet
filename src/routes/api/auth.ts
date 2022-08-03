@@ -1,5 +1,5 @@
-import {Router} from "express";
-import {getUserId, getCredsFromReq, login, register, getUserObject}  from "../../controllers/auth";
+import { Router } from "express";
+import { getUserId, getCredsFromReq, login, register, getUserObject } from "../../controllers/auth";
 import { statusCode } from "../../controllers/database";
 export const router = Router();
 
@@ -16,10 +16,10 @@ router.route("/login")
     .get((req, res) => {
         if ((req as any)["useruuid"] !== null) {
             getUserObject((req as any)["useruuid"]).then(user => {
-                res.json({status: 200, body: user});
+                res.json({ status: 200, body: user });
             });
         } else {
-            res.json({status: 401})
+            res.json({ status: 401 })
         }
     })
     // logs you in
@@ -27,7 +27,7 @@ router.route("/login")
         // if logged in send current user id
         if ((req as any)["useruuid"] !== null) {
             res.json({
-                status:200,
+                status: 200,
                 body: {
                     id: (req as any)["useruuid"]
                 }
@@ -52,7 +52,7 @@ router.route("/login")
                                 }
                             });
                         } else {
-                            res.cookie("AuthToken", loginRes.token, {maxAge: 0x2932e00/*12 Hours*/});
+                            res.cookie("AuthToken", loginRes.token, { maxAge: 0x2932e00/*12 Hours*/ });
                             res.json({
                                 status: 200,
                                 body: {
@@ -65,51 +65,49 @@ router.route("/login")
             });
         }
     });
-// TODO
+// TODO: spam protection
 router.post("/register", (req, res) => {
-    getUserId(req.cookies["AuthToken"]).then(r => {
+    getUserId(req.cookies["AuthToken"]).then(async r => {
         // if logged in send current user id
         if (r !== null) {
             res.json({
-                status:200,
+                status: 200,
                 body: {
                     id: r
                 }
             });
-        } else {
-            getCredsFromReq(req).then(creds => {
-                // if credentials are wrong
-                if (creds == null) {
-                    res.json({
-                        status: 400,
-                        body: {
-                            msg: "wrong credentials"
-                        }
-                    })
-                } else {
-                    register({email: creds.email, password: creds.password, bio: {}, name: creds.name}).then(regRes => {
-                        switch(regRes.code) {
-                            case statusCode.ERROR_DUPLICATE_EMAIL:
-                                res.status(400);
-                                res.json({msg: "this email is already registered"});
-                                break;
-                            case statusCode.ERROR_NAME_TOO_LONG:
-                                res.status(400);
-                                res.json({msg: "your name is too long"});
-                                break;
-                            case statusCode.SUCCESS:
-                                res.cookie("AuthToken", regRes.token);
-                                res.status(200);
-                                res.json({msg: regRes.token});
-                                break;
-                            default:
-                                console.error(regRes);
-                                res.status(500);
-                                res.json({msg: "internal server error"});
-                        }
-                    });
+            return;
+        }
+        const creds = await getCredsFromReq(req);
+        // if credentials are wrong
+        if (creds == null) {
+            res.json({
+                status: 400,
+                body: {
+                    msg: "wrong credentials"
                 }
             });
+            return;
+        }
+        const regRes = await register({ email: creds.email, password: creds.password, bio: {}, name: creds.name });
+        switch (regRes.code) {
+            case statusCode.ERROR_DUPLICATE_EMAIL:
+                res.status(400);
+                res.json({ msg: "this email is already registered" });
+                break;
+            case statusCode.ERROR_NAME_TOO_LONG:
+                res.status(400);
+                res.json({ msg: "your name is too long" });
+                break;
+            case statusCode.SUCCESS:
+                res.cookie("AuthToken", regRes.token);
+                res.status(200);
+                res.json({ msg: regRes.token });
+                break;
+            default:
+                console.error(regRes);
+                res.status(500);
+                res.json({ msg: "internal server error" });
         }
     });
 });

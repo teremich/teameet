@@ -1,7 +1,7 @@
 /* @import url("https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"); */
 
 body {
-    margin: 0;
+    margin: 10px;
     padding: 0;
     font-family: Arial, Helvetica, sans-serif;
     --primary-color: #ccd3e9;
@@ -21,4 +21,10 @@ body {
     background-color: var(--primary-color);
     color: var(--secondary-color);
     padding: 0.4rem;
+}
+
+.failed {
+    color: red;
+    display: none;
+    width: fit-content;
 }

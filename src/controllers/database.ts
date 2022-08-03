@@ -1,8 +1,8 @@
-import {Database, JsonObject} from "../models/database";
+import { Database, JsonObject } from "../models/database";
 
 export const db = new Database();
-export type proj = {id: number, name: string, owner: string, description: string, languages?: string, additional?: any};
-export async function getProjects(where?: {id: number | undefined}): Promise<proj[]> {
+export type proj = { id: number, name: string, owner: string, description: string, languages?: string, additional?: any };
+export async function getProjects(where?: { id: number | undefined }): Promise<proj[]> {
     let resList: proj[] = [];
     const res = await db.prisma.project.findMany({
         where: {
@@ -33,7 +33,7 @@ export async function getProjects(where?: {id: number | undefined}): Promise<pro
     });
     return resList;
 }
-export type projectData = {description: string, name: string, additional?: any, ownerId: number};
+export type projectData = { description: string, name: string, additional?: any, ownerId: number };
 export async function postProject(data: projectData) {
     return await db.prisma.project.create({
         data: {
@@ -47,4 +47,4 @@ export async function postProject(data: projectData) {
     });
 }
 
-export {User, Project, statusCode} from "../models/database";
+export { User, Project, statusCode } from "../models/database";
