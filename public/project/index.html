@@ -2,9 +2,6 @@
 <html lang="de">
 
 <head>
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"
-        integrity="sha512-EZLkOqwILORob+p0BXZc+Vm3RgJBOe1Iq/0fiI7r/wJgzOFZMlsqTa29UEl6v6U6gsV4uIpsNZoV32YZqrCRCQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
     <meta charset="UTF-8">
     <title>| Teameet</title>
     <link rel="stylesheet" href="/globalstyle.css" />
@@ -18,49 +15,79 @@
                     console.error(res);
                     return;
                 }
-                // document.write(res.body.projects[0].description);
                 PROJECT = res.body.projects[0];
                 document.title = `${PROJECT.name} ${document.title}`
                 main();
             });
+        } else {
+            location.href = "/";
         }
     </script>
 </head>
 
 <body>
     <header>
-        <h2><span id="name"></span></h2>
+        <div id="navbar">
+            <h2 id="logo"><a href="/">TEAMEET</a></h2>
+            <div>
+                <p>
+                    <a class="account" id="login" style="display:none;">login</a>
+                </p>
+                <p>
+                    <a class="account" id="profile" style="display:none;"></a>
+                </p>
+            </div>
+        </div>
     </header>
     <main>
+        <span style="font-weight: bold;" id="name"></span>
         <div>
             <p id="description"></p>
         </div>
         <div>
-            <p>
-                <a class="account button" id="login" style="display:none;">login</a>
-            </p>
-            <p>
-                <a class="account button" id="profile" style="display:none;"></a>
-            </p>
+            <a class="button" style="display: none;" id="settings">configure the settings</a>
+            <a class="button" style="display: none;" id="memberlogin">login to become a member</a>
+            <button id="joinbutton" style="display: none;">become a member</button>
+            <span id="member" style="display: none;">you are a member</span>
         </div>
     </main>
     <footer>
         <script>
+            function isMember(userid, project) {
+                for (let mem of project.members) {
+                    if (mem.uuid == userid) {
+                        return true;
+                    }
+                }
+                return false;
+            }
             function main() {
                 document.querySelector("#name").innerText = PROJECT.name;
                 document.querySelector("#description").innerText = PROJECT.description;
-            }
-            fetch("/api/login").then(r => r.json()).then(r => {
-                if (r.status != 200) {
-                    document.querySelector("#login").href = '/login?ref=' + encodeURI("/project/?id=" + params.get("id"));
-                    document.querySelector("#login").style.display = "";
-                } else {
+                fetch("/api/login").then(r => r.json()).then(async r => {
+                    if (r.status != 200) {
+                        document.querySelector("#login").href = '/login?ref=' + encodeURI("/project/?id=" + params.get("id"));
+                        document.querySelector("#login").style.display = "";
+                        document.querySelector("#memberlogin").href = '/login?ref=' + encodeURI("/project/?id=" + params.get("id"));
+                        document.querySelector("#memberlogin").style.display = "";
+                        return;
+                    }
                     let element = document.querySelector("#profile");
                     element.href = "/profile/?id=" + r.body.uuid;
                     element.style.display = "";
                     element.innerText = r.body.name;
-                }
-            });
+                    if (r.body.uuid == PROJECT.owner.uuid) {
+                        document.querySelector("#settings").style.display = "";
+                        document.querySelector("#settings").href = "/project/settings/?id=" + params.get("id");
+                        return;
+                    }
+                    if (isMember(r.body.uuid, PROJECT)) {
+                        document.querySelector("#member").style.display = "";
+                    } else {
+                        document.querySelector("#joinbutton").style.display = "";
+                    }
+                });
+            }
         </script>
     </footer>
 </body>

@@ -59,10 +59,10 @@ export function _403(res: Response) {
 
 // returns a database.statusCode and an AuthToken or undefined as token
 export async function register(data: { email: string, password: string, bio: any, name: string, additional?: any }): Promise<{ code: statusCode, token?: string }> {
-    const newuuid = Math.floor(Math.random() * 0x100000000);
+    const newuuid = Math.floor(Math.random() * 0x80_00_00_00);
     const newUser = await db.addUser({
         uuid: newuuid,
-        email: data.email,
+        email: data.email.toLowerCase(),
         bio: data.bio,
         name: data.name,
         passwordHash: hash(newuuid + data.password),
@@ -77,7 +77,7 @@ export async function register(data: { email: string, password: string, bio: any
 export async function login(email: string, password: string): Promise<{ token: string, uuid: number } | null> {
     const user = await db.prisma.user.findUnique({
         where: {
-            email
+            email: email.toLowerCase()
         },
         select: {
             uuid: true,
@@ -120,8 +120,17 @@ export async function getUserObject(uuid: number): Promise<{
     }
     return ret;
 }
-// TODO: make registration work
-export async function getCredsFromReq(req: Request): Promise<{ email: string, password: string, name: string } | null> {
+
+export async function getCredsFromLoginReq(req: Request): Promise<{ email: string, password: string } | null> {
+    const email: string | undefined = req.body["email"];
+    const password: string | undefined = req.body["password"];
+    if (email && password) {
+        return { email, password };
+    }
+    return null;
+}
+
+export async function getCredsFromRegisterReq(req: Request): Promise<{ email: string, password: string, name: string } | null> {
     const email: string | undefined = req.body["email"];
     const password: string | undefined = req.body["password"];
     const name: string | undefined = req.body["name"];

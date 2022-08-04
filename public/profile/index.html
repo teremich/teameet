@@ -10,7 +10,6 @@
     <title>'s Profile | Teameet</title>
     <script>
         let params = new URLSearchParams(document.location.search);
-        document.write(params.get("id"));
         fetch("/api/login").then(r => r.json()).then(r => {
             if (r.status != 200) {
                 // SHOW PUBLICLY AVAILABLE STUFF
@@ -46,17 +45,24 @@
 </head>
 
 <body>
-    <div id="info">
-        <p>Sorry, we couldn't find this user</p>
-    </div>
-    <div>
-        <p>
-            <a class="account button" id="login" style="display:none;">login</a>
-        </p>
-        <p>
-            <a class="account button" id="profile" style="display:none;"></a>
-        </p>
-    </div>
+    <header>
+        <div id="navbar">
+            <h2 id="logo"><a href="/">TEAMEET</a></h2>
+            <div>
+                <p>
+                    <a class="account" id="login" style="display:none;">login</a>
+                </p>
+                <p>
+                    <a class="account" id="profile" style="display:none;"></a>
+                </p>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div id="info">
+            <p>Sorry, we couldn't find this user</p>
+        </div>
+    </main>
 </body>
 
 </html>

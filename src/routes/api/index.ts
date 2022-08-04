@@ -1,6 +1,6 @@
-import {Router, Request, Response, NextFunction} from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { requireAuth, level } from "../../middleware/auth";
-import {getProjects, postProject} from "../../controllers/database"
+import { getProjectsPublic, postProject } from "../../controllers/database"
 import * as auth from "./auth"
 import { getUserId } from "../../controllers/auth";
 
@@ -40,7 +40,7 @@ router.route("/project").get((req, res) => {
     if (ids instanceof String) {
         idn = Number.parseInt(<string>ids);
     }
-    getProjects({id: idn}).then(projects => {
+    getProjectsPublic({ id: idn }).then(projects => {
         res.json({
             status: 200,
             body: {

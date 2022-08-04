@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getUserId, getCredsFromReq, login, register, getUserObject } from "../../controllers/auth";
+import { getUserId, getCredsFromLoginReq, getCredsFromRegisterReq, login, register, getUserObject } from "../../controllers/auth";
 import { statusCode } from "../../controllers/database";
 export const router = Router();
 
@@ -8,14 +8,14 @@ router.route("/login")
     .all((req, res, next) => {
         getUserId(req.cookies["AuthToken"]).then(id => {
             // if user is logged in useruuid is not null
-            (req as any)["useruuid"] = id;
+            (<any>req)["useruuid"] = id;
             next();
         });
     })
     // returns whether you're already loggeed in
     .get((req, res) => {
-        if ((req as any)["useruuid"] !== null) {
-            getUserObject((req as any)["useruuid"]).then(user => {
+        if ((<any>req)["useruuid"] !== null) {
+            getUserObject((<any>req)["useruuid"]).then(user => {
                 res.json({ status: 200, body: user });
             });
         } else {
@@ -25,45 +25,45 @@ router.route("/login")
     // logs you in
     .post((req, res) => {
         // if logged in send current user id
-        if ((req as any)["useruuid"] !== null) {
+        if ((<any>req)["useruuid"] !== null) {
             res.json({
                 status: 200,
                 body: {
-                    id: (req as any)["useruuid"]
+                    id: (<any>req)["useruuid"]
                 }
             });
-        } else {
-            getCredsFromReq(req).then(creds => {
-                // if credentials are wrong
-                if (creds == null) {
+            return;
+        }
+        getCredsFromLoginReq(req).then(creds => {
+            // if credentials are wrong
+            if (creds == null) {
+                res.json({
+                    status: 400,
+                    body: {
+                        msg: "wrong credentials"
+                    }
+                });
+                return;
+            }
+            login(creds.email, creds.password).then(loginRes => {
+                if (loginRes === null) {
                     res.json({
                         status: 400,
                         body: {
-                            msg: "wrong credentials"
+                            msg: "no user with that credentials"
                         }
                     });
-                } else {
-                    login(creds.email, creds.password).then(loginRes => {
-                        if (loginRes === null) {
-                            res.json({
-                                status: 400,
-                                body: {
-                                    msg: "no user with that credentials"
-                                }
-                            });
-                        } else {
-                            res.cookie("AuthToken", loginRes.token, { maxAge: 0x2932e00/*12 Hours*/ });
-                            res.json({
-                                status: 200,
-                                body: {
-                                    id: loginRes.uuid
-                                }
-                            });
-                        }
-                    });
+                    return;
                 }
+                res.cookie("AuthToken", loginRes.token, { maxAge: 0x2932e00/*12 Hours*/ });
+                res.json({
+                    status: 200,
+                    body: {
+                        id: loginRes.uuid
+                    }
+                });
             });
-        }
+        });
     });
 // TODO: spam protection
 router.post("/register", (req, res) => {
@@ -78,8 +78,7 @@ router.post("/register", (req, res) => {
             });
             return;
         }
-        const creds = await getCredsFromReq(req);
-        // if credentials are wrong
+        const creds = await getCredsFromRegisterReq(req);
         if (creds == null) {
             res.json({
                 status: 400,

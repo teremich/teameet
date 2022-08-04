@@ -30,9 +30,15 @@ export async function setUserId(uuid: number, expires?: number): Promise<string>
         await c.connect();
         c.connected = true;
     }
+    const oldToken = await c.client.get(uuid.toString());
+    if (oldToken) {
+        // this prevents two sessions at once
+        c.client.del(oldToken);
+    }
     const token = randomToken();
     await c.client.set(token, uuid.toString(), {
         EX: expires ?? TWELVE_HOURS
     });
+    await c.client.set(uuid.toString(), token);
     return token;
 }

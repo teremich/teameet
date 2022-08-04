@@ -104,7 +104,7 @@ probably your username and/or password was incorrect");
             projectList.forEach(project => {
                 let clone = document.importNode(template.content, true);
                 clone.querySelector(".projectname").innerText = project.name;
-                clone.querySelector(".projectowner").innerText = project.owner;
+                clone.querySelector(".projectowner").innerText = project.owner.name;
                 clone.querySelector(".projectdescription").innerText = project.description;
                 clone.querySelector(".projectlanguages").innerText = project.languages;
                 clone.querySelector(".projectrow").onclick = makeVisit(project.id);
@@ -122,9 +122,19 @@ probably your username and/or password was incorrect");
 
 <body>
 
-    <head>
-        <h1>Welcome to Teameet</h1>
-    </head>
+    <header>
+        <div id="navbar">
+            <h2 id="logo"><a href="/">TEAMEET</a></h2>
+            <div>
+                <p>
+                    <a class="account" href="/login" id="login" style="display:none;">login</a>
+                </p>
+                <p>
+                    <a class="account" id="profile" style="display:none;"></a>
+                </p>
+            </div>
+        </div>
+    </header>
     <main>
         <div id="main">
             <div id="projectsdiv">
@@ -161,14 +171,6 @@ probably your username and/or password was incorrect");
                         create a new Project
                     </a>
                 </div>
-            </div>
-            <div>
-                <p>
-                    <a class="account button" id="login" style="display: none;" href='/login?ref=/'>login</a>
-                </p>
-                <p>
-                    <a class="account button" id="profile" style="display: none;"></a>
-                </p>
             </div>
             <script>
                 fetch("/api/login").then(r => r.json()).then(r => {

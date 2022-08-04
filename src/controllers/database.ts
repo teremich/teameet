@@ -1,9 +1,22 @@
-import { Database, JsonObject } from "../models/database";
+import { Prisma } from "@prisma/client";
+import { Database } from "../models/database";
 
 export const db = new Database();
-export type proj = { id: number, name: string, owner: string, description: string, languages?: string, additional?: any };
-export async function getProjects(where?: { id: number | undefined }): Promise<proj[]> {
-    let resList: proj[] = [];
+export async function getProjectsPublic(where?: { id: number | undefined }): Promise<{
+    id: number;
+    additional: Prisma.JsonValue;
+    description: string;
+    name: string;
+    details: Prisma.JsonValue;
+    owner: {
+        name: string;
+        uuid: number;
+    };
+    members: {
+        name: string;
+        uuid: number;
+    }[];
+}[]> {
     const res = await db.prisma.project.findMany({
         where: {
             id: where?.id
@@ -16,22 +29,19 @@ export async function getProjects(where?: { id: number | undefined }): Promise<p
             details: true,
             owner: {
                 select: {
+                    name: true,
+                    uuid: true
+                }
+            },
+            members: {
+                select: {
+                    uuid: true,
                     name: true
                 }
             }
         }
     });
-    res.forEach(item => {
-        resList.push({
-            id: item.id,
-            name: item.name,
-            owner: item.owner.name,
-            additional: item.additional,
-            description: item.description,
-            languages: ((item.details as JsonObject)["languages"] as string[] | undefined)?.join(", ") ?? "",
-        });
-    });
-    return resList;
+    return res;
 }
 export type projectData = { description: string, name: string, additional?: any, ownerId: number };
 export async function postProject(data: projectData) {

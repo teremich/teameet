@@ -9,14 +9,26 @@
 
 <body>
     <header>
-        <p style="padding-left:15px; font-size: 20pt;">Make A New Project</p>
+        <div id="navbar">
+            <h2 id="logo"><a href="/">TEAMEET</a></h2>
+            <div>
+                <p>
+                    <a class="account" id="login" style="display:none;">login</a>
+                </p>
+                <p>
+                    <a class="account" id="profile" style="display:none;"></a>
+                </p>
+            </div>
+        </div>
     </header>
     <main>
+        <div>
+            <p style="padding-left:15px; font-size: 20pt;">Make A New Project</p>
+        </div>
         <form>
             <!--
                 [X] name
                 [X] description
-                [ ] technologies ?
                 [ ] details ?
                 [ ] additional (optional)
             -->
@@ -33,8 +45,21 @@
     </main>
     <footer>
         <script>
-            document.addEventListener("submit", evt => {
+            document.addEventListener("onsubmit", evt => {
                 evt.preventDefault();
+            });
+            document.addEventListener("onclick", evt => {
+                evt.preventDefault();
+            });
+            fetch("/api/login").then(r => r.json()).then(r => {
+                if (r.status != 200) {
+                    location.href = '/login?ref=' + encodeURI("/project/new");
+                } else {
+                    let element = document.querySelector("#profile");
+                    element.href = "/profile/?id=" + r.body.uuid;
+                    element.style.display = "";
+                    element.innerText = r.body.name;
+                }
             });
             function submit() {
                 let name = document.querySelector("#newprojname").value;
