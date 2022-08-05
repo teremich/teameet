@@ -1,11 +1,11 @@
 "use strict";
 require("dotenv").config();
 import express from "express";
-import {router} from "../routes";
+import { router } from "../routes";
 import CookieParser from "cookie-parser";
-import {normalize} from "path";
+import cors from "cors";
 
-export class Server{
+export class Server {
     app: express.Express;
     PORT: string | undefined;
     constructor() {
@@ -14,7 +14,8 @@ export class Server{
     }
     middleware() {
         this.app.use(CookieParser());
-        this.app.use(express.urlencoded({extended: true}));
+        if (process.env.NODE_ENV == "dev") { this.app.use(cors({ origin: "http://localhost:8080" })); }
+        this.app.use(express.urlencoded({ extended: true }));
         this.app.use(express.json());
     }
     routes() {

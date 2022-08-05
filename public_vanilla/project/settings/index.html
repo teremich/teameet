@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Settings for</title>
+    <link rel="stylesheet" href="/globalstyle.css" />
+    <script>
+        let params = new URLSearchParams(document.location.search);
+        // document.write(params.get("id"));
+        let PROJECT;
+        if (params.get("id")) {
+            fetch("/api/project?id=" + params.get("id")).then(r => r.json()).then(res => {
+                if (res.status != 200) {
+                    console.error(res);
+                    return;
+                }
+                PROJECT = res.body.projects[0];
+                document.title = `Settings for ${PROJECT.name} | Teameet`
+            });
+        } else {
+            location.href = "/";
+        }
+    </script>
+</head>
+
+<body>
+    <header>
+        <div id="navbar">
+            <h2 id="logo"><a href="/">TEAMEET</a></h2>
+            <div>
+                <p>
+                    <a class="account" id="login" style="display:none;">login</a>
+                </p>
+                <p>
+                    <a class="account" id="profile" style="display:none;"></a>
+                </p>
+            </div>
+        </div>
+    </header>
+    <main>
+        settings page
+    </main>
+</body>
+
+</html>
