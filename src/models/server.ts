@@ -14,7 +14,7 @@ export class Server {
     }
     middleware() {
         this.app.use(CookieParser());
-        if (process.env.NODE_ENV == "dev") { this.app.use(cors({ origin: "http://localhost:8080" })); }
+        if (process.env.NODE_ENV == "dev") { this.app.use(cors({ origin: "http://*localhost:8080" })); }
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(express.json());
     }

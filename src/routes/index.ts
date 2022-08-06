@@ -3,7 +3,6 @@ import * as express from "express";
 import * as api from "./api"
 import { BUILD_ROUTE } from "../controllers/views"
 import { getUserId } from "../models/redis";
-import { requireAuth, level } from "../middleware/auth";
 
 export const router = Router();
 router.use("/login", (req, res, next) => {
@@ -20,3 +19,6 @@ router.use("/login", (req, res, next) => {
 });
 router.use("/api", api.router);
 router.use(express.static(BUILD_ROUTE));
+router.use((req, res) => {
+    res.sendFile(BUILD_ROUTE + "404.html");
+});
