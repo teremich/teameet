@@ -91,22 +91,27 @@ router.post("/register", (req, res) => {
         const regRes = await register({ email: creds.email, password: creds.password, bio: {}, name: creds.name });
         switch (regRes.code) {
             case statusCode.ERROR_DUPLICATE_EMAIL:
-                res.status(400);
-                res.json({ msg: "this email is already registered" });
+                res.json({
+                    status: 400,
+                    msg: "this email is already registered"
+                });
                 break;
             case statusCode.ERROR_NAME_TOO_LONG:
-                res.status(400);
-                res.json({ msg: "your name is too long" });
+                res.json({
+                    status: 400,
+                    msg: "your name is too long"
+                });
                 break;
             case statusCode.SUCCESS:
-                res.cookie("AuthToken", regRes.token);
-                res.status(200);
-                res.json({ msg: regRes.token });
+                res.cookie("AuthToken", regRes.token, { maxAge: 0x2932e00/*12 Hours*/ });
+                res.json({ status: 201 });
                 break;
             default:
                 console.error(regRes);
-                res.status(500);
-                res.json({ msg: "internal server error" });
+                res.json({
+                    status: 500,
+                    msg: "internal server error"
+                });
         }
     });
 });

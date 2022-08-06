@@ -1,20 +1,18 @@
 <template>
-  <header>
-    <div id="navbar">
-      <h2 id="logo"><a href="/">TEAMEET</a></h2>
-      <div>
-        <p>
-          <a class="account" ref="login" style="display: none">login</a>
-        </p>
-        <p>
-          <a class="account" ref="profile" style="display: none"></a>
-        </p>
-      </div>
+  <div id="navbar">
+    <h2 id="logo"><a href="/">TEAMEET</a></h2>
+    <div>
+      <p>
+        <a class="account" ref="login" style="display: none">login</a>
+      </p>
+      <p>
+        <a class="account" ref="profile" style="display: none"></a>
+      </p>
     </div>
-  </header>
+  </div>
 </template>
 
-<script setup >
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 
 // const accountButtonData = reactive({
@@ -22,11 +20,10 @@ import { ref, onMounted } from "vue";
 //   profile: null,
 // });
 
-const login = ref(null);
-const profile = ref(null);
+const login = ref<HTMLLinkElement | null>(null);
+const profile = ref<HTMLLinkElement | null>(null);
 
 onMounted(() => {
-  console.log(login.value);
   login.value.href =
     "/login?href=" +
     encodeURI(window.location.pathname + window.location.search);
@@ -36,6 +33,7 @@ onMounted(() => {
       if (r.status != 200) {
         login.value.style.display = "";
       } else {
+        (<any>window).userprofile = r.body;
         let element = profile.value;
         element.href = "/profile/?id=" + r.body.uuid;
         element.style.display = "";
@@ -45,7 +43,7 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .account {
   position: fixed;
   right: 50px;
@@ -60,8 +58,10 @@ onMounted(() => {
   padding: 1vw;
   margin: 0;
 }
-#logo a {
-  text-decoration: none;
-  color: var(--link-color);
+#logo {
+  a {
+    text-decoration: none;
+    color: var(--link-color);
+  }
 }
 </style>

@@ -4,14 +4,17 @@ import { Request, RequestHandler, Response, NextFunction, } from "express-serve-
 export { level };
 export function requireAuth(lvl: level): RequestHandler {
     return function (req: Request, res: Response, next: NextFunction): any | void {
-        getUserLevel(req.cookies["AuthToken"], req.query["project"]?.toString()).then(userLevel => {
-            if (userLevel) {
-                if (lvl > userLevel) {
+        getUserLevel(req.cookies["AuthToken"], req.query["project"]?.toString()).then(user => {
+            if (user.uuid) {
+                if (lvl > user.level) {
                     _403(res);
+                    return;
                 }
             } else {
                 _401(res);
+                return;
             }
+            (<any>req).userid = user.uuid;
             return next();
         });
     }

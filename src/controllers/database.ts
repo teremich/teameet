@@ -44,17 +44,20 @@ export async function getProjectsPublic(where?: { id: number | undefined }): Pro
     return res;
 }
 export type projectData = { description: string, name: string, additional?: any, ownerId: number };
-export async function postProject(data: projectData) {
-    return await db.prisma.project.create({
+export async function postProject(data: projectData): Promise<number> {
+    return (await db.prisma.project.create({
         data: {
             description: data.description,
             details: {},
             name: data.name,
-            tasks: [],
+            tasks: {},
             additional: data.additional,
             ownerId: data.ownerId
+        },
+        select: {
+            id: true
         }
-    });
+    })).id;
 }
 
 export { User, Project, statusCode } from "../models/database";

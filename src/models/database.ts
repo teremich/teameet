@@ -82,7 +82,6 @@ export class Database {
                             return { code: statusCode.ERROR_UNKNOWN_DUPLICATE, msg: "failure", detail: "something duplicate, dont know what", value: e }
                     }
                 } else if (e.code === "P2000") {
-                    // console.log(e.meta);
                     return {
                         code: statusCode.ERROR_NAME_TOO_LONG,
                         msg: "failure",

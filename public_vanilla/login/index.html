@@ -45,7 +45,7 @@
                 })
             }).then(r => r.json()).then(res => {
                 if (res.status == 200) {
-                    location.href = referer || "/";
+                    location.href = window.referer || "/";
                 } else {
                     document.querySelector("#loginfailed").style.display = "block";
                 }

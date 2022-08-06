@@ -35,12 +35,8 @@ router.route("/")
     });
 
 router.route("/project").get((req, res) => {
-    const ids = req.query["id"];
-    let idn: number | undefined;
-    if (ids instanceof String) {
-        idn = Number.parseInt(<string>ids);
-    }
-    getProjectsPublic({ id: idn }).then(projects => {
+    const id = Number.parseInt(req.query["id"]?.toString() ?? "");
+    getProjectsPublic({ id: id ? id : undefined }).then(projects => {
         res.json({
             status: 200,
             body: {
@@ -48,19 +44,13 @@ router.route("/project").get((req, res) => {
             }
         });
     });
-}).post((req, res) => {
-    const b = req.body?.data;
-    if (assert(b, b.hasOwnProperty("description"), b.hasOwnProperty("name"), b.hasOwnProperty("ownerId"), !!Number.parseInt(b.ownerId))) {
+}).post(requireAuth(level.LOGGED_IN), async (req, res) => {
+    const b = { description: <string>req.body.description, name: <string>req.body.name, ownerId: <number>(<any>req).userid };
+    if (assert(!!b.description.trim(), !!b.name.trim(), !!b.ownerId)) {
         res.sendStatus(400);
         return;
     }
-    getUserId(req.cookies["AuthToken"]).then(id => {
-        if (assert(id == Number.parseInt(b.ownerId))) {
-            res.sendStatus(401);
-            return;
-        }
-        postProject(b);
-        res.send("request to make project was made");
-    });
+    const id = await postProject(b);
+    res.json({ status: 201, id });
 }).delete((req, res) => {
 });
