@@ -2,7 +2,14 @@
   <Homepage />
 </template>
 
-<script setup lang="ts">
+<script >
+import Homepage from "./components/Homepage.vue";
+
+export default {
+  components: {
+    Homepage,
+  },
+};
 </script>
 
 <style>

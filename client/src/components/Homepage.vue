@@ -4,7 +4,13 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script >
+import Navbar from "./Navbar.vue";
+export default {
+  components: {
+    Navbar,
+  },
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
