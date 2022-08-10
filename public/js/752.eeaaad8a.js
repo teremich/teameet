@@ -1,0 +1,2 @@
+"use strict";(self["webpackChunkclient"]=self["webpackChunkclient"]||[]).push([[752],{5752:function(n,e,t){t.r(e),t.d(e,{default:function(){return s}});var u=t(5288);const r=(0,u._)("p",null,"you are not allowed to view this page",-1),l=[r];function c(n,e){return(0,u.wg)(),(0,u.iD)("div",null,l)}var i=t(7184);const a={},o=(0,i.Z)(a,[["render",c]]);var s=o}}]);
+//# sourceMappingURL=752.eeaaad8a.js.map

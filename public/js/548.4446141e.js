@@ -1,0 +1,2 @@
+"use strict";(self["webpackChunkclient"]=self["webpackChunkclient"]||[]).push([[548],{5548:function(n,e,t){t.r(e),t.d(e,{default:function(){return f}});var u=t(5288);const r=(0,u._)("p",null,"you aren't authorized to view this page",-1),i=(0,u._)("p",null,"maybe try logging in",-1),l=[r,i];function a(n,e){return(0,u.wg)(),(0,u.iD)("div",null,l)}var c=t(7184);const o={},s=(0,c.Z)(o,[["render",a]]);var f=s}}]);
+//# sourceMappingURL=548.4446141e.js.map
