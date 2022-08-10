@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Navbar />
+    <Navbar @loadfinished="onLoaded" />
     <main>
       <div>
         <p style="padding-left: 15px; font-size: 20pt">Make A New Project</p>
@@ -20,7 +20,7 @@
           placeholder="Tell us about your project…"
         ></textarea>
         <p>
-          <span ref="failed" class="failed"
+          <span ref="failed" class="error"
             >Please provide a name for your project as well as a
             description.</span
           >
@@ -40,6 +40,12 @@ const description = ref<HTMLInputElement | null>(null);
 
 const failed = ref<HTMLElement | null>(null);
 
+function onLoaded(event) {
+  if (!event.loggedIn) {
+    window.location.href = "/login?href=/project/new";
+  }
+}
+
 function submit() {
   const n = name.value.value;
   const d = description.value.value;
@@ -58,6 +64,10 @@ function submit() {
       .then((r) => {
         if (r.status == 201) {
           window.location.href = "/project/?id=" + r.id;
+        } else if (r.status == 401) {
+          window.location.href = "/login?href=/project/new";
+        } else {
+          console.error(r);
         }
       });
   } else {

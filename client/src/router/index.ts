@@ -1,6 +1,6 @@
-import { createWebHistory, createRouter } from "vue-router";
+import { createWebHistory, createRouter, RouteRecordRaw } from "vue-router";
 
-const routes = [
+const routes: RouteRecordRaw[] = [
     {
         path: "/",
         children: [
@@ -33,13 +33,26 @@ const routes = [
                     },
                 ]
             },
+            {
+                path: "401",
+                component: () => import("../pages/error/401.vue")
+            },
+            {
+                path: "403",
+                component: () => import("../pages/error/403.vue")
+            },
         ],
-    }
+    },
+    {
+        path: "/:pathMatch(.*)*",
+        component: () => import("../pages/error/404.vue")
+    },
 ];
 
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
-    routes
+    routes,
+    sensitive: true
 });
 
 export default router;

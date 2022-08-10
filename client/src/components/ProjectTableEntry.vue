@@ -1,28 +1,31 @@
 <template >
-  <tr class="projectrow" ref="projectrow" @click="visit(props.project.id)">
+  <tr class="projectrow" @click="visit(props.project.id)">
     <td class="projectcolumn">
-      <span class="projectcolumnspan projectname" ref="projectname"></span>
+      <span class="projectcolumnspan projectname">{{
+        props.project.name
+      }}</span>
     </td>
     <td class="projectcolumn">
-      <span class="projectcolumnspan projectowner" ref="projectowner"></span>
+      <span class="projectcolumnspan projectowner">{{
+        props.project.owner.name
+      }}</span>
     </td>
     <td class="projectcolumn">
-      <span
-        class="projectcolumnspan projectdescription"
-        ref="projectdescription"
-      ></span>
+      <span class="projectcolumnspan projectdescription">{{
+        props.project.description
+      }}</span>
     </td>
     <td class="projectcolumn">
-      <span
-        class="projectcolumnspan projectlanguages"
-        ref="projectlanguages"
-      ></span>
+      <span class="projectcolumnspan projectlanguages">{{
+        props.project.details.languages ??
+        "no languages or technologies defined"
+      }}</span>
     </td>
   </tr>
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 
 function visit(id) {
   window.location.href = "/project/?id=" + id;
@@ -34,13 +37,6 @@ const projectname = ref<HTMLSpanElement | null>(null);
 const projectowner = ref<HTMLSpanElement | null>(null);
 const projectdescription = ref<HTMLSpanElement | null>(null);
 const projectlanguages = ref<HTMLSpanElement | null>(null);
-
-onMounted(() => {
-  projectname.value.innerText = props.project.name;
-  projectowner.value.innerText = props.project.owner.name;
-  projectdescription.value.innerText = props.project.description;
-  projectlanguages.value.innerText = props.project.languages;
-});
 </script>
 
 <style scoped>

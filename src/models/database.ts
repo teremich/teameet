@@ -1,7 +1,8 @@
 "use strict";
-import { PrismaClient, User, Project, Prisma } from "@prisma/client";
+import { PrismaClient } from "@prisma/client"
+import type { User, Project, Prisma } from "@prisma/client";
 export type JsonObject = Prisma.JsonObject;
-export { User, Project };
+export type { User, Project };
 
 export enum statusCode {
     SUCCESS = 0,

@@ -1,7 +1,15 @@
 import { Router } from "express";
-import { getUserId, getCredsFromLoginReq, getCredsFromRegisterReq, login, register, getUserObject } from "../../controllers/auth";
+import {
+    getUserId,
+    getCredsFromLoginReq,
+    getCredsFromRegisterReq,
+    login, logout,
+    register, deleteUser,
+    getUserObject
+} from "../../controllers/auth";
 import { statusCode } from "../../controllers/database";
 export const router = Router();
+
 
 router.route("/login")
     // sets a variable if user is already logged in
@@ -16,16 +24,25 @@ router.route("/login")
     .get((req, res) => {
         if ((<any>req)["useruuid"] !== null) {
             getUserObject((<any>req)["useruuid"]).then(user => {
+                res.status(200);
                 res.json({ status: 200, body: user });
             });
         } else {
-            res.json({ status: 401 })
+            // user gets an error in the console if this is status 401
+            res.status(200);
+            res.json({
+                // front end will try to load user info if this is 200
+                status: 401, body: {
+                    msg: "you are not logged in"
+                }
+            })
         }
     })
     // logs you in
     .post((req, res) => {
         // if logged in send current user id
         if ((<any>req)["useruuid"] !== null) {
+            res.status(200);
             res.json({
                 status: 200,
                 body: {
@@ -37,6 +54,7 @@ router.route("/login")
         getCredsFromLoginReq(req).then(creds => {
             // if credentials are wrong
             if (creds == null) {
+                res.status(400);
                 res.json({
                     status: 400,
                     body: {
@@ -47,6 +65,7 @@ router.route("/login")
             }
             login(creds.email, creds.password).then(loginRes => {
                 if (loginRes === null) {
+                    res.status(400);
                     res.json({
                         status: 400,
                         body: {
@@ -56,6 +75,7 @@ router.route("/login")
                     return;
                 }
                 res.cookie("AuthToken", loginRes.token, { maxAge: 0x2932e00/*12 Hours*/ });
+                res.status(200);
                 res.json({
                     status: 200,
                     body: {
@@ -64,12 +84,16 @@ router.route("/login")
                 });
             });
         });
+    }).delete((req, res) => {
+        logout(req.cookies["AuthToken"]);
+        res.sendStatus(200);
     });
 // TODO: spam protection
-router.post("/register", (req, res) => {
+router.route("/register").post((req, res) => {
     getUserId(req.cookies["AuthToken"]).then(async r => {
         // if logged in send current user id
         if (r !== null) {
+            res.status(200);
             res.json({
                 status: 200,
                 body: {
@@ -80,6 +104,7 @@ router.post("/register", (req, res) => {
         }
         const creds = await getCredsFromRegisterReq(req);
         if (creds == null) {
+            res.status(400);
             res.json({
                 status: 400,
                 body: {
@@ -91,27 +116,39 @@ router.post("/register", (req, res) => {
         const regRes = await register({ email: creds.email, password: creds.password, bio: {}, name: creds.name });
         switch (regRes.code) {
             case statusCode.ERROR_DUPLICATE_EMAIL:
+                res.status(400);
                 res.json({
                     status: 400,
-                    msg: "this email is already registered"
+                    body: { msg: "this email is already registered" }
                 });
                 break;
             case statusCode.ERROR_NAME_TOO_LONG:
+                res.status(400);
                 res.json({
                     status: 400,
-                    msg: "your name is too long"
+                    body: { msg: "your name is too long" }
                 });
                 break;
             case statusCode.SUCCESS:
                 res.cookie("AuthToken", regRes.token, { maxAge: 0x2932e00/*12 Hours*/ });
-                res.json({ status: 201 });
+                res.status(201);
+                res.json({
+                    status: 201, body: {
+                        body: { msg: "successfully registered" }
+                    }
+                });
                 break;
             default:
                 console.error(regRes);
+                res.status(500);
                 res.json({
                     status: 500,
-                    msg: "internal server error"
+                    body: { msg: "internal server error" }
                 });
         }
+    });
+}).delete((req, res) => {
+    getUserId(req.cookies["AuthToken"]).then(async r => {
+        deleteUser(r ?? 0);
     });
 });

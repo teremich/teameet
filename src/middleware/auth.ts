@@ -1,21 +1,24 @@
 "use strict";
 import { getUserLevel, level, _401, _403 } from "../controllers/auth";
-import { Request, RequestHandler, Response, NextFunction, } from "express-serve-static-core";
+import type { Request, RequestHandler, Response, NextFunction, } from "express-serve-static-core";
 export { level };
-export function requireAuth(lvl: level): RequestHandler {
+export function requireAuth(lvl: level, projectId: number | undefined = undefined): RequestHandler {
     return function (req: Request, res: Response, next: NextFunction): any | void {
-        getUserLevel(req.cookies["AuthToken"], req.query["project"]?.toString()).then(user => {
+        getUserLevel(
+            req.cookies["AuthToken"],
+            projectId || Number.parseInt(req.query?.["project"]?.toString() ?? "")
+        ).then(user => {
             if (user.uuid) {
                 if (lvl > user.level) {
                     _403(res);
                     return;
                 }
-            } else {
-                _401(res);
-                return;
+                (<any>req).userid = user.uuid;
+                (<any>req).projectid = projectId;
+                return next();
             }
-            (<any>req).userid = user.uuid;
-            return next();
+            _401(res);
+            return;
         });
     }
 }

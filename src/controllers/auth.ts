@@ -1,11 +1,8 @@
 "use strict"
 import { randomBytes, createHash } from "crypto";
-import { Prisma } from "@prisma/client";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { db, statusCode } from "./database";
-import { getUserId, setUserId } from "../models/redis";
-import { BUILD_ROUTE } from "./views"
-import { transformDocument } from "@prisma/client/runtime";
+import { getUserId, setUserId, removeUserId } from "../models/redis";
 
 export function randomToken(): string {
     let token: string = "";
@@ -27,7 +24,7 @@ export enum level {
     ADMIN = 0b1000
 };
 
-export async function getUserLevel(userToken: string, projectId: string | undefined): Promise<{ uuid: number, level: level }> {
+export async function getUserLevel(userToken: string, projectId: number): Promise<{ uuid: number, level: level }> {
     const uid = await getUserId(userToken);
     if (!uid) {
         return { uuid: 0, level: level.LOGGED_OUT };
@@ -35,14 +32,15 @@ export async function getUserLevel(userToken: string, projectId: string | undefi
     if (uid === 521473147) {
         return { uuid: uid, level: level.ADMIN };
     }
-    const pid = Number.parseInt(projectId ? projectId : "");
-    if (!pid) {
+    // this will not work because project is never sent as a query parameter
+    // make sure there is no real project with the id 0
+    if (!projectId) {
         return { uuid: uid, level: level.LOGGED_IN };
     }
-    if (await db.isMember(uid, pid)) {
+    if (await db.isMember(uid, projectId)) {
         return { uuid: uid, level: level.MEMBER };
     }
-    if (await db.isOwner(uid, pid)) {
+    if (await db.isOwner(uid, projectId)) {
         return { uuid: uid, level: level.OWNER };
     }
     return { uuid: uid, level: level.LOGGED_IN };
@@ -50,12 +48,22 @@ export async function getUserLevel(userToken: string, projectId: string | undefi
 
 export function _401(res: Response) {
     res.status(401);
-    res.sendFile(BUILD_ROUTE + "401.html");
+    res.json({
+        status: 401,
+        body: {
+            msg: "You are not authorized to do this action. maybe try logging in"
+        }
+    });
 }
 
 export function _403(res: Response) {
     res.status(403);
-    res.sendFile(BUILD_ROUTE + "403.html");
+    res.json({
+        status: 403,
+        body: {
+            msg: "you are not allowed to do this action"
+        }
+    });
 }
 
 // returns a database.statusCode and an AuthToken or undefined as token
@@ -73,6 +81,17 @@ export async function register(data: { email: string, password: string, bio: any
         return { code: newUser.code };
     }
     return { code: newUser.code, token: await setUserId(newUser.value.uuid) };
+}
+
+export function deleteUser(id: number) {
+
+}
+
+export function logout(token: string | undefined) {
+    if (!token) {
+        return;
+    }
+    removeUserId(token);
 }
 
 export async function login(email: string, password: string): Promise<{ token: string, uuid: number } | null> {
@@ -94,65 +113,19 @@ export async function login(email: string, password: string): Promise<{ token: s
     return null;
 }
 
-export { getUserId, setUserId };
+export { getUserId, setUserId, removeUserId };
 
 export async function getUserObject(uuid: number) {
     const ret = await db.prisma.user.findUnique({
         where: {
             uuid
         },
-        select: {
-            additional: true,
-            bio: true,
-            createdAt: true,
-            email: true,
-            name: true,
-            uuid: true,
-            memberOf: {
-                select: {
-                    id: true,
-                    name: true,
-                    additional: true,
-                    details: true,
-                    description: true
-                }
-            },
-            ownerOf: {
-                select: {
-                    id: true,
-                    name: true,
-                    additional: true,
-                    details: true,
-                    description: true
-                }
-            },
-            joins: {
-                select: {
-                    createdAt: true,
-                    additional: true,
-                    message: true,
-                    receiver: {
-                        select: {
-                            id: true,
-                            name: true,
-                            additional: true,
-                            details: true,
-                            description: true,
-                            owner: {
-                                select: {
-                                    name: true
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        include: {
+            memberOf: true,
+            ownerOf: true,
+            joins: true
         }
     });
-    if (ret === null) {
-        console.error("USERID NOT DEFINED");
-        process.exit(1);
-    }
     return ret;
 }
 

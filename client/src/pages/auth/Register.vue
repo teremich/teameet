@@ -13,7 +13,7 @@
         <br />
         <button type="submit">Register Now</button>
         <p ref="failed">
-          <span class="failed">something has gone wrong</span>
+          <span class="error">something has gone wrong</span>
         </p>
       </form>
     </main>
@@ -24,7 +24,7 @@
 import { ref } from "vue";
 
 const params = new URLSearchParams(document.location.search);
-const referer = decodeURI(params.get("ref"));
+const referer = decodeURI(params.get("href"));
 
 const name = ref<HTMLInputElement | null>(null);
 const email = ref<HTMLInputElement | null>(null);
@@ -45,11 +45,15 @@ function register() {
   })
     .then((r) => r.json())
     .then((res) => {
+      console.log(res);
       if (res.status >= 200 && res.status < 300) {
         location.href = referer || "/";
       } else {
-        failed.value.style.display = "block";
-        failed.value.innerHTML += `<span class="failed">${res.body}</span>`;
+        failed.value.innerHTML += `<span class="error">Server responded with: ${res.body.msg}</span>`;
+        failed.value.querySelectorAll(".error").forEach((element) => {
+          (<any>element).style.display = "block";
+        });
+        console.log(failed.value.innerHTML);
       }
     });
 }

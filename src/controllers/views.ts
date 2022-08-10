@@ -1,2 +1,2 @@
 import { normalize } from "path";
-export const BUILD_ROUTE = normalize(__dirname + "/../../public_vanilla/");
+export const BUILD_ROUTE = normalize(__dirname + "/../../public/");

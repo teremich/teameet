@@ -2,16 +2,37 @@
   <div>
     <Navbar />
     <main>
-      <span style="font-weight: bold" ref="name" id="name"></span>
-      <div ref="info">
-        <p id="description"></p>
-        <p>owner: {{ owner.name }}</p>
-        <p>members: {{ members.toString() }}</p>
+      <h2 id="name">{{ project.name }}</h2>
+      <div id="info">
+        <label>description:</label>
+        <p id="description">{{ project.description }}</p>
+        <br />
+        <p>
+          owner:
+          <a class="personlink" :href="'/profile/?id=' + project.owner.uuid">{{
+            project.owner.name
+          }}</a>
+        </p>
+        <p>
+          members:
+          <a
+            class="personlink"
+            v-for="member in project.members"
+            :key="member.id"
+            :href="'/profile/?id=' + member.uuid"
+            >{{ member.name }},</a
+          >
+        </p>
       </div>
       <div>
-        <a class="button" style="display: none" ref="settings" id="settings"
-          >configure the settings</a
+        <button
+          @click="remove()"
+          style="display: none"
+          ref="settings"
+          id="settings"
         >
+          delete this project
+        </button>
         <a
           class="button"
           style="display: none"
@@ -19,14 +40,14 @@
           id="memberlogin"
           >login to become a member</a
         >
-        <a
-          class="button"
+        <button
           ref="joinbutton"
           id="joinbutton"
           style="display: none; cursor: pointer"
+          @click="join()"
         >
           become a member
-        </a>
+        </button>
         <span ref="member" id="member" style="display: none"
           >you are a member</span
         >
@@ -40,22 +61,35 @@ import { ref, onMounted } from "vue";
 import Navbar from "../../components/Navbar.vue";
 
 // TODO: make this site more beautiful
+// TODO: what if project doesn't exist
 
-const owner = ref({
-  name: "",
+const project = ref({
+  name: "sorry, we coudn't find this project",
+  description: "you can go back to the homepage",
+  owner: {
+    name: "",
+    uuid: 0,
+  },
+  members: [],
 });
 
-const members = ref<string[]>([]);
-
-const name = ref<HTMLElement | null>(null);
-const info = ref<HTMLElement | null>(null);
 const memberlogin = ref<HTMLLinkElement | null>(null);
 const settings = ref<HTMLLinkElement | null>(null);
 const member = ref<HTMLElement | null>(null);
 const joinbutton = ref<HTMLAnchorElement | null>(null);
 
 const params = new URLSearchParams(document.location.search);
-let PROJECT;
+
+// TODO
+function join() {}
+
+function remove() {
+  fetch("/api/project/?id=" + params.get("id"), {
+    method: "DELETE",
+  }).then((r) => {
+    window.location.href = "/";
+  });
+}
 
 onMounted(() => {
   if (params.get("id")) {
@@ -66,8 +100,8 @@ onMounted(() => {
           console.error(res);
           return;
         }
-        PROJECT = res.body.projects[0];
-        document.title = `${PROJECT.name} | Teameet`;
+        project.value = res.body.projects[0];
+        document.title = `${project.value.name} | Teameet`;
         main();
       });
   } else {
@@ -82,26 +116,21 @@ onMounted(() => {
     return false;
   }
   function main() {
-    name.value.innerText = PROJECT.name;
-    (<HTMLParagraphElement>info.value.querySelector("#description")).innerText =
-      PROJECT.description;
-    owner.value = PROJECT.owner;
-    members.value = PROJECT.members.map((member) => member.name);
     fetch("/api/login")
       .then((r) => r.json())
       .then(async (r) => {
         if (r.status != 200) {
           memberlogin.value.href =
-            "/login?ref=" + encodeURI("/project/?id=" + params.get("id"));
+            "/login?href=" + encodeURI("/project/?id=" + params.get("id"));
           memberlogin.value.style.display = "";
           return;
         }
-        if (r.body.uuid == PROJECT.owner.uuid) {
+        if (r.body.uuid == project.value.owner.uuid) {
           settings.value.style.display = "";
           settings.value.href = "/project/settings/?id=" + params.get("id");
           return;
         }
-        if (isMember(r.body.uuid, PROJECT)) {
+        if (isMember(r.body.uuid, project.value)) {
           member.value.style.display = "";
         } else {
           joinbutton.value.style.display = "";
@@ -112,5 +141,14 @@ onMounted(() => {
 });
 </script>
 
-<style>
+<style scoped>
+.personlink {
+  text-decoration: none;
+  color: var(--primary-color);
+  cursor: pointer;
+}
+#description {
+  background-color: var(--navbar-color);
+  padding: 1vw;
+}
 </style>

@@ -13,8 +13,8 @@
   padding: 0.4rem;
 }
 
-.failed {
-  color: red;
+.error {
+  color: #f7717d;
   display: none;
   width: fit-content;
 }
@@ -24,12 +24,13 @@ main {
 body {
   padding: 0;
   margin: 0;
+  font-size: 16pt;
   font-family: Arial, Helvetica, sans-serif;
-  --primary-color: #ccd3e9;
+  --primary-color: #f7ece1;
   color: var(--primary-color);
-  --secondary-color: #2c2727;
-  --navbar-color: #1b1818;
-  --link-color: #ffffff;
+  --secondary-color: #29262c;
+  --navbar-color: #1e2019;
+  --link-color: #c6e7e5;
   background-color: var(--secondary-color);
 }
 </style>

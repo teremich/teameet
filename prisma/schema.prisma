@@ -7,46 +7,107 @@ generator client {
 
 datasource db {
     provider = "postgresql"
-    url = env("DATABASE_URL")
+    url      = env("DATABASE_URL")
 }
 
-model User{
+// private: user themselves
+// public: everyone
+model User {
+    // public
     uuid Int @id
+
+    // public
     name String @db.VarChar(63)
+
+    // private
     createdAt DateTime @default(now())
+
+    // private
     email String @unique
+
+    // public
     ownerOf Project[] @relation(name: "owner")
+
+    // public
     memberOf Project[] @relation(name: "members")
+
+    // hidden
     bannedFrom Project[] @relation(name: "ban")
+
+    // private
     joins joinRequest[]
+
+    // hidden
     passwordHash String
+
+    // public
     bio Json
+
+    // public
     additional Json?
 }
 
-model Project{
+// private: project members
+// public: everyone
+model Project {
+    // public
     id Int @id @default(autoincrement())
+
+    // public
     ownerId Int
+
+    // public(public info)
     owner User @relation(name: "owner", references: [uuid], fields: [ownerId])
+
+    // public([public info])
     members User[] @relation(name: "members")
+
+    // public
     name String @db.VarChar(255)
+
+    // public
     description String
+
+    // private
     tasks Json
+
+    // private
     createdAt DateTime @default(now())
-    // links String[]
+
+    // private
     joinRequests joinRequest[]
+
+    // public
     details Json
+
+    // public
     additional Json?
+
+    // owner-only    
     banList User[] @relation(name: "ban")
 }
 
-model joinRequest{
+model joinRequest {
+    // project members
     senderId Int
+
+    // project members(public info)
     sender User @relation(fields: [senderId], references: [uuid])
+
+    // project members and sender
     createdAt DateTime @default(now())
+
+    // sender
     receiverId Int
+
+    // sender(public info)
     receiver Project @relation(fields: [receiverId], references: [id])
+
+    // project members and sender
     message String
+
+    // project members and sender
     additional Json?
+
     @@id([senderId, receiverId])
 }

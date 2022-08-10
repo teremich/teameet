@@ -16,7 +16,7 @@
         <br />
         <button type="submit" onclick="login()">Log In</button>
         <p>
-          <span class="failed" ref="loginfailed"
+          <span class="error" ref="loginfailed"
             >You typed in the wrong E-Mail or Password</span
           >
         </p>
@@ -36,7 +36,7 @@
 import { ref, onMounted } from "vue";
 
 const params = new URLSearchParams(document.location.search);
-const referer = decodeURI(params.get("ref"));
+const referer = decodeURI(params.get("href"));
 
 const loginfailed = ref<HTMLElement | null>(null);
 const email = ref<HTMLInputElement | null>(null);
@@ -48,12 +48,12 @@ fetch("/api/login")
   .then((r) => r.json())
   .then((res) => {
     if (res.status == 200) {
-      location.href = referer || "/";
+      window.location.href = referer ?? "/";
     }
   });
 
 onMounted(() => {
-  register.value.href = "/register/?ref=" + referer;
+  register.value.href = "/register/?href=" + referer;
 });
 
 function login() {
@@ -70,7 +70,7 @@ function login() {
     .then((r) => r.json())
     .then((res) => {
       if (res.status == 200) {
-        location.href = referer || "/";
+        location.href = referer ?? "/";
       } else {
         loginfailed.value.style.display = "block";
       }

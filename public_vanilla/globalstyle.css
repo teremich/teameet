@@ -40,12 +40,6 @@ main {
     padding: 0.4rem;
 }
 
-.failed {
-    color: red;
-    display: none;
-    width: fit-content;
-}
-
 #logo a {
     text-decoration: none;
     color: var(--link-color);

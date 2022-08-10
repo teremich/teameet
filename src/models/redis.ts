@@ -25,6 +25,14 @@ export async function getUserId(token: string): Promise<number | null> {
     return Number.parseInt(res);
 }
 
+export async function removeUserId(token: string) {
+    if (!c.connected) {
+        await c.connect();
+        c.connected = true;
+    }
+    await c.client.del(token);
+}
+
 export async function setUserId(uuid: number, expires?: number): Promise<string> {
     if (!c.connected) {
         await c.connect();
@@ -33,7 +41,7 @@ export async function setUserId(uuid: number, expires?: number): Promise<string>
     const oldToken = await c.client.get(uuid.toString());
     if (oldToken) {
         // this prevents two sessions at once
-        c.client.del(oldToken);
+        await c.client.del(oldToken);
     }
     const token = randomToken();
     await c.client.set(token, uuid.toString(), {

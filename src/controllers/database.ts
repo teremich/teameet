@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { Database } from "../models/database";
 
 export const db = new Database();
@@ -8,6 +8,7 @@ export async function getProjectsPublic(where?: { id: number | undefined }): Pro
     description: string;
     name: string;
     details: Prisma.JsonValue;
+    createdAt: Date;
     owner: {
         name: string;
         uuid: number;
@@ -27,6 +28,7 @@ export async function getProjectsPublic(where?: { id: number | undefined }): Pro
             id: true,
             name: true,
             details: true,
+            createdAt: true,
             owner: {
                 select: {
                     name: true,
@@ -58,6 +60,14 @@ export async function postProject(data: projectData): Promise<number> {
             id: true
         }
     })).id;
+}
+
+export async function deleteProject(id: number) {
+    return await db.prisma.project.delete({
+        where: {
+            id
+        }
+    });
 }
 
 export { User, Project, statusCode } from "../models/database";

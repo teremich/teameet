@@ -4,62 +4,123 @@
       <Navbar />
     </header>
     <main>
-      <div ref="info" id="info">
-        <p ref="failed" class="failed">Sorry, we couldn't find this user</p>
-        <p>Hello there, {{ user.body.name }}!</p>
-        <p>Your Email is: {{ user.body.email }}</p>
+      <div></div>
+      <div v-if="user?.ownInfo">
+        <p>Hello, there, {{ user.payload.name }}!</p>
+        <p>your email is: {{ user.payload.email }}</p>
         <p>
-          You are member of:
-          {{ user.body.memberOf.toString() || "no projects" }}
+          you joined our community on: {{ new Date(user.payload.createdAt) }}
         </p>
-        <p>
-          You are the owner of:
-          {{
-            user.body.ownerOf.map((project) => project.name).toString() ||
-            "no projects"
-          }}
+        <p>your bio: {{ user.payload.bio }}</p>
+        <p style="font-weight: bold">you are the owner of following projects</p>
+        <p v-for="p in user.payload.ownerOf" :key="p.id">
+          {{ p.name }}: {{ p.description }}
+        </p>
+        <p style="font-weight: bold">you are a member of following projects</p>
+        <p v-for="p in user.payload.memberOf" :key="p.id">
+          {{ p.name }}: {{ p.description }}
+        </p>
+        <button @click="logout()">log out</button>
+        <br />
+        <button @click="deleteaccount()">delete my account</button>
+      </div>
+      <div v-else-if="user">
+        <p>This is the beautiful profile of {{ user.payload.name }}!</p>
+        <p>bio: {{ user.payload.bio }}</p>
+        <p style="font-weight: bold">owner of</p>
+        <p v-for="p in user.payload.ownerOf" :key="p.id">
+          {{ p.name }}: {{ p.description }}
+        </p>
+        <p style="font-weight: bold">member of</p>
+        <p v-for="p in user.payload.memberOf" :key="p.id">
+          {{ p.name }}: {{ p.description }}
         </p>
       </div>
+      <div></div>
+      <div v-if="!user?.ownInfo"></div>
+      <div></div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import Navbar from "../../components/Navbar.vue";
 
-// TODO: make this site more beautiful
+function deleteaccount() {
+  alert("this functionality isn't implemented yet");
+  return;
+  if (!confirm("are you sure")) {
+    return;
+  }
+  // TODO: implement functionality
+}
 
-const info = ref<HTMLElement | null>(null);
-const user = ref({
-  body: {
-    name: "",
-    email: "",
-    memberOf: [],
-    ownerOf: [],
-  },
-});
+function logout() {
+  fetch("/api/login", {
+    method: "DELETE",
+  }).then(() => {
+    window.location.href = window.location.href;
+  });
+}
+
+// TODO: add logout feature
+
+interface Project {
+  id: number;
+  ownerId: number;
+  name: string;
+  description: string;
+  createdAt: Date;
+  additional: any | null;
+}
+
+interface publicInfo {
+  uuid: number;
+  name: string;
+  ownerOf: Project[];
+  memberOf: Project[];
+  bio: any;
+  additional: any | null;
+}
+
+interface privateInfo extends publicInfo {
+  email: string;
+  createdAt: Date;
+  joins: {
+    additional: any;
+    createdAt: Date;
+    message: string;
+    receiver: Project;
+  }[];
+}
+
+const user = ref<{
+  ownInfo: boolean;
+  payload: publicInfo | privateInfo;
+} | null>(null);
 
 const params = new URLSearchParams(document.location.search);
-onMounted(async () => {
-  fetch("/api/login")
-    .then((r) => r.json())
-    .then(async (r) => {
+
+// TODO: reflect the API change in the DOM and make a beautiful site doing so
+fetch("/api/profile/?id=" + params.get("id"))
+  .then((r) => r.json())
+  .then(
+    async (r: {
+      status: number;
+      body: {
+        ownInfo: boolean;
+        payload: publicInfo | privateInfo;
+      };
+    }) => {
       if (r.status != 200) {
-        // SHOW PUBLICLY AVAILABLE STUFF
-        // location.href = "/login"
-      } else {
-        if (r.body.uuid != Number.parseInt(params.get("id"))) {
-          // SHOW PUBLICLY AVAILABLE STUFF BUT THE PERSON IS LOGGED IN
-          return;
-        }
-        // SHOW OWN PROFILE
-        document.title = `${r.body.name} | Teameet`;
-        console.log(r);
-        user.value = r;
+        console.error(r);
+        return;
       }
-    });
-});
+      document.title = `Profile of ${r.body.payload.name} | Teameet`;
+      user.value = r.body;
+    }
+  );
 </script>
 
 <style scoped>

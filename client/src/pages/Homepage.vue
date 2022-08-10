@@ -4,12 +4,12 @@
       <Navbar />
     </header>
     <main>
-      <div ref="main">
-        <div ref="projectsdiv">
-          <div ref="projectscontainer">
-            <table ref="projectstable" id="projectstable">
-              <tbody ref="projectstablebody">
-                <tr ref="projectsrowheader">
+      <div>
+        <div>
+          <div>
+            <table id="projectstable">
+              <tbody>
+                <tr>
                   <th class="projecttableheader projectname">name</th>
                   <th class="projecttableheader projectowner">owner</th>
                   <th class="projecttableheader projectdescription">
@@ -27,7 +27,9 @@
               </tbody>
             </table>
           </div>
-          <NewProject />
+          <div id="newproj">
+            <a class="button" href="/project/new"> create a new Project </a>
+          </div>
         </div>
       </div>
     </main>
@@ -38,7 +40,6 @@
 import { ref, onMounted } from "vue";
 import Navbar from "../components/Navbar.vue";
 import ProjectTableEntry from "../components/ProjectTableEntry.vue";
-import NewProject from "../components/NewProject.vue";
 
 const projects = ref([]);
 
@@ -66,5 +67,10 @@ h1 {
 
 .projecttableheader {
   text-align: left;
+}
+
+#newproj {
+  margin-left: 5vw;
+  margin-right: 0;
 }
 </style>

@@ -2,12 +2,8 @@
   <div id="navbar">
     <h2 id="logo"><a href="/">TEAMEET</a></h2>
     <div>
-      <p>
-        <a class="account" ref="login" style="display: none">login</a>
-      </p>
-      <p>
-        <a class="account" ref="profile" style="display: none"></a>
-      </p>
+      <a class="account" ref="login" style="display: none">login</a>
+      <a class="account" ref="profile" style="display: none"></a>
     </div>
   </div>
 </template>
@@ -23,21 +19,30 @@ import { ref, onMounted } from "vue";
 const login = ref<HTMLLinkElement | null>(null);
 const profile = ref<HTMLLinkElement | null>(null);
 
+// TODO: emit loadfinished event with the right payload
+const userInfo = defineEmits(["loadfinished"]);
+
 onMounted(() => {
   login.value.href =
     "/login?href=" +
-    encodeURI(window.location.pathname + window.location.search);
+    (encodeURI(window.location.pathname + window.location.search) || "/");
   fetch("/api/login")
     .then((r) => r.json())
     .then((r) => {
       if (r.status != 200) {
         login.value.style.display = "";
+        userInfo("loadfinished", {
+          loggedIn: false,
+        });
       } else {
-        (<any>window).userprofile = r.body;
         let element = profile.value;
         element.href = "/profile/?id=" + r.body.uuid;
         element.style.display = "";
         element.innerText = r.body.name;
+        userInfo("loadfinished", {
+          loggedIn: true,
+          payload: r.body,
+        });
       }
     });
 });
@@ -45,7 +50,7 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .account {
-  position: fixed;
+  position: absolute;
   right: 50px;
   top: 20px;
   text-decoration: none;
@@ -55,8 +60,9 @@ onMounted(() => {
 }
 #navbar {
   background-color: var(--navbar-color);
-  padding: 1vw;
+  padding: 1rem;
   margin: 0;
+  position: relative;
 }
 #logo {
   a {

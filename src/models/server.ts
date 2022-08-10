@@ -4,6 +4,8 @@ import express from "express";
 import { router } from "../routes";
 import CookieParser from "cookie-parser";
 import cors from "cors";
+// @ts-ignore
+import * as bodyParserErrorHandler from "express-body-parser-error-handler";
 
 export class Server {
     app: express.Express;
@@ -16,7 +18,8 @@ export class Server {
         this.app.use(CookieParser());
         if (process.env.NODE_ENV == "dev") { this.app.use(cors({ origin: "http://*localhost:8080" })); }
         this.app.use(express.urlencoded({ extended: true }));
-        this.app.use(express.json());
+        this.app.use(express.json({ limit: "10kb" }));
+        this.app.use(bodyParserErrorHandler.default());
     }
     routes() {
         this.app.use("/", router);
