@@ -26,7 +26,8 @@
       "dom",
       "dom.iterable",
       "scripthost"
-    ]
+    ],
+    "noUnusedLocals": false
   },
   "include": [
     "src/**/*.ts",
@@ -37,5 +38,5 @@
   ],
   "exclude": [
     "node_modules"
-  ]
+  ],
 }

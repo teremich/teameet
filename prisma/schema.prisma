@@ -87,6 +87,7 @@ model Project {
     banList User[] @relation(name: "ban")
 }
 
+// OMG I HATE this typo, why isn't it starting with a capital letter like the others!!!!
 model joinRequest {
     // project members
     senderId Int

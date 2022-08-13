@@ -1,52 +1,66 @@
 import { createClient } from "redis";
-import { randomToken } from "../controllers/auth";
+import { randomToken } from "controllers/auth";
 const TWELVE_HOURS = 0xa8c0; // 12*60*60 seconds
 
 const c = {
-    client: createClient(), connected: false, connect: async function () {
+    client: createClient(),
+    connected: false,
+    connect: async function () {
+        if (this.connected) {
+            return;
+        }
         try {
+            this.connected = true;
             await this.client.connect();
         } catch (e) {
             console.error("redis database not running");
+            console.error(e);
             process.exit(1);
         }
     }
 };
 
-export async function getUserId(token: string): Promise<number | null> {
-    if (!c.connected) {
-        await c.connect();
-        c.connected = true;
+async function getRedisClient() {
+    await c.connect();
+    return c.client;
+}
+
+export async function getUserId(token: string | undefined): Promise<number | null> {
+    if (!token) {
+        return null;
     }
-    const res = await c.client.get(token);
+    const res = await (await getRedisClient()).get(token);
     if (res === null) {
         return null
     }
     return Number.parseInt(res);
 }
 
-export async function removeUserId(token: string) {
-    if (!c.connected) {
-        await c.connect();
-        c.connected = true;
+export async function removeUserId(token: string | undefined) {
+    if (!token) {
+        return;
     }
-    await c.client.del(token);
+    const cl = await getRedisClient();
+    const id = await getUserId(token);
+    await cl.del(token);
+    if (id) {
+        await cl.del(id.toString());
+    }
 }
 
 export async function setUserId(uuid: number, expires?: number): Promise<string> {
-    if (!c.connected) {
-        await c.connect();
-        c.connected = true;
-    }
-    const oldToken = await c.client.get(uuid.toString());
+    const cl = await getRedisClient();
+    const oldToken = await cl.get(uuid.toString());
     if (oldToken) {
         // this prevents two sessions at once
-        await c.client.del(oldToken);
+        await cl.del(oldToken);
     }
     const token = randomToken();
-    await c.client.set(token, uuid.toString(), {
+    await cl.set(token, uuid.toString(), {
         EX: expires ?? TWELVE_HOURS
     });
-    await c.client.set(uuid.toString(), token);
+    await cl.set(uuid.toString(), token, {
+        EX: expires ?? TWELVE_HOURS
+    });
     return token;
 }

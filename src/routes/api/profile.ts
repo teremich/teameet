@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { getUserId, getUserObject } from "../../controllers/auth";
-import { getProjectsPublic } from "../../controllers/database";
+import { getUserId, getUserObject } from "controllers/auth";
+import { getProjects } from "controllers/database";
 export const router = Router();
 
 interface Project {
@@ -49,7 +49,6 @@ router.route("/profile")
             next();
         });
     })
-    // returns whether you're already loggeed in
     .get(async (req, res) => {
         const user = await getUserObject(Number.parseInt(req.query?.["id"]?.toString() ?? ""));
         if (!user) {
@@ -135,7 +134,7 @@ router.route("/profile")
                                 createdAt: jr.createdAt,
                                 message: jr.message,
                                 receiver: await (async () => {
-                                    const p = (await getProjectsPublic({ id: jr.receiverId }))[0];
+                                    const p = (await getProjects({ id: jr.receiverId }))[0];
                                     return {
                                         id: p.id,
                                         ownerId: p.owner.uuid,

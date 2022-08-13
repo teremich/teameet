@@ -4,67 +4,106 @@
       <Navbar />
     </header>
     <main>
-      <div></div>
       <div v-if="user?.ownInfo">
-        <p>Hello, there, {{ user.payload.name }}!</p>
-        <p>your email is: {{ user.payload.email }}</p>
-        <p>
-          you joined our community on: {{ new Date(user.payload.createdAt) }}
-        </p>
-        <p>your bio: {{ user.payload.bio }}</p>
-        <p style="font-weight: bold">you are the owner of following projects</p>
-        <p v-for="p in user.payload.ownerOf" :key="p.id">
-          {{ p.name }}: {{ p.description }}
-        </p>
-        <p style="font-weight: bold">you are a member of following projects</p>
-        <p v-for="p in user.payload.memberOf" :key="p.id">
-          {{ p.name }}: {{ p.description }}
-        </p>
-        <button @click="logout()">log out</button>
-        <br />
-        <button @click="deleteaccount()">delete my account</button>
+        <p>Hello there, {{ user.payload.name }}!</p>
       </div>
-      <div v-else-if="user">
+      <div v-else-if="!user">
+        <p>Sorry, we couldn't find this user :/</p>
+      </div>
+      <div v-else>
         <p>This is the beautiful profile of {{ user.payload.name }}!</p>
-        <p>bio: {{ user.payload.bio }}</p>
+      </div>
+      <div v-if="user">
+        <div v-if="user.payload.bio?.default">
+          <label>bio:</label>
+          <p id="bio">
+            {{ user.payload.bio?.default }}
+          </p>
+        </div>
         <p style="font-weight: bold">owner of</p>
-        <p v-for="p in user.payload.ownerOf" :key="p.id">
-          {{ p.name }}: {{ p.description }}
+        <p v-if="!user.payload.ownerOf.length">no projects</p>
+        <p v-else v-for="p in user.payload.ownerOf" :key="p.id">
+          <a class="link" :href="'/project/?id=' + p.id">{{ p.name }}</a
+          >: {{ truncate(p.description, 100) }}
         </p>
         <p style="font-weight: bold">member of</p>
-        <p v-for="p in user.payload.memberOf" :key="p.id">
-          {{ p.name }}: {{ p.description }}
+        <p v-if="!user.payload.memberOf.length">no projects</p>
+        <p v-else v-for="p in user.payload.memberOf" :key="p.id">
+          <a class="link" :href="'/project/?id=' + p.id">{{ p.name }}</a
+          >: {{ truncate(p.description, 100) }}
         </p>
       </div>
-      <div></div>
-      <div v-if="!user?.ownInfo"></div>
-      <div></div>
+      <div v-if="user?.ownInfo">
+        <p style="font-weight: bold">your join requests</p>
+        <p v-if="!user.payload.joins.length">you have no unanswered join requests</p>
+        <p v-else v-for="(j, i) in user.payload.joins" :key="i">
+          <a class="link" :href="'/project/?id='+j.receiver.id">{{j.receiver.name}}</a>: {{j.message}}
+        </p>
+        <a href="/profile/settings" class="button">settings</a>
+      </div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
-import Navbar from "../../components/Navbar.vue";
+// @ts-ignore
+import Navbar from "@/components/Navbar.vue";
 
-function deleteaccount() {
-  alert("this functionality isn't implemented yet");
-  return;
-  if (!confirm("are you sure")) {
-    return;
-  }
-  // TODO: implement functionality
-}
-
-function logout() {
-  fetch("/api/login", {
-    method: "DELETE",
-  }).then(() => {
-    window.location.href = window.location.href;
+function getValuesInRange(
+  set: Set<number>,
+  lowerBound: number,
+  upperBound: number
+) {
+  return [...set].filter((v) => {
+    return v <= upperBound && v >= lowerBound;
   });
 }
 
-// TODO: add logout feature
+function closestValue(list: number[], value: number) {
+  if (!list.length) {
+    return [null, null];
+  }
+  let cv = list[0];
+  let dist = cv > value ? cv - value : value - cv;
+  for (const num of list) {
+    let d = num > value ? num - value : value - num;
+    if (d < dist) {
+      dist = d;
+      cv = num;
+    }
+  }
+  return [cv, dist];
+}
+
+function truncate(input: string) {
+  if (input.length < 100) {
+    return input;
+  }
+  const regexList = [/[!.?;]\s/g, /,\s/g, /.\s/g];
+  let result;
+  let indices = new Set<number>();
+  let cv = null;
+  let dist = null;
+  for (const regex of regexList) {
+    while ((result = regex.exec(input))) {
+      indices.add(result.index + 1);
+    }
+    [cv, dist] = closestValue(
+      [...indices].filter((v) => {
+        return v <= 120 && v >= 70;
+      }),
+      100
+    );
+    if (dist && dist < 10) {
+      return input.substring(0, <number>cv) + "…";
+    }
+  }
+  if (dist && dist < 20) {
+    return input.substring(0, <number>cv) + "…";
+  }
+  return input.substring(0, 100) + "…";
+}
 
 interface Project {
   id: number;
@@ -102,7 +141,6 @@ const user = ref<{
 
 const params = new URLSearchParams(document.location.search);
 
-// TODO: reflect the API change in the DOM and make a beautiful site doing so
 fetch("/api/profile/?id=" + params.get("id"))
   .then((r) => r.json())
   .then(
@@ -124,4 +162,8 @@ fetch("/api/profile/?id=" + params.get("id"))
 </script>
 
 <style scoped>
+#bio {
+  background-color: var(--navbar-color);
+  padding: 1vw;
+}
 </style>

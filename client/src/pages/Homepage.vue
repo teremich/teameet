@@ -38,8 +38,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import Navbar from "../components/Navbar.vue";
-import ProjectTableEntry from "../components/ProjectTableEntry.vue";
+// @ts-ignore
+import Navbar from "@/components/Navbar.vue";
+// @ts-ignore
+import ProjectTableEntry from "@/components/ProjectTableEntry.vue";
 
 const projects = ref([]);
 
@@ -49,9 +51,8 @@ onMounted(async () => {
 });
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-@import "../assets/tablestyle.css";
+@import "@/assets/tablestyle.css";
 
 h1 {
   text-align: center;
@@ -59,10 +60,11 @@ h1 {
 }
 
 #projectstable {
-  margin-left: 5vw;
-  margin-bottom: 5vw;
+  margin: 5vw;
+  margin-top: 0;
   padding: 0;
   table-layout: fixed;
+  border-spacing: 0 1vh;
 }
 
 .projecttableheader {

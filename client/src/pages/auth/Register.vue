@@ -12,8 +12,17 @@
         <input ref="password" placeholder="Password" type="password" />
         <br />
         <button type="submit">Register Now</button>
-        <p ref="failed">
-          <span class="error">something has gone wrong</span>
+        <p>
+          <span
+            class="error"
+            :style="{ display: failed.error ? 'block' : 'none' }"
+            >something has gone wrong</span
+          >
+          <span
+            class="error"
+            :style="{ display: failed.error ? 'block' : 'none' }"
+            >Server responded with: {{ failed.msg }}</span
+          >
         </p>
       </form>
     </main>
@@ -24,12 +33,15 @@
 import { ref } from "vue";
 
 const params = new URLSearchParams(document.location.search);
-const referer = decodeURI(params.get("href"));
+const referer = decodeURI(params.get("href") ?? "/");
 
 const name = ref<HTMLInputElement | null>(null);
 const email = ref<HTMLInputElement | null>(null);
 const password = ref<HTMLInputElement | null>(null);
-const failed = ref<HTMLParagraphElement | null>(null);
+const failed = ref({
+  error: false,
+  msg: "",
+});
 
 function register() {
   fetch("/api/register", {
@@ -38,22 +50,21 @@ function register() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      name: name.value.value,
-      email: email.value.value,
-      password: password.value.value,
+      name: name.value?.value,
+      email: email.value?.value,
+      password: password.value?.value,
     }),
   })
     .then((r) => r.json())
     .then((res) => {
       console.log(res);
       if (res.status >= 200 && res.status < 300) {
-        location.href = referer || "/";
+        location.href = referer;
       } else {
-        failed.value.innerHTML += `<span class="error">Server responded with: ${res.body.msg}</span>`;
-        failed.value.querySelectorAll(".error").forEach((element) => {
-          (<any>element).style.display = "block";
-        });
-        console.log(failed.value.innerHTML);
+        failed.value = {
+          error: true,
+          msg: res.body.msg,
+        };
       }
     });
 }

@@ -2,7 +2,7 @@
 import { randomBytes, createHash } from "crypto";
 import type { Request, Response } from "express";
 import { db, statusCode } from "./database";
-import { getUserId, setUserId, removeUserId } from "../models/redis";
+import { getUserId, setUserId, removeUserId } from "models/redis";
 
 export function randomToken(): string {
     let token: string = "";
@@ -32,8 +32,7 @@ export async function getUserLevel(userToken: string, projectId: number): Promis
     if (uid === 521473147) {
         return { uuid: uid, level: level.ADMIN };
     }
-    // this will not work because project is never sent as a query parameter
-    // make sure there is no real project with the id 0
+    // ~~make sure there is no real project with the id 0~~ autoincrement() will take care of that
     if (!projectId) {
         return { uuid: uid, level: level.LOGGED_IN };
     }
@@ -83,8 +82,16 @@ export async function register(data: { email: string, password: string, bio: any
     return { code: newUser.code, token: await setUserId(newUser.value.uuid) };
 }
 
-export function deleteUser(id: number) {
-
+export async function deleteUser(id: number) {
+    if (!id) {
+        return false;
+    }
+    await db.prisma.user.delete({
+        where: {
+            uuid: id
+        }
+    });
+    return true;
 }
 
 export function logout(token: string | undefined) {

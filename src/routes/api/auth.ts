@@ -6,10 +6,17 @@ import {
     login, logout,
     register, deleteUser,
     getUserObject
-} from "../../controllers/auth";
-import { statusCode } from "../../controllers/database";
+} from "controllers/auth";
+import { statusCode } from "controllers/database";
 export const router = Router();
 
+// TODO: github social login
+// really? now? pre 1.0?
+router.all("/githublogin", (req, res) => {
+    console.log(req);
+    console.log(req.body);
+    res.sendStatus(200);
+});
 
 router.route("/login")
     // sets a variable if user is already logged in
@@ -88,7 +95,9 @@ router.route("/login")
         logout(req.cookies["AuthToken"]);
         res.sendStatus(200);
     });
-// TODO: spam protection
+
+// TODO: spam protection (moved to post 1.0)
+// idea: maybe by allowing github registration only
 router.route("/register").post((req, res) => {
     getUserId(req.cookies["AuthToken"]).then(async r => {
         // if logged in send current user id
@@ -147,8 +156,14 @@ router.route("/register").post((req, res) => {
                 });
         }
     });
-}).delete((req, res) => {
+}).delete(async (req, res) => {
     getUserId(req.cookies["AuthToken"]).then(async r => {
-        deleteUser(r ?? 0);
+        if (await deleteUser(r ?? 0)) {
+            logout(req.cookies["AuthToken"]);
+            res.clearCookie("AuthToken");
+            res.sendStatus(200);
+        } else {
+            res.sendStatus(400);
+        }
     });
 });

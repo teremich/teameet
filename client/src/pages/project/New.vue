@@ -20,7 +20,7 @@
           placeholder="Tell us about your project…"
         ></textarea>
         <p>
-          <span ref="failed" class="error"
+          <span :style="failed" class="error"
             >Please provide a name for your project as well as a
             description.</span
           >
@@ -33,22 +33,22 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import Navbar from "../../components/Navbar.vue";
+// @ts-ignore
+import Navbar from "@/components/Navbar.vue";
 
 const name = ref<HTMLInputElement | null>(null);
 const description = ref<HTMLInputElement | null>(null);
+const failed = ref("display: none");
 
-const failed = ref<HTMLElement | null>(null);
-
-function onLoaded(event) {
+function onLoaded(event: { loggedIn: boolean }) {
   if (!event.loggedIn) {
     window.location.href = "/login?href=/project/new";
   }
 }
 
 function submit() {
-  const n = name.value.value;
-  const d = description.value.value;
+  const n = name.value?.value;
+  const d = description.value?.value;
   if (n && d) {
     fetch("/api/project", {
       method: "POST",
@@ -71,7 +71,7 @@ function submit() {
         }
       });
   } else {
-    failed.value.style.display = "block";
+    failed.value = "display: block";
   }
 }
 </script>

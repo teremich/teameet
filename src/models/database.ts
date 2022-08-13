@@ -1,8 +1,8 @@
 "use strict";
 import { PrismaClient } from "@prisma/client"
-import type { User, Project, Prisma } from "@prisma/client";
+import type { User, Project, joinRequest, Prisma, } from "@prisma/client";
 export type JsonObject = Prisma.JsonObject;
-export type { User, Project };
+export type { User, Project, joinRequest as JoinRequest };
 
 export enum statusCode {
     SUCCESS = 0,
@@ -18,7 +18,7 @@ export class Database {
         this.prisma = new PrismaClient();
     }
     async isMember(userId: number, projectId: number): Promise<boolean> {
-        const members: { members: { uuid: number }[] } | null = (await this.prisma.project.findUnique({
+        const members = (await this.prisma.project.findUnique({
             where: {
                 id: projectId,
             },

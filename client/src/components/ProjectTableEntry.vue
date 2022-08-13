@@ -25,35 +25,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-
-function visit(id) {
+function visit(id: number) {
   window.location.href = "/project/?id=" + id;
 }
-
 const props = defineProps(["project"]);
-
-const projectname = ref<HTMLSpanElement | null>(null);
-const projectowner = ref<HTMLSpanElement | null>(null);
-const projectdescription = ref<HTMLSpanElement | null>(null);
-const projectlanguages = ref<HTMLSpanElement | null>(null);
 </script>
 
 <style scoped>
-@import "../assets/tablestyle.css";
+@import "@/assets/tablestyle.css";
 
 .projectcolumnspan {
-  max-height: 45px;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-height: 15vh;
+  min-width: 200px;
 }
 
 .projectcolumnspan:hover {
   cursor: default;
 }
+
 .projectrow {
   width: 90vw;
-  height: 40px;
+  height: 5vh;
+  vertical-align: top;
 }
 .projectrow:hover {
   background-color: var(--primary-color);

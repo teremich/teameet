@@ -2,8 +2,13 @@
   <div id="navbar">
     <h2 id="logo"><a href="/">TEAMEET</a></h2>
     <div>
-      <a class="account" ref="login" style="display: none">login</a>
-      <a class="account" ref="profile" style="display: none"></a>
+      <a class="account" ref="login" v-if="!profile.loaded">login</a>
+      <a
+        class="account"
+        v-if="profile.loaded"
+        :href="'/profile/?id=' + profile.uuid"
+        >{{ profile?.name }}</a
+      >
     </div>
   </div>
 </template>
@@ -11,34 +16,32 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 
-// const accountButtonData = reactive({
-//   login: null,
-//   profile: null,
-// });
-
 const login = ref<HTMLLinkElement | null>(null);
-const profile = ref<HTMLLinkElement | null>(null);
+const profile = ref({
+  loaded: false,
+  name: "",
+  uuid: 0,
+});
 
-// TODO: emit loadfinished event with the right payload
 const userInfo = defineEmits(["loadfinished"]);
 
 onMounted(() => {
-  login.value.href =
+  (<HTMLLinkElement>login.value).href =
     "/login?href=" +
     (encodeURI(window.location.pathname + window.location.search) || "/");
   fetch("/api/login")
     .then((r) => r.json())
     .then((r) => {
       if (r.status != 200) {
-        login.value.style.display = "";
         userInfo("loadfinished", {
           loggedIn: false,
         });
       } else {
-        let element = profile.value;
-        element.href = "/profile/?id=" + r.body.uuid;
-        element.style.display = "";
-        element.innerText = r.body.name;
+        profile.value = {
+          loaded: true,
+          name: r.body.name,
+          uuid: r.body.uuid,
+        };
         userInfo("loadfinished", {
           loggedIn: true,
           payload: r.body,
@@ -51,8 +54,8 @@ onMounted(() => {
 <style scoped lang="scss">
 .account {
   position: absolute;
-  right: 50px;
-  top: 20px;
+  right: 3em;
+  top: 2em;
   text-decoration: none;
   background-color: var(--secondary-color);
   color: var(--link-color);
@@ -61,6 +64,7 @@ onMounted(() => {
 #navbar {
   background-color: var(--navbar-color);
   padding: 1rem;
+  padding-left: 3rem;
   margin: 0;
   position: relative;
 }

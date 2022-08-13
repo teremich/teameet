@@ -14,9 +14,9 @@
           type="password"
         />
         <br />
-        <button type="submit" onclick="login()">Log In</button>
+        <button type="submit" @click="login()">Log In</button>
         <p>
-          <span class="error" ref="loginfailed"
+          <span class="error" :style="loginfailed ? { display: 'block' } : {}"
             >You typed in the wrong E-Mail or Password</span
           >
         </p>
@@ -24,7 +24,7 @@
       <br />
       <div>
         You don't have an account, yet?
-        <a ref="register" class="button" href="/register"
+        <a class="button" :href="'/register/?href=' + referer"
           >you can register a new one here</a
         >
       </div>
@@ -33,28 +33,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
+// TODO: please fix this site for mobile
 
 const params = new URLSearchParams(document.location.search);
-const referer = decodeURI(params.get("href"));
+const referer = decodeURI(params.get("href") ?? "/");
 
-const loginfailed = ref<HTMLElement | null>(null);
 const email = ref<HTMLInputElement | null>(null);
 const password = ref<HTMLInputElement | null>(null);
 
-const register = ref<HTMLAnchorElement>(null);
+const loginfailed = ref(false);
 
 fetch("/api/login")
   .then((r) => r.json())
   .then((res) => {
     if (res.status == 200) {
-      window.location.href = referer ?? "/";
+      window.location.href = referer;
     }
   });
-
-onMounted(() => {
-  register.value.href = "/register/?href=" + referer;
-});
 
 function login() {
   fetch("/api/login", {
@@ -63,16 +59,17 @@ function login() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      email: email.value.value,
-      password: password.value.value,
+      email: email.value?.value,
+      password: password.value?.value,
     }),
   })
     .then((r) => r.json())
     .then((res) => {
+      console.log(res);
       if (res.status == 200) {
-        location.href = referer ?? "/";
+        location.href = referer;
       } else {
-        loginfailed.value.style.display = "block";
+        loginfailed.value = true;
       }
     });
 }

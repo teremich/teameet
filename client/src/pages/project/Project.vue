@@ -4,53 +4,82 @@
     <main>
       <h2 id="name">{{ project.name }}</h2>
       <div id="info">
-        <label>description:</label>
+        <label style="font-weight: bold">description:</label>
         <p id="description">{{ project.description }}</p>
-        <br />
-        <p>
-          owner:
-          <a class="personlink" :href="'/profile/?id=' + project.owner.uuid">{{
-            project.owner.name
-          }}</a>
+        <label
+          style="font-weight: bold"
+          v-if="project.additional?.links?.length"
+          >links
+          <span style="opacity: 0.3; font-weight: initial"
+            >(warning: be cautious visiting other web sites)</span
+          ></label
+        >
+        <p v-for="(link, index) in project.additional?.links" :key="index">
+          <span>{{ link.name }}</span
+          >: <a class="link" :href="link.target">{{ link.target }}</a>
         </p>
-        <p>
+        <br />
+        <p style="font-weight: bold">
+          owner:
+          <a
+            style="font-weight: initial"
+            class="link"
+            :href="'/profile/?id=' + project.owner.uuid"
+            >{{ project.owner.name }}</a
+          >
+        </p>
+        <p style="font-weight: bold">
           members:
           <a
-            class="personlink"
+            class="link"
+            style="font-weight: initial"
             v-for="member in project.members"
             :key="member.id"
             :href="'/profile/?id=' + member.uuid"
-            >{{ member.name }},</a
-          >
+            >{{ member.name }},
+          </a>
+          <span style="font-weight: initial" v-if="!project.members.length">
+            no members
+          </span>
         </p>
+        <div v-if="userLevel >= level.member">
+          <p style="font-weight: bold">Users who want to join this project</p>
+          <p v-for="jr in project.joinRequests" :key="jr.sender.uuid">
+            <a class="link" :href="'/profile/?id=' + jr.sender.uuid">{{
+              jr.sender.name
+            }}</a
+            >: {{ jr.message }}
+          </p>
+          <p v-if="!project.joinRequests?.length">
+            there are no open join requests
+          </p>
+        </div>
       </div>
+      <br />
       <div>
-        <button
-          @click="remove()"
-          style="display: none"
-          ref="settings"
-          id="settings"
-        >
-          delete this project
-        </button>
         <a
           class="button"
-          style="display: none"
-          ref="memberlogin"
+          :href="'/project/settings/?id=' + params.get('id')"
+          v-if="userLevel == level.owner"
+          id="settings"
+        >
+          settings
+        </a>
+        <a
+          v-if="userLevel == level.logged_out"
+          class="button"
           id="memberlogin"
+          :href="'/login?href=/project/?id=' + id"
           >login to become a member</a
         >
-        <button
-          ref="joinbutton"
+        <a
           id="joinbutton"
-          style="display: none; cursor: pointer"
-          @click="join()"
+          class="link"
+          v-if="userLevel == level.logged_in"
+          :href="'/project/join/?id=' + params.get('id')"
         >
           become a member
-        </button>
-        <span ref="member" id="member" style="display: none"
-          >you are a member</span
-        >
+        </a>
       </div>
     </main>
   </div>
@@ -58,10 +87,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import Navbar from "../../components/Navbar.vue";
-
-// TODO: make this site more beautiful
-// TODO: what if project doesn't exist
+// @ts-ignore
+import Navbar from "@/components/Navbar.vue";
 
 const project = ref({
   name: "sorry, we coudn't find this project",
@@ -71,17 +98,22 @@ const project = ref({
     uuid: 0,
   },
   members: [],
+  joinRequests: [],
 });
 
-const memberlogin = ref<HTMLLinkElement | null>(null);
-const settings = ref<HTMLLinkElement | null>(null);
-const member = ref<HTMLElement | null>(null);
-const joinbutton = ref<HTMLAnchorElement | null>(null);
+enum level {
+  undefined = 0,
+  logged_out,
+  logged_in,
+  member,
+  owner,
+  // admin
+}
+
+const userLevel = ref(level.undefined);
+const id = ref(0);
 
 const params = new URLSearchParams(document.location.search);
-
-// TODO
-function join() {}
 
 function remove() {
   fetch("/api/project/?id=" + params.get("id"), {
@@ -91,8 +123,23 @@ function remove() {
   });
 }
 
+function isMember(
+  userid: number,
+  project: {
+    members: { uuid: number }[];
+  }
+) {
+  for (let mem of project.members) {
+    if (mem.uuid == userid) {
+      return true;
+    }
+  }
+  return false;
+}
+
 onMounted(() => {
   if (params.get("id")) {
+    id.value = Number.parseInt(params.get("id") ?? "");
     fetch("/api/project?id=" + params.get("id"))
       .then((r) => r.json())
       .then((res) => {
@@ -102,51 +149,31 @@ onMounted(() => {
         }
         project.value = res.body.projects[0];
         document.title = `${project.value.name} | Teameet`;
-        main();
+        fetch("/api/login")
+          .then((r) => r.json())
+          .then(async (r) => {
+            if (r.status != 200) {
+              userLevel.value = level.logged_out;
+              return;
+            }
+            if (r.body.uuid == project.value.owner.uuid) {
+              userLevel.value = level.owner;
+              return;
+            }
+            if (isMember(r.body.uuid, project.value)) {
+              userLevel.value = level.member;
+            } else {
+              userLevel.value = level.logged_in;
+            }
+          });
       });
   } else {
     location.href = "/";
-  }
-  function isMember(userid, project) {
-    for (let mem of project.members) {
-      if (mem.uuid == userid) {
-        return true;
-      }
-    }
-    return false;
-  }
-  function main() {
-    fetch("/api/login")
-      .then((r) => r.json())
-      .then(async (r) => {
-        if (r.status != 200) {
-          memberlogin.value.href =
-            "/login?href=" + encodeURI("/project/?id=" + params.get("id"));
-          memberlogin.value.style.display = "";
-          return;
-        }
-        if (r.body.uuid == project.value.owner.uuid) {
-          settings.value.style.display = "";
-          settings.value.href = "/project/settings/?id=" + params.get("id");
-          return;
-        }
-        if (isMember(r.body.uuid, project.value)) {
-          member.value.style.display = "";
-        } else {
-          joinbutton.value.style.display = "";
-          joinbutton.value.href = "/project/join/?id=" + params.get("id");
-        }
-      });
   }
 });
 </script>
 
 <style scoped>
-.personlink {
-  text-decoration: none;
-  color: var(--primary-color);
-  cursor: pointer;
-}
 #description {
   background-color: var(--navbar-color);
   padding: 1vw;

@@ -29,8 +29,13 @@ body {
   --primary-color: #f7ece1;
   color: var(--primary-color);
   --secondary-color: #29262c;
-  --navbar-color: #1e2019;
+  --navbar-color: #1e1819;
   --link-color: #c6e7e5;
   background-color: var(--secondary-color);
+}
+.link {
+  text-decoration: none;
+  color: var(--link-color);
+  cursor: pointer;
 }
 </style>
