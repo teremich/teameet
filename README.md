@@ -9,7 +9,7 @@ A website to find and join interesting projects or to post your projects and fin
 - run following commands:
     - `docker compose up`
     - `npm install`
-    - `npx prisma `
+    - `npx prisma generate`
     - `npm run build`
     - `cd client`
     - `npm i --legacy-peer-deps`
