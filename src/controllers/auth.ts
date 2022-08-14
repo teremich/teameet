@@ -12,7 +12,7 @@ export function randomToken(): string {
 
 export function hash(password: string): string {
     const hash = createHash("SHA256");
-    hash.update("a84fe43566e173fefdda5bfd4b4" + password);
+    hash.update(process.env.SALT + password);
     return hash.digest("hex");
 }
 

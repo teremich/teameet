@@ -18,7 +18,6 @@ router.use(project.router);
 // /join
 router.use(join.router);
 
-// TODO: add join request feature (probably own router-file)
 
 router.route("/")
     .all(requireAuth(level.ADMIN))
