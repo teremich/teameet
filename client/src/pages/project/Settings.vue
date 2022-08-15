@@ -3,14 +3,22 @@
     <header>
       <Navbar />
     </header>
-    <main></main>
+    <main>
+      <!--
+        TODO:
+          [ ] accept / deny join requests
+          [ ] set technologies
+          [ ] set links
+          [ ] kick / ban members
+          [ ] delete the project
+      -->
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
 // @ts-ignore
 import Navbar from "@/components/Navbar.vue";
-// TODO: This is a big TODO
 </script>
 
 <style scoped>

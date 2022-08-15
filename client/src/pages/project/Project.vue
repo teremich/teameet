@@ -2,6 +2,7 @@
   <div>
     <Navbar />
     <main>
+      <!-- TODO: feature to leave a project -->
       <h2 id="name">{{ project.name }}</h2>
       <div id="info">
         <label style="font-weight: bold">description:</label>

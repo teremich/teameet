@@ -56,18 +56,27 @@ router.route("/join") // ?project=id;authToken -> user.uuid
             });
             return;
         }
-        await makeJoinRequest(
+        if (await makeJoinRequest(
             userid,
             projectid,
-            req.body.message.trim());
-        res.status(201);
-        res.json({
-            status: 201,
-            body: {
-                userid,
-                projectid
-            }
-        });
+            req.body.message.trim())) {
+            res.status(201);
+            res.json({
+                status: 201,
+                body: {
+                    userid,
+                    projectid
+                }
+            });
+        } else {
+            res.status(400);
+            res.json({
+                status: 400,
+                body: {
+                    msg: "you already sent a join request"
+                }
+            });
+        }
     }).delete(async (req, res) => {
         const projectId = Number.parseInt(req.query?.["project"]?.toString() ?? "");
         if (!projectId) {

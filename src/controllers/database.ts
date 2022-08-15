@@ -120,6 +120,16 @@ export async function getJoinRequestsByUser(userId: number) {
 }
 
 export async function makeJoinRequest(userId: number, projectId: number, message: string) {
+    if (await db.prisma.joinRequest.findUnique({
+        where: {
+            senderId_receiverId: {
+                receiverId: projectId,
+                senderId: userId
+            }
+        }
+    })) {
+        return false;
+    }
     await db.prisma.joinRequest.create({
         data: {
             receiverId: projectId,

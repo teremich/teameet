@@ -4,6 +4,12 @@
       <Navbar @loadfinished="leaveIfNotLoggedIn" />
     </header>
     <main>
+      <!--
+        TODO:
+          [ ] leave projects
+          [ ] set bio
+          [ ] change name / email / password
+      -->
       <button @click="logout()">Log out</button>
       <button @click="deleteaccount()">delete my account</button>
     </main>

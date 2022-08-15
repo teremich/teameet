@@ -2,13 +2,16 @@
 
 A website to find and join interesting projects or to post your projects and find people to work with
 
-## How to get started:
+## if you have any questions…
+feel free to open an issue and ask as many of them as you want to
+
+## getting started:
 - clone the github repo
 - rename the example.env file to .env and fill in the right values
 - optionally change the username, password & postgresql-port in the docker-compose.yml file
 - instead of running the postgresql and redis databases in a docker container you can do it yourself
 - run following commands:
-    - setting up the database:
+    - setting up the databases:
         - `docker compose up` (the easiest way to get the databases running)
     - building the backend:
         - `npm install`

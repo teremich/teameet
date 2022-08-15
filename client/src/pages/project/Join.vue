@@ -5,7 +5,6 @@
     </header>
     <main>
       <p style="max-width: 800px">
-        <!-- BUG: no parameter `id` => "Teameet" -->
         send a join request to the project "{{ project.name }}" <br />
         <span style="opacity: 0.4"
           ><span style="text-decoration: underline">Introduce yourself</span> to
@@ -51,7 +50,10 @@ onMounted(() => {
   fetch("/api/project?id=" + params.get("id"))
     .then((r) => r.json())
     .then((response) => {
-      if (response.status !== 200) {
+      if (
+        response.status !== 200 ||
+        response.body.projects[0]?.id != params.get("id")
+      ) {
         window.location.href = "/";
       }
       project.value = {

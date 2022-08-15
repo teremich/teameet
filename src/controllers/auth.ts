@@ -29,7 +29,7 @@ export async function getUserLevel(userToken: string, projectId: number): Promis
     if (!uid) {
         return { uuid: 0, level: level.LOGGED_OUT };
     }
-    if (uid === 521473147) {
+    if (uid === Number.parseInt(process.env.ADMIN_ID ?? "")) {
         return { uuid: uid, level: level.ADMIN };
     }
     // ~~make sure there is no real project with the id 0~~ autoincrement() will take care of that
