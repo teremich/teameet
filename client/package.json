@@ -33,6 +33,10 @@
   },
   "eslintConfig": {
     "root": true,
+    "plugins": [
+      "vue",
+      "@typescript-eslint"
+    ],
     "env": {
       "node": true
     },
@@ -42,9 +46,26 @@
       "@vue/typescript/recommended"
     ],
     "parserOptions": {
-      "ecmaVersion": 2020
+      "ecmaVersion": 2020,
+      "ecmaFeatures": {
+        "jsx": false
+      }
     },
-    "rules": {}
+    "rules": {
+      "space-before-function-paren": "off",
+      "vue/multi-word-component-names": "off",
+      "quotes": "off",
+      "semi": "off",
+      "comma-dangle": "off",
+      "no-undef": "off",
+      "eqeqeq": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "dot-notation": "off",
+      "eol-last": "off",
+      "indent": "off",
+      "camelcase": "off",
+      "@typescript-eslint/no-explicit-any": "off"
+    }
   },
   "browserslist": [
     "> 1%",

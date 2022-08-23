@@ -116,21 +116,13 @@ const id = ref(0);
 
 const params = new URLSearchParams(document.location.search);
 
-function remove() {
-  fetch("/api/project/?id=" + params.get("id"), {
-    method: "DELETE",
-  }).then((r) => {
-    window.location.href = "/";
-  });
-}
-
 function isMember(
   userid: number,
   project: {
     members: { uuid: number }[];
   }
 ) {
-  for (let mem of project.members) {
+  for (const mem of project.members) {
     if (mem.uuid == userid) {
       return true;
     }

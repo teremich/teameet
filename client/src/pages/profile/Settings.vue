@@ -45,7 +45,6 @@ function deleteaccount() {
         r.text().then(console.error);
       }
     });
-    return;
   }
 }
 </script>

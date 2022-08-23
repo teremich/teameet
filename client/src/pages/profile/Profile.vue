@@ -35,9 +35,14 @@
       </div>
       <div v-if="user?.ownInfo">
         <p style="font-weight: bold">your join requests</p>
-        <p v-if="!user.payload.joins.length">you have no unanswered join requests</p>
+        <p v-if="!user.payload.joins.length">
+          you have no unanswered join requests
+        </p>
         <p v-else v-for="(j, i) in user.payload.joins" :key="i">
-          <a class="link" :href="'/project/?id='+j.receiver.id">{{j.receiver.name}}</a>: {{j.message}}
+          <a class="link" :href="'/project/?id=' + j.receiver.id">{{
+            j.receiver.name
+          }}</a
+          >: {{ j.message }}
         </p>
         <a href="/profile/settings" class="button">settings</a>
       </div>
@@ -50,16 +55,6 @@ import { ref } from "vue";
 // @ts-ignore
 import Navbar from "@/components/Navbar.vue";
 
-function getValuesInRange(
-  set: Set<number>,
-  lowerBound: number,
-  upperBound: number
-) {
-  return [...set].filter((v) => {
-    return v <= upperBound && v >= lowerBound;
-  });
-}
-
 function closestValue(list: number[], value: number) {
   if (!list.length) {
     return [null, null];
@@ -67,7 +62,7 @@ function closestValue(list: number[], value: number) {
   let cv = list[0];
   let dist = cv > value ? cv - value : value - cv;
   for (const num of list) {
-    let d = num > value ? num - value : value - num;
+    const d = num > value ? num - value : value - num;
     if (d < dist) {
       dist = d;
       cv = num;
@@ -82,7 +77,7 @@ function truncate(input: string) {
   }
   const regexList = [/[!.?;]\s/g, /,\s/g, /.\s/g];
   let result;
-  let indices = new Set<number>();
+  const indices = new Set<number>();
   let cv = null;
   let dist = null;
   for (const regex of regexList) {

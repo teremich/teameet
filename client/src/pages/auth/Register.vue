@@ -11,16 +11,13 @@
         <br />
         <input ref="password" placeholder="Password" type="password" />
         <br />
+        <input ref="password2" placeholder="repeat password" type="password" />
+        <br />
         <button type="submit">Register Now</button>
         <p>
-          <span
-            class="error"
-            :style="{ display: failed.error ? 'block' : 'none' }"
-            >something has gone wrong</span
-          >
-          <span
-            class="error"
-            :style="{ display: failed.error ? 'block' : 'none' }"
+          <span class="error" ref="wrong">something has gone wrong</span>
+          <span class="error" ref="diffpw">something has gone wrong</span>
+          <span class="error" ref="servererror"
             >Server responded with: {{ failed.msg }}</span
           >
         </p>
@@ -38,12 +35,16 @@ const referer = decodeURI(params.get("href") ?? "/");
 const name = ref<HTMLInputElement | null>(null);
 const email = ref<HTMLInputElement | null>(null);
 const password = ref<HTMLInputElement | null>(null);
+const password2 = ref<HTMLInputElement | null>(null);
 const failed = ref({
   error: false,
   msg: "",
 });
 
 function register() {
+  if (password.value?.value !== password2.value?.value) {
+    return;
+  }
   fetch("/api/register", {
     method: "POST",
     headers: {
