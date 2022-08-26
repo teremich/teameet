@@ -4,83 +4,94 @@
     <main>
       <!-- TODO: feature to leave a project -->
       <h2 id="name">{{ project.name }}</h2>
-      <div id="info">
-        <label style="font-weight: bold">description:</label>
-        <p id="description">{{ project.description }}</p>
-        <label
-          style="font-weight: bold"
-          v-if="project.additional?.links?.length"
-          >links
-          <span style="opacity: 0.3; font-weight: initial"
-            >(warning: be cautious visiting other web sites)</span
-          ></label
-        >
-        <p v-for="(link, index) in project.additional?.links" :key="index">
-          <span>{{ link.name }}</span
-          >: <a class="link" :href="link.target">{{ link.target }}</a>
-        </p>
-        <br />
-        <p style="font-weight: bold">
-          owner:
-          <a
-            style="font-weight: initial"
-            class="link"
-            :href="'/profile/?id=' + project.owner.uuid"
-            >{{ project.owner.name }}</a
+      <div id="public">
+        <div id="info">
+          <label style="font-weight: bold">description:</label>
+          <p id="description">{{ project.description }}</p>
+          <label
+            style="font-weight: bold"
+            v-if="project.additional?.links?.length"
+            >links
+            <span style="opacity: 0.3; font-weight: initial"
+              >(warning: be cautious visiting other web sites)</span
+            ></label
           >
-        </p>
-        <p style="font-weight: bold">
-          members:
+          <p v-for="(link, index) in project.additional?.links" :key="index">
+            <span>{{ link.name }}</span
+            >: <a class="link" :href="link.target">{{ link.target }}</a>
+          </p>
+          <br />
+          <p style="font-weight: bold">
+            owner:
+            <a
+              style="font-weight: initial"
+              class="link"
+              :href="'/profile/?id=' + project.owner.uuid"
+              >{{ project.owner.name }}</a
+            >
+          </p>
+          <p style="font-weight: bold">
+            members:
+            <a
+              class="link"
+              style="font-weight: initial"
+              v-for="(member, i) in project.members"
+              v-text="
+                member.name + (i == project.members.length - 1 ? '' : ', ')
+              "
+              :key="i"
+              :href="'/profile/?id=' + member.uuid"
+            >
+            </a>
+            <span style="font-weight: initial" v-if="!project.members.length">
+              no members
+            </span>
+          </p>
+          <div v-if="userLevel >= level.member">
+            <p style="font-weight: bold">Users who want to join this project</p>
+            <p v-for="jr in project.joinRequests" :key="jr.sender.uuid">
+              <a class="link" :href="'/profile/?id=' + jr.sender.uuid">{{
+                jr.sender.name
+              }}</a
+              >: {{ jr.message }}
+            </p>
+            <p v-if="!project.joinRequests?.length">
+              there are no open join requests
+            </p>
+          </div>
+        </div>
+        <br />
+        <div>
           <a
-            class="link"
-            style="font-weight: initial"
-            v-for="member in project.members"
-            :key="member.id"
-            :href="'/profile/?id=' + member.uuid"
-            >{{ member.name }},
+            class="button"
+            :href="'/project/settings/?id=' + params.get('id')"
+            v-if="userLevel == level.owner"
+            id="settings"
+          >
+            settings
           </a>
-          <span style="font-weight: initial" v-if="!project.members.length">
-            no members
-          </span>
-        </p>
-        <div v-if="userLevel >= level.member">
-          <p style="font-weight: bold">Users who want to join this project</p>
-          <p v-for="jr in project.joinRequests" :key="jr.sender.uuid">
-            <a class="link" :href="'/profile/?id=' + jr.sender.uuid">{{
-              jr.sender.name
-            }}</a
-            >: {{ jr.message }}
-          </p>
-          <p v-if="!project.joinRequests?.length">
-            there are no open join requests
-          </p>
+          <a
+            v-if="userLevel == level.logged_out"
+            class="button"
+            id="memberlogin"
+            :href="'/login?href=/project/?id=' + id"
+            >login to become a member</a
+          >
+          <a
+            id="joinbutton"
+            class="link"
+            v-if="userLevel == level.logged_in"
+            :href="'/project/join/?id=' + params.get('id')"
+          >
+            become a member
+          </a>
+          <button class="button" v-if="userLevel == level.member">
+            leave the project
+          </button>
         </div>
       </div>
-      <br />
-      <div>
-        <a
-          class="button"
-          :href="'/project/settings/?id=' + params.get('id')"
-          v-if="userLevel == level.owner"
-          id="settings"
-        >
-          settings
-        </a>
-        <a
-          v-if="userLevel == level.logged_out"
-          class="button"
-          id="memberlogin"
-          :href="'/login?href=/project/?id=' + id"
-          >login to become a member</a
-        >
-        <a
-          id="joinbutton"
-          class="link"
-          v-if="userLevel == level.logged_in"
-          :href="'/project/join/?id=' + params.get('id')"
-        >
-          become a member
-        </a>
+      <div id="private">
+        <!-- TODO: display tasks (maybe interactive) -->
       </div>
     </main>
   </div>
@@ -98,7 +109,7 @@ const project = ref({
     name: "",
     uuid: 0,
   },
-  members: [],
+  members: <any[]>[],
   joinRequests: [],
 });
 
@@ -141,6 +152,8 @@ onMounted(() => {
           return;
         }
         project.value = res.body.projects[0];
+        // console.log(project.value.members);
+        project.value.members.push({ name: "name", uuid: 0 });
         document.title = `${project.value.name} | Teameet`;
         fetch("/api/login")
           .then((r) => r.json())
@@ -167,6 +180,16 @@ onMounted(() => {
 </script>
 
 <style scoped>
+#public {
+  width: 50%;
+  float: left;
+}
+
+#private {
+  width: 50%;
+  float: right;
+}
+
 #description {
   background-color: var(--navbar-color);
   padding: 1vw;

@@ -9,6 +9,7 @@
           [ ] accept / deny join requests
           [ ] set technologies
           [ ] set links
+          [ ] set tasks
           [ ] kick / ban members
           [ ] delete the project
       -->

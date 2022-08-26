@@ -11,6 +11,9 @@
   background-color: var(--link-color);
   color: var(--secondary-color);
   padding: 0.4rem;
+  border: none;
+  font-size: 16pt;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .error {

@@ -35,6 +35,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 // TODO: please fix this site for mobile
+// see a youtube tutorial how
 
 const params = new URLSearchParams(document.location.search);
 const referer = decodeURI(params.get("href") ?? "/");
