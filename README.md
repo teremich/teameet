@@ -29,6 +29,7 @@ feel free to open an issue and ask as many of them as you want to
 - for development use `npm run dev` in the root folder and `npm run serve` in the client folder
 
 ## TODO:
+- find bugs and fix them
 - Front end
 - Back end:
     - testing user crud
