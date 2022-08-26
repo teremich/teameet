@@ -30,7 +30,10 @@ feel free to open an issue and ask as many of them as you want to
 
 ## TODO:
 - find bugs and fix them
-- Front end
+- Front end:
+    - finish the sites
+    - make them more beautiful
+    - update the api paths
 - Back end:
     - testing user crud
     - project crud
