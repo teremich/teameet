@@ -6,6 +6,7 @@ import * as auth from "./auth";
 import * as profile from "./profile";
 import * as project from "./project";
 import * as join from "./join";
+import * as leave from "./leave";
 
 export const router = Router();
 
@@ -17,7 +18,8 @@ router.use(profile.router);
 router.use(project.router);
 // /join
 router.use(join.router);
-
+// /leave
+router.use(leave.router);
 
 router.route("/")
     .all(requireAuth(level.ADMIN))

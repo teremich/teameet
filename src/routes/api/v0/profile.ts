@@ -65,6 +65,10 @@ router.route("/profile")
         res.status(200);
         // if you are not the person who's info we are getting, you get the public info
         if (req["useruuid"] !== Number.parseInt(req.query?.["id"]?.toString() ?? "")) {
+            if (user.additional === null) {
+                user.additional = {};
+            }
+            (user.additional as any).private = {};
             res.json({
                 status: 200, body: {
                     ownInfo: false,

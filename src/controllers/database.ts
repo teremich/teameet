@@ -1,5 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import { Database } from "models/database";
+import { getUserLevel, getUserObject } from "./auth";
 
 export const db = new Database();
 export async function getProjects(where?: { id?: number }): Promise<{
@@ -170,14 +171,80 @@ export async function deleteJoinRequest(userid: number, projectid: number) {
 export async function leave(params: {
     projectId: number,
     leavingUser: number,
-    leaveInitiator?: number,
+    leaveInitiator: number,
     message?: string
 }) {
     const project = (await getProjects({ id: params.projectId }))[0];
     if (project === undefined) {
         return false;
     }
-
+    const leavingUser = await getUserObject(params.leavingUser);
+    if (!leavingUser) {
+        return false;
+    }
+    if (params.leaveInitiator == params.leavingUser) {
+        if (
+            project.members.find((value, index, object) => {
+                return value.uuid == leavingUser.uuid;
+            })?.uuid == leavingUser.uuid
+        ) {
+            await db.prisma.project.update({
+                where: {
+                    id: project.id
+                },
+                data: {
+                    members: {
+                        disconnect: {
+                            uuid: leavingUser.uuid
+                        }
+                    }
+                }
+            });
+            return true;
+        }
+    } else {
+        const leaveInitiator = await getUserObject(params.leaveInitiator);
+        if (!leaveInitiator) {
+            return false;
+        }
+        if (leaveInitiator.uuid == project.owner.uuid) {
+            await db.prisma.project.update({
+                where: {
+                    id: project.id
+                },
+                data: {
+                    members: {
+                        disconnect: {
+                            uuid: leavingUser.uuid
+                        }
+                    }
+                }
+            });
+            if (params.message) {
+                const newEntry = {
+                    projectid: project.id,
+                    msg: params.message
+                };
+                if (leavingUser.additional === null) {
+                    leavingUser.additional = { private: {} };
+                }
+                if ((leavingUser.additional as any).private["kickmsgs"]) {
+                    ((leavingUser.additional as any).private["kickmsgs"] as { projectid: number, msg: string }[]).push(newEntry)
+                } else {
+                    ((leavingUser.additional as any).private["kickmsgs"] as { projectid: number, msg: string }[]) = [newEntry];
+                }
+                await db.prisma.user.update({
+                    where: {
+                        uuid: leavingUser.uuid
+                    },
+                    data: {
+                        additional: (leavingUser.additional as any)
+                    }
+                });
+            }
+            return true;
+        }
+    }
     return false;
 }
 

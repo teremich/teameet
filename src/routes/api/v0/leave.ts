@@ -7,7 +7,7 @@ export const router = Router();
 
 router.post("/leave", // ?project=id&user=uuid&ban=boolean
     requireAuth(level.LOGGED_IN), async (req: Request & { userid?: number }, res) => {
-        const leaveInitiator = req.userid;
+        const leaveInitiator = req.userid as number;
         const leavingUser = Number.parseInt(req.query?.["user"]?.toString() ?? "") || leaveInitiator;
         const projectId = Number.parseInt(req.query?.["project"]?.toString() ?? "");
         if (!projectId || !leavingUser) {

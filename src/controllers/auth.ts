@@ -24,7 +24,7 @@ export enum level {
     ADMIN = 0b1000
 };
 
-export async function getUserLevel(userToken: string, projectId: number): Promise<{ uuid: number, level: level }> {
+export async function getUserLevel(userToken: string, projectId: number) {
     const uid = await getUserId(userToken);
     if (!uid) {
         return { uuid: 0, level: level.LOGGED_OUT };
