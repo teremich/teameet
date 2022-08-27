@@ -29,7 +29,7 @@ onMounted(() => {
   (<HTMLLinkElement>login.value).href =
     "/login?href=" +
     (encodeURI(window.location.pathname + window.location.search) || "/");
-  fetch("/api/login")
+  fetch("/api/v0/login")
     .then((r) => r.json())
     .then((r) => {
       if (r.status != 200) {

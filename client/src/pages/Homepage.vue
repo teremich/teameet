@@ -46,7 +46,7 @@ import ProjectTableEntry from "@/components/ProjectTableEntry.vue";
 const projects = ref([]);
 
 onMounted(async () => {
-  const p = await fetch("/api/project").then((r) => r.json());
+  const p = await fetch("/api/v0/project").then((r) => r.json());
   projects.value = p.body["projects"];
 });
 </script>

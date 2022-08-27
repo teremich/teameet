@@ -18,7 +18,7 @@ router.use(wwwrouter);
 router.use("/login", (req, res, next) => {
     getUserId(req.cookies["AuthToken"]).then(id => {
         if (id) {
-            let referer = decodeURI((<any>req.query)?.["href"]);
+            let referer = decodeURI(req.query?.["href"] as string);
             if (referer) {
                 res.redirect(referer);
                 return;

@@ -45,7 +45,7 @@ function register() {
   if (password.value?.value !== password2.value?.value) {
     return;
   }
-  fetch("/api/register", {
+  fetch("/api/v0/register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

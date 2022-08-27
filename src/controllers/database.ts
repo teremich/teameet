@@ -2,7 +2,7 @@ import type { Prisma } from "@prisma/client";
 import { Database } from "models/database";
 
 export const db = new Database();
-export async function getProjects(where?: { id: number | undefined }): Promise<{
+export async function getProjects(where?: { id?: number }): Promise<{
     id: number;
     additional: Prisma.JsonValue;
     description: string;
@@ -165,6 +165,20 @@ export async function deleteJoinRequest(userid: number, projectid: number) {
         }
     });
     return;
+}
+
+export async function leave(params: {
+    projectId: number,
+    leavingUser: number,
+    leaveInitiator?: number,
+    message?: string
+}) {
+    const project = (await getProjects({ id: params.projectId }))[0];
+    if (project === undefined) {
+        return false;
+    }
+
+    return false;
 }
 
 export type { User, Project, JoinRequest } from "models/database";

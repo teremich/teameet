@@ -45,7 +45,7 @@ const password = ref<HTMLInputElement | null>(null);
 
 const loginfailed = ref(false);
 
-fetch("/api/login")
+fetch("/api/v0/login")
   .then((r) => r.json())
   .then((res) => {
     if (res.status == 200) {
@@ -54,7 +54,7 @@ fetch("/api/login")
   });
 
 function login() {
-  fetch("/api/login", {
+  fetch("/api/v0/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

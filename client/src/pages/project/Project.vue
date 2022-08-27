@@ -144,7 +144,7 @@ function isMember(
 onMounted(() => {
   if (params.get("id")) {
     id.value = Number.parseInt(params.get("id") ?? "");
-    fetch("/api/project?id=" + params.get("id"))
+    fetch("/api/v0/project?id=" + params.get("id"))
       .then((r) => r.json())
       .then((res) => {
         if (res.status != 200) {
@@ -152,10 +152,8 @@ onMounted(() => {
           return;
         }
         project.value = res.body.projects[0];
-        // console.log(project.value.members);
-        project.value.members.push({ name: "name", uuid: 0 });
         document.title = `${project.value.name} | Teameet`;
-        fetch("/api/login")
+        fetch("/api/v0/login")
           .then((r) => r.json())
           .then(async (r) => {
             if (r.status != 200) {

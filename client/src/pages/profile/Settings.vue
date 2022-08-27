@@ -28,7 +28,7 @@ function leaveIfNotLoggedIn(event: { loggedIn: boolean }) {
 }
 
 function logout() {
-  fetch("/api/login", {
+  fetch("/api/v0/login", {
     method: "DELETE",
   }).then(() => {
     window.location.href = "/";
@@ -37,7 +37,7 @@ function logout() {
 
 function deleteaccount() {
   if (confirm("are you sure")) {
-    fetch("/api/register", { method: "DELETE" }).then((r) => {
+    fetch("/api/v0/register", { method: "DELETE" }).then((r) => {
       if (r.status == 200) {
         location.href = "/";
       } else {

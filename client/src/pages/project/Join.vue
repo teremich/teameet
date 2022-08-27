@@ -47,7 +47,7 @@ const project = ref({
   id: 0,
 });
 onMounted(() => {
-  fetch("/api/project?id=" + params.get("id"))
+  fetch("/api/v0/project?id=" + params.get("id"))
     .then((r) => r.json())
     .then((response) => {
       if (
@@ -72,7 +72,7 @@ function sendJR() {
       "You have to write a join request message for the members of the project to read";
     return;
   }
-  fetch("/api/join/?project=" + params.get("id"), {
+  fetch("/api/v0/join/?project=" + params.get("id"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

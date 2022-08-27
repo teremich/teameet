@@ -1,4 +1,5 @@
 import { Router } from "express";
+import type { Request } from "express";
 import { getProjects, postProject, deleteProject } from "controllers/database";
 import { getUserLevel } from "controllers/auth";
 import { requireAuth, level } from "middleware/auth";
@@ -37,8 +38,8 @@ router.route("/project").get((req, res) => {
             }
         });
     });
-}).post(requireAuth(level.LOGGED_IN), async (req, res) => {
-    const b = { description: <string>req.body.description, name: <string>req.body.name, ownerId: <number>(<any>req).userid };
+}).post(requireAuth(level.LOGGED_IN), async (req: Request & { userid?: number }, res) => {
+    const b = { description: <string>req.body.description, name: <string>req.body.name, ownerId: req.userid ?? 0 };
     if (!b.description?.trim() || !b.name?.trim() || !b.ownerId) {
         res.sendStatus(400);
         return;
@@ -61,8 +62,8 @@ router.route("/project").get((req, res) => {
             level.OWNER,
             Number.parseInt(req.query["id"]?.toString() ?? "")
         )(req, res, next)
-    }, (req, res) => {
-        deleteProject((<any>req).projectid);
+    }, (req: Request & { projectid?: number }, res) => {
+        deleteProject(req.projectid ?? 0);
         res.sendStatus(200);
     }
 );

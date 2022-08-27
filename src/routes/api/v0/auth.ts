@@ -8,6 +8,7 @@ import {
     getUserObject
 } from "controllers/auth";
 import { statusCode } from "controllers/database";
+import type { Request } from "express";
 export const router = Router();
 
 // TODO: github social login
@@ -20,17 +21,17 @@ router.all("/githublogin", (req, res) => {
 
 router.route("/login")
     // sets a variable if user is already logged in
-    .all((req, res, next) => {
+    .all((req: Request & { "useruuid"?: number | null }, res, next) => {
         getUserId(req.cookies["AuthToken"]).then(id => {
             // if user is logged in useruuid is not null
-            (<any>req)["useruuid"] = id;
+            req["useruuid"] = id;
             next();
         });
     })
     // returns whether you're already loggeed in
-    .get((req, res) => {
-        if ((<any>req)["useruuid"] !== null) {
-            getUserObject((<any>req)["useruuid"]).then(user => {
+    .get((req: Request & { "useruuid"?: number | null }, res) => {
+        if (req["useruuid"]) {
+            getUserObject(req["useruuid"]).then(user => {
                 res.status(200);
                 res.json({ status: 200, body: user });
             });
@@ -46,14 +47,14 @@ router.route("/login")
         }
     })
     // logs you in
-    .post((req, res) => {
+    .post((req: Request & { "useruuid"?: number | null }, res) => {
         // if logged in send current user id
-        if ((<any>req)["useruuid"] !== null) {
+        if (req["useruuid"]) {
             res.status(200);
             res.json({
                 status: 200,
                 body: {
-                    id: (<any>req)["useruuid"]
+                    id: req["useruuid"]
                 }
             });
             return;

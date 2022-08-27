@@ -24,7 +24,7 @@ import Navbar from "@/components/Navbar.vue";
 const params = new URLSearchParams(document.location.search);
 
 function remove() {
-  fetch("/api/project/?id=" + params.get("id"), {
+  fetch("/api/v0/project/?id=" + params.get("id"), {
     method: "DELETE",
   }).then(() => {
     window.location.href = "/";

@@ -9,7 +9,7 @@ feel free to open an issue and ask as many of them as you want to
 - clone the github repo
 - rename the example.env file to .env and fill in the right values
 - optionally change the username, password & postgresql-port in the docker-compose.yml file
-- instead of running the postgresql and redis databases in a docker container you can do it yourself
+- instead of running the postgresql and redis databases in a docker container you can set it up yourself
 - run following commands:
     - setting up the databases:
         - `docker compose up` (the easiest way to get the databases running)
@@ -39,4 +39,6 @@ feel free to open an issue and ask as many of them as you want to
     - project crud
     - joining projects
     - features like baning/kicking users or leaving projects
-- documentation
+- documentation:
+    - api
+    - project

@@ -3,7 +3,7 @@ import { getUserLevel, level, _401, _403 } from "controllers/auth";
 import type { Request, RequestHandler, Response, NextFunction, } from "express-serve-static-core";
 export { level };
 export function requireAuth(lvl: level, projectId: number | undefined = undefined): RequestHandler {
-    return function (req: Request, res: Response, next: NextFunction): any | void {
+    return function (req: Request & { userid?: number, projectid?: number }, res: Response, next: NextFunction): any | void {
         getUserLevel(
             req.cookies["AuthToken"],
             projectId ?? NaN
@@ -13,8 +13,8 @@ export function requireAuth(lvl: level, projectId: number | undefined = undefine
                     _403(res);
                     return;
                 }
-                (<any>req).userid = user.uuid;
-                (<any>req).projectid = projectId;
+                req.userid = user.uuid;
+                req.projectid = projectId;
                 return next();
             }
             _401(res);

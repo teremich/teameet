@@ -136,7 +136,7 @@ const user = ref<{
 
 const params = new URLSearchParams(document.location.search);
 
-fetch("/api/profile/?id=" + params.get("id"))
+fetch("/api/v0/profile/?id=" + params.get("id"))
   .then((r) => r.json())
   .then(
     async (r: {

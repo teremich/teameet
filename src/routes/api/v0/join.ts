@@ -7,11 +7,12 @@ import {
     addMember,
     deleteJoinRequest
 } from "controllers/database";
+import type { Request } from "express";
 import { getUserId, getUserLevel, _403 } from "controllers/auth";
 
 export const router = Router();
 
-router.route("/join") // ?project=id;authToken -> user.uuid
+router.route("/join") // ?project=id&user=uuid
     .get(async (req, res) => {
         const projectId = Number.parseInt(req.query?.["project"]?.toString() ?? "");
         if (projectId) {
@@ -43,9 +44,9 @@ router.route("/join") // ?project=id;authToken -> user.uuid
             });
         }
     })
-    .post(requireAuth(level.LOGGED_IN), async (req, res) => {
-        const userid = await getUserId(req.cookies["AuthToken"]) ?? 0;
-        const projectid = Number.parseInt(req.query?.["project"]?.toString() ?? "") ?? 0;
+    .post(requireAuth(level.LOGGED_IN), async (req: Request & { userid?: number }, res) => {
+        const userid = req.userid;
+        const projectid = Number.parseInt(req.query?.["project"]?.toString() ?? "");
         if (!userid || !projectid || !(req.body.message?.trim())) {
             res.status(200);
             res.json({

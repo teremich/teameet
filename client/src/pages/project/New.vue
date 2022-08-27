@@ -50,7 +50,7 @@ function submit() {
   const n = name.value?.value;
   const d = description.value?.value;
   if (n && d) {
-    fetch("/api/project", {
+    fetch("/api/v0/project", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
