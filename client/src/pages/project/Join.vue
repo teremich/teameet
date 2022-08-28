@@ -75,7 +75,7 @@ function sendJR() {
     .then((r) => r.json())
     .then((res) => {
       if (res.status == 201) {
-        window.location.href = "/project/?id=";
+        window.location.href = "/project/?id=" + params.get("id");
       } else {
         errorElement.style.display = "block";
         errorElement.getElementsByTagName("span")[0].innerText = res.body.msg;

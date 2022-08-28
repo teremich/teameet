@@ -145,10 +145,13 @@ function isMember(
 }
 
 function leave() {
-  console.log(
-    `/api/v0/leave?project=${params.get("id")}&user=${user.value.uuid}`,
-    { method: "POST" }
-  );
+  fetch(`/api/v0/leave?project=${params.get("id")}&user=${user.value.uuid}`, {
+    method: "POST",
+  }).then((res) => {
+    if (res.ok) {
+      window.location.href = "/project/?id=" + params.get("id");
+    }
+  });
 }
 
 onMounted(() => {

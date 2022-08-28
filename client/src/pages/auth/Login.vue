@@ -14,7 +14,7 @@
           type="password"
         />
         <br />
-        <button type="submit" @click="login()">Log In</button>
+        <button class="button" type="submit" @click="login()">Log In</button>
         <p>
           <span class="error" :style="loginfailed ? { display: 'block' } : {}"
             >You typed in the wrong E-Mail or Password</span

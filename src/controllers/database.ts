@@ -209,6 +209,18 @@ export async function leave(params: {
             return false;
         }
         if (leaveInitiator.uuid == project.owner.uuid) {
+            let banList: {
+                connect: {
+                    uuid: number;
+                };
+            } | undefined = undefined;
+            if (params.ban) {
+                banList = {
+                    connect: {
+                        uuid: leavingUser.uuid
+                    }
+                }
+            }
             await db.prisma.project.update({
                 where: {
                     id: project.id
@@ -218,7 +230,8 @@ export async function leave(params: {
                         disconnect: {
                             uuid: leavingUser.uuid
                         }
-                    }
+                    },
+                    banList
                 }
             });
             if (params.message) {
