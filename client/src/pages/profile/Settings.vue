@@ -1,7 +1,7 @@
 <template>
   <div>
     <header>
-      <Navbar @loadfinished="leaveIfNotLoggedIn" />
+      <Navbar @loadfinished="onLoaded" />
     </header>
     <main>
       <!--
@@ -10,6 +10,7 @@
           [ ] set bio
           [ ] change name / email / password
       -->
+      <input type="textarea" :value="user.bio"/>
       <button @click="logout()">Log out</button>
       <button @click="deleteaccount()">delete my account</button>
     </main>
@@ -20,11 +21,21 @@
 // TODO: finish this site
 // @ts-ignore
 import Navbar from "@/components/Navbar.vue";
+import { ref } from "vue";
 
-function leaveIfNotLoggedIn(event: { loggedIn: boolean }) {
+interface User{
+  bio: string;
+}
+
+const user = ref<User>({bio: ""});
+
+function onLoaded(event: { loggedIn: boolean, payload?: User }) {
   if (!event.loggedIn) {
     window.location.href = "/login/?href=/profile/settings";
   }
+  user = {
+    bio: payload.bio,
+  };
 }
 
 function logout() {
