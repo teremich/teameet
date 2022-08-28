@@ -4,37 +4,54 @@
       <Navbar @loadfinished="onLoaded" />
     </header>
     <main>
-      <!--
-        TODO:
-          [ ] leave projects
-          [ ] set bio
-          [ ] change name / email / password
-      -->
-      <input type="textarea" :value="user.bio"/>
-      <button @click="logout()">Log out</button>
-      <button @click="deleteaccount()">delete my account</button>
+      <h2>configure your profile</h2>
+      <div id="left">
+        <!-- TODO: change name / email / password -->
+        <label>bio:</label><br />
+        <textarea
+          class="textarea"
+          rows="3"
+          :value="user.bio.default ?? ''"
+          placeholder="Tell us something about yourself..."
+        /><br />
+        <button class="button" @click="updatebio">update your bio</button><br />
+        <br />
+        <button class="button" @click="logout()">log out</button><br />
+        <button
+          class="button"
+          style="background-color: var(--error-color)"
+          @click="deleteaccount()"
+        >
+          delete my account</button
+        ><br />
+      </div>
+      <div id="right">
+        <!-- TODO: leave projects -->
+      </div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-// TODO: finish this site
 // @ts-ignore
 import Navbar from "@/components/Navbar.vue";
 import { ref } from "vue";
 
-interface User{
-  bio: string;
+// TODO: set bio
+
+interface User {
+  bio: any;
 }
 
-const user = ref<User>({bio: ""});
+const user = ref<User>({ bio: "" });
 
-function onLoaded(event: { loggedIn: boolean, payload?: User }) {
+function onLoaded(event: { loggedIn: boolean; payload?: User }) {
   if (!event.loggedIn) {
     window.location.href = "/login/?href=/profile/settings";
   }
-  user = {
-    bio: payload.bio,
+  console.log(event.payload);
+  user.value = {
+    bio: (event.payload as User).bio.default,
   };
 }
 
@@ -61,4 +78,15 @@ function deleteaccount() {
 </script>
 
 <style scoped>
+.button {
+  margin: 5px;
+}
+#left {
+  width: 50%;
+  float: left;
+}
+#right {
+  width: 50%;
+  float: right;
+}
 </style>

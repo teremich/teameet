@@ -47,7 +47,7 @@
               no members
             </span>
           </p>
-          <div v-if="userLevel >= level.member">
+          <div v-if="user.level >= level.member">
             <p style="font-weight: bold">Users who want to join this project</p>
             <p v-for="jr in project.joinRequests" :key="jr.sender.uuid">
               <a class="link" :href="'/profile/?id=' + jr.sender.uuid">{{
@@ -65,13 +65,13 @@
           <a
             class="button"
             :href="'/project/settings/?id=' + params.get('id')"
-            v-if="userLevel == level.owner"
+            v-if="user.level == level.owner"
             id="settings"
           >
             settings
           </a>
           <a
-            v-if="userLevel == level.logged_out"
+            v-if="user.level == level.logged_out"
             class="button"
             id="memberlogin"
             :href="'/login?href=/project/?id=' + id"
@@ -80,12 +80,16 @@
           <a
             id="joinbutton"
             class="link"
-            v-if="userLevel == level.logged_in"
+            v-if="user.level == level.logged_in"
             :href="'/project/join/?id=' + params.get('id')"
           >
             become a member
           </a>
-          <button class="button" v-if="userLevel == level.member">
+          <button
+            class="button"
+            @click="leave"
+            v-if="user.level == level.member"
+          >
             leave the project
           </button>
         </div>
@@ -122,8 +126,7 @@ enum level {
   // admin
 }
 
-const userLevel = ref(level.undefined);
-const id = ref(0);
+const user = ref({ level: level.undefined, uuid: 0 });
 
 const params = new URLSearchParams(document.location.search);
 
@@ -141,9 +144,15 @@ function isMember(
   return false;
 }
 
+function leave() {
+  console.log(
+    `/api/v0/leave?project=${params.get("id")}&user=${user.value.uuid}`,
+    { method: "POST" }
+  );
+}
+
 onMounted(() => {
   if (params.get("id")) {
-    id.value = Number.parseInt(params.get("id") ?? "");
     fetch("/api/v0/project?id=" + params.get("id"))
       .then((r) => r.json())
       .then((res) => {
@@ -157,17 +166,18 @@ onMounted(() => {
           .then((r) => r.json())
           .then(async (r) => {
             if (r.status != 200) {
-              userLevel.value = level.logged_out;
+              user.value = { level: level.logged_out, uuid: 0 };
               return;
             }
+            user.value.uuid = r.body.uuid;
             if (r.body.uuid == project.value.owner.uuid) {
-              userLevel.value = level.owner;
+              user.value.level = level.owner;
               return;
             }
             if (isMember(r.body.uuid, project.value)) {
-              userLevel.value = level.member;
+              user.value.level = level.member;
             } else {
-              userLevel.value = level.logged_in;
+              user.value.level = level.logged_in;
             }
           });
       });

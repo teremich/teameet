@@ -14,7 +14,7 @@ export const router = Router();
 
 router.route("/join") // ?project=id&user=uuid
     .get(async (req, res) => {
-        const projectId = Number.parseInt(req.query?.["project"]?.toString() ?? "");
+        const projectId = Number.parseInt(req.query["project"]?.toString() ?? "");
         if (projectId) {
             const { uuid: userid, level: userLevel } = await getUserLevel(req.cookies["AuthToken"], projectId);
             if (userLevel >= level.MEMBER) {
@@ -46,7 +46,7 @@ router.route("/join") // ?project=id&user=uuid
     })
     .post(requireAuth(level.LOGGED_IN), async (req: Request & { userid?: number }, res) => {
         const userid = req.userid;
-        const projectid = Number.parseInt(req.query?.["project"]?.toString() ?? "");
+        const projectid = Number.parseInt(req.query["project"]?.toString() ?? "");
         if (!userid || !projectid || !(req.body.message?.trim())) {
             res.status(200);
             res.json({
@@ -79,7 +79,7 @@ router.route("/join") // ?project=id&user=uuid
             });
         }
     }).delete(async (req, res) => {
-        const projectId = Number.parseInt(req.query?.["project"]?.toString() ?? "");
+        const projectId = Number.parseInt(req.query["project"]?.toString() ?? "");
         if (!projectId) {
             res.status(400);
             res.json({
@@ -91,7 +91,7 @@ router.route("/join") // ?project=id&user=uuid
             return;
         }
         const { uuid: userid, level: userLevel } = await getUserLevel(req.cookies["AuthToken"], projectId);
-        const senderId = Number.parseInt(req.query?.["user"]?.toString() ?? "");
+        const senderId = Number.parseInt(req.query["user"]?.toString() ?? "");
         if (!senderId) {
             res.status(400);
             res.json({
@@ -107,7 +107,7 @@ router.route("/join") // ?project=id&user=uuid
             return;
         }
         if (senderId != userid) {
-            if (req.query?.["accepted"] && req.query?.["accepted"] != "0" && req.query?.["accepted"] != "false") {
+            if (req.query["accepted"] && req.query["accepted"] != "0" && req.query["accepted"] != "false") {
                 await addMember(senderId, projectId);
             }
         }

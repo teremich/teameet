@@ -15,7 +15,8 @@
         /><br />
         <textarea
           id="newprojdescription"
-          style="margin: 10px; width: 200pt; height: 100pt"
+          class="textarea"
+          rows="5"
           ref="description"
           placeholder="Tell us about your project…"
         ></textarea>
@@ -76,5 +77,9 @@ function submit() {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+input,
+textarea {
+  font-size: 24pt;
+}
 </style>

@@ -172,7 +172,8 @@ export async function leave(params: {
     projectId: number,
     leavingUser: number,
     leaveInitiator: number,
-    message?: string
+    message?: string,
+    ban: boolean
 }) {
     const project = (await getProjects({ id: params.projectId }))[0];
     if (project === undefined) {

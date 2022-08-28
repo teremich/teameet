@@ -51,7 +51,7 @@ router.route("/profile")
         });
     })
     .get(async (req: Request & { "useruuid"?: number }, res) => {
-        const user = await getUserObject(Number.parseInt(req.query?.["id"]?.toString() ?? ""));
+        const user = await getUserObject(Number.parseInt(req.query["id"]?.toString() ?? ""));
         if (!user) {
             res.status(404);
             res.json({
@@ -64,7 +64,7 @@ router.route("/profile")
         }
         res.status(200);
         // if you are not the person who's info we are getting, you get the public info
-        if (req["useruuid"] !== Number.parseInt(req.query?.["id"]?.toString() ?? "")) {
+        if (req["useruuid"] !== Number.parseInt(req.query["id"]?.toString() ?? "")) {
             if (user.additional === null) {
                 user.additional = {};
             }

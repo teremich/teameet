@@ -16,16 +16,7 @@
           I'm sure they are waiting for someone just like you :)</span
         >
       </p>
-      <textarea
-        ref="message"
-        style="
-          height: 15rem;
-          min-width: 30%;
-          width: 800px;
-          max-width: 800px;
-          font-size: 24pt;
-        "
-      />
+      <textarea rows="3" ref="message" class="textarea" placeholder="Hi..." />
       <br />
       <button @click="sendJR()">JOIN NOW</button>
       <p class="error">
