@@ -27,11 +27,11 @@ main {
   margin: 15px;
 }
 body {
-  --primary-color: #f7ece1;
-  --secondary-color: #29262c;
-  --navbar-color: #1e1819;
-  --link-color: #c6e7e5;
-  --error-color: #f7717d;
+  --primary-color: #f0f6f6;
+  --secondary-color: #26292c;
+  --navbar-color: #1c1f21;
+  --link-color: #85dcfe;
+  --error-color: #ff4f79;
 
   padding: 0;
   margin: 0;

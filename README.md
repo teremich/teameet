@@ -34,6 +34,7 @@ feel free to open an issue and ask as many of them as you want to
     - finish the sites
     - make them more beautiful
     - update the api paths
+    - make it usable on mobile
 - Back end:
     - testing user crud
     - project crud
@@ -41,4 +42,4 @@ feel free to open an issue and ask as many of them as you want to
     - features like baning/kicking users or leaving projects
 - documentation:
     - api
-    - project
+    - project (optional)

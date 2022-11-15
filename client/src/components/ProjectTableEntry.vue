@@ -37,7 +37,7 @@ const props = defineProps(["project"]);
 .projectcolumnspan {
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: 15vh;
+  max-height: 5vh;
   min-width: 200px;
 }
 

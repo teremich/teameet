@@ -1,7 +1,7 @@
 <template>
   <div>
     <header>
-      <h1>Register a new Teameet accout</h1>
+      <Navbar />
     </header>
     <main>
       <form @submit.prevent="register()">
@@ -27,6 +27,8 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore
+import Navbar from "@/components/Navbar.vue";
 import { ref } from "vue";
 
 const params = new URLSearchParams(document.location.search);
@@ -41,6 +43,7 @@ const failed = ref({
   msg: "",
 });
 
+// TODO: display error messages correctly
 function register() {
   if (password.value?.value !== password2.value?.value) {
     return;
@@ -75,11 +78,6 @@ function register() {
 input {
   margin-bottom: 20px;
   font-size: large;
-}
-
-header {
-  margin-left: 20vw;
-  margin-bottom: 10vh;
 }
 
 main {

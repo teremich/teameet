@@ -9,14 +9,17 @@
           <div>
             <table id="projectstable">
               <tbody>
-                <tr>
-                  <th class="projecttableheader projectname">name</th>
-                  <th class="projecttableheader projectowner">owner</th>
-                  <th class="projecttableheader projectdescription">
-                    description
+                <tr id="tableheaderrow">
+                  <th class="projecttableheader projectname">NAME</th>
+                  <th class="projecttableheader projectowner">OWNER</th>
+                  <th
+                    style="outline: white"
+                    class="projecttableheader projectdescription"
+                  >
+                    DESCRIPTION
                   </th>
                   <th class="projecttableheader projectlanguages">
-                    technologies
+                    TECHNOLOGIES AND NOTES
                   </th>
                 </tr>
                 <ProjectTableEntry
@@ -33,6 +36,7 @@
         </div>
       </div>
     </main>
+    <div id="mobile-alternative"></div>
   </div>
 </template>
 
@@ -44,6 +48,10 @@ import Navbar from "@/components/Navbar.vue";
 import ProjectTableEntry from "@/components/ProjectTableEntry.vue";
 
 const projects = ref([]);
+// window.requestAnimationFrame(() => {
+//   (<HTMLElement>document.querySelector("#mobile-alternative")).innerText =
+//     innerWidth.toString();
+// });
 
 onMounted(async () => {
   const p = await fetch("/api/v0/project").then((r) => r.json());
@@ -51,8 +59,14 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 @import "@/assets/tablestyle.css";
+
+@media only screen and (max-device-width: 900px) {
+  main {
+    display: none;
+  }
+}
 
 h1 {
   text-align: center;
@@ -65,6 +79,10 @@ h1 {
   padding: 0;
   table-layout: fixed;
   border-spacing: 0 1vh;
+}
+
+#tableheaderrow {
+  outline: white;
 }
 
 .projecttableheader {
