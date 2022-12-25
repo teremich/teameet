@@ -17,7 +17,8 @@ router.route("/join") // ?project=id&user=uuid
         const projectId = Number.parseInt(req.query["project"]?.toString() ?? "");
         if (projectId) {
             const { uuid: userid, level: userLevel } = await getUserLevel(req.cookies["AuthToken"], projectId);
-            if (userLevel >= level.MEMBER) {
+            // explicit permissions who is allowed to see join requests
+            if (userLevel & level.MEMBER || userLevel & level.OWNER || userLevel & level.ADMIN) {
                 const joinRequests = await getJoinRequestsByProject(projectId);
                 res.status(200);
                 res.json({
@@ -102,12 +103,12 @@ router.route("/join") // ?project=id&user=uuid
             });
             return;
         }
-        if (senderId != userid && userLevel < level.OWNER) {
+        if (senderId != userid && !(userLevel & level.OWNER || userLevel & level.ADMIN)) {
             _403(res);
             return;
         }
         if (senderId != userid) {
-            if (req.query["accepted"] && req.query["accepted"] != "0" && req.query["accepted"] != "false") {
+            if (req.query["accepted"] && (req.query["accepted"] == "1" || req.query["accepted"] == "true")) {
                 await addMember(senderId, projectId);
             }
         }

@@ -13,7 +13,7 @@
           with the technologies and languages they use and
           <span style="text-decoration: underline">explain why</span> you'd like
           to join their project. <br />
-          I'm sure they are waiting for someone just like you :)</span
+          Surely, they are waiting for someone just like you :)</span
         >
       </p>
       <textarea rows="3" ref="message" class="textarea" placeholder="Hi..." />

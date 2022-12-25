@@ -1,6 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import { Database } from "models/database";
-import { getUserLevel, getUserObject } from "./auth";
+import { getUserObject } from "./auth";
 
 export const db = new Database();
 export async function getProjects(where?: { id?: number }): Promise<{
@@ -120,7 +120,8 @@ export async function getJoinRequestsByUser(userId: number) {
     });
 }
 
-export async function makeJoinRequest(userId: number, projectId: number, message: string) {
+export async function makeJoinRequest(userId: number, projectId: number, message: string): Promise<boolean> {
+    // if the user already made a jr
     if (await db.prisma.joinRequest.findUnique({
         where: {
             senderId_receiverId: {
@@ -128,7 +129,20 @@ export async function makeJoinRequest(userId: number, projectId: number, message
                 senderId: userId
             }
         }
-    })) {
+        // or that user is banned from the project
+    }) || (await db.prisma.project.findUnique({
+        where: {
+            id: projectId
+        },
+        select: {
+            banList: {
+                where: {
+                    uuid: userId
+                }
+            }
+        }
+    }))?.banList) {
+        // dont create the join request
         return false;
     }
     await db.prisma.joinRequest.create({

@@ -1,13 +1,19 @@
 <template>
   <div id="navbar">
-    <h2 id="logo"><a href="/">TEAMEET</a></h2>
+    <h2 id="logo"><router-link to="/">TEAMEET</router-link></h2>
     <div>
-      <a class="account" ref="login" v-if="!profile.loaded">login</a>
-      <a
+      <router-link
+        class="account"
+        :to="{ path: '/login' }"
+        ref="login"
+        v-if="!profile.loaded"
+        >login</router-link
+      >
+      <router-link
         class="account"
         v-if="profile.loaded"
-        :href="'/profile/?id=' + profile.uuid"
-        >{{ profile?.name }}</a
+        :to="{ path: '/profile/', query: { id: profile.uuid } }"
+        >{{ profile?.name }}</router-link
       >
     </div>
   </div>
@@ -26,9 +32,9 @@ const profile = ref({
 const userInfo = defineEmits(["loadfinished"]);
 
 onMounted(() => {
-  (<HTMLLinkElement>login.value).href =
-    "/login?href=" +
-    (encodeURI(window.location.pathname + window.location.search) || "/");
+  (login as any).value.to.query = {
+    href: encodeURI(window.location.pathname + window.location.search) || "/",
+  };
   fetch("/api/v0/login")
     .then((r) => r.json())
     .then((r) => {

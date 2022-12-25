@@ -18,21 +18,24 @@
           >
           <p v-for="(link, index) in project.additional?.links" :key="index">
             <span>{{ link.name }}</span
-            >: <a class="link" :href="link.target">{{ link.target }}</a>
+            >:
+            <router-link class="link" :to="link.target">{{
+              link.target
+            }}</router-link>
           </p>
           <br />
           <p style="font-weight: bold">
             owner:
-            <a
+            <router-link
               style="font-weight: initial"
               class="link"
-              :href="'/profile/?id=' + project.owner.uuid"
-              >{{ project.owner.name }}</a
+              :to="{ path: '/profile/', query: { id: project.owner.uuid } }"
+              >{{ project.owner.name }}</router-link
             >
           </p>
           <p style="font-weight: bold">
             members:
-            <a
+            <router-link
               class="link"
               style="font-weight: initial"
               v-for="(member, i) in project.members"
@@ -40,9 +43,9 @@
                 member.name + (i == project.members.length - 1 ? '' : ', ')
               "
               :key="i"
-              :href="'/profile/?id=' + member.uuid"
+              :to="{ path: '/profile/', query: { id: member.uuid } }"
             >
-            </a>
+            </router-link>
             <span style="font-weight: initial" v-if="!project.members.length">
               no members
             </span>
@@ -50,9 +53,10 @@
           <div v-if="user.level >= level.member">
             <p style="font-weight: bold">Users who want to join this project</p>
             <p v-for="jr in project.joinRequests" :key="jr.sender.uuid">
-              <a class="link" :href="'/profile/?id=' + jr.sender.uuid">{{
-                jr.sender.name
-              }}</a
+              <router-link
+                class="link"
+                :to="{ path: '/profile', query: { id: jr.sender.uuid } }"
+                >{{ jr.sender.name }}</router-link
               >: {{ jr.message }}
             </p>
             <p v-if="!project.joinRequests?.length">
@@ -62,29 +66,34 @@
         </div>
         <br />
         <div>
-          <a
+          <router-link
             class="button"
-            :href="'/project/settings/?id=' + params.get('id')"
+            :to="{
+              path: '/project/settings/',
+              query: { id: params.get('id') },
+            }"
             v-if="user.level == level.owner"
             id="settings"
           >
             settings
-          </a>
-          <a
+          </router-link>
+          <router-link
             v-if="user.level == level.logged_out"
             class="button"
             id="memberlogin"
-            :href="'/login?href=/project/?id=' + id"
-            >login to become a member</a
+            :to="{
+              path: '/login/',
+            }"
+            >login to become a member</router-link
           >
-          <a
+          <router-link
             id="joinbutton"
             class="link"
             v-if="user.level == level.logged_in"
-            :href="'/project/join/?id=' + params.get('id')"
+            :to="{ path: '/project/join/', query: { id: params.get('id') } }"
           >
             become a member
-          </a>
+          </router-link>
           <button
             class="button"
             @click="leave"
@@ -113,7 +122,7 @@ const project = ref({
     name: "",
     uuid: 0,
   },
-  members: <any[]>[],
+  members: [],
   joinRequests: [],
 });
 
@@ -170,6 +179,9 @@ onMounted(() => {
           .then(async (r) => {
             if (r.status != 200) {
               user.value = { level: level.logged_out, uuid: 0 };
+              (document.getElementById("memberlogin") as any).to.query = {
+                href: document.location.href,
+              };
               return;
             }
             user.value.uuid = r.body.uuid;

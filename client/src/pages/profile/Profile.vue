@@ -44,7 +44,9 @@
           }}</a
           >: {{ j.message }}
         </p>
-        <a href="/profile/settings" class="button">settings</a>
+        <router-link to="/profile/settings" class="button"
+          >settings</router-link
+        >
       </div>
     </main>
   </div>

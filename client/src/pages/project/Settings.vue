@@ -23,6 +23,7 @@ import Navbar from "@/components/Navbar.vue";
 
 const params = new URLSearchParams(document.location.search);
 
+// eslint-disable-next-line
 function remove() {
   fetch("/api/v0/project/?id=" + params.get("id"), {
     method: "DELETE",

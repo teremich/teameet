@@ -31,9 +31,9 @@ feel free to open an issue and ask as many of them as you want to
 ## TODO:
 - find bugs and fix them
 - Front end:
-    - finish the sites
+    - finish the web pages
     - make them more beautiful
-    - update the api paths
+    - update the api paths (v1 :D)
     - make it usable on mobile
 - Back end:
     - testing user crud
@@ -41,5 +41,5 @@ feel free to open an issue and ask as many of them as you want to
     - joining projects
     - features like baning/kicking users or leaving projects
 - documentation:
-    - api
+    - api (moved to post v1.0 update)
     - project (optional)

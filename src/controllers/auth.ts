@@ -11,38 +11,35 @@ export function randomToken(): string {
 }
 
 export function hash(password: string): string {
-    const hash = createHash("SHA256");
-    hash.update(process.env.SALT + password);
-    return hash.digest("hex");
+    const sha = createHash("SHA256");
+    sha.update(process.env.SALT + password);
+    return sha.digest("hex");
 }
 
 export enum level {
-    LOGGED_OUT = 0,
+    LOGGED_OUT = 0b0,
     LOGGED_IN = 0b1,
     MEMBER = 0b10,
     OWNER = 0b100,
     ADMIN = 0b1000
 };
 
-export async function getUserLevel(userToken: string, projectId: number) {
-    const uid = await getUserId(userToken);
-    if (!uid) {
-        return { uuid: 0, level: level.LOGGED_OUT };
+export async function getUserLevel(userToken: string, projectId: number): Promise<{ uuid: number; level: level }> {
+    const uuid = await getUserId(userToken) ?? 0;
+    let lvl: level = level.LOGGED_OUT;
+    if (uuid === Number.parseInt(process.env.ADMIN_ID ?? "")) {
+        lvl &= level.ADMIN;
     }
-    if (uid === Number.parseInt(process.env.ADMIN_ID ?? "")) {
-        return { uuid: uid, level: level.ADMIN };
+    if (uuid !== 0) {
+        lvl &= level.LOGGED_IN;
     }
-    // ~~make sure there is no real project with the id 0~~ autoincrement() will take care of that
-    if (!projectId) {
-        return { uuid: uid, level: level.LOGGED_IN };
+    if (projectId && await db.isMember(uuid, projectId)) {
+        lvl &= level.MEMBER;
     }
-    if (await db.isMember(uid, projectId)) {
-        return { uuid: uid, level: level.MEMBER };
+    if (projectId && await db.isOwner(uuid, projectId)) {
+        lvl &= level.OWNER;
     }
-    if (await db.isOwner(uid, projectId)) {
-        return { uuid: uid, level: level.OWNER };
-    }
-    return { uuid: uid, level: level.LOGGED_IN };
+    return { uuid, level: lvl };
 }
 
 export function _401(res: Response) {

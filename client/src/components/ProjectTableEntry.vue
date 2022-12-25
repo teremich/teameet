@@ -1,5 +1,9 @@
 <template >
-  <tr class="projectrow" @click="visit(props.project.id)">
+  <!-- <router-link
+      class="link"
+      :to="{ path: '/project', query: { id: props.project.id } }"
+    > -->
+  <tr class="projectrow">
     <td class="projectcolumn">
       <span class="projectcolumnspan projectname">{{
         props.project.name
@@ -21,10 +25,12 @@
         "no languages or technologies defined"
       }}</span>
     </td>
+    <!-- </router-link> -->
   </tr>
 </template>
 
 <script setup lang="ts">
+// eslint-disable-next-line
 function visit(id: number) {
   window.location.href = "/project/?id=" + id;
 }
@@ -34,24 +40,27 @@ const props = defineProps(["project"]);
 <style scoped>
 @import "@/assets/tablestyle.css";
 
-.projectcolumnspan {
+td > span.projectcolumnspan {
   overflow: hidden;
   text-overflow: ellipsis;
   max-height: 5vh;
   min-width: 200px;
 }
 
-.projectcolumnspan:hover {
+td > span.projectcolumnspan:hover {
   cursor: default;
 }
 
-.projectrow {
+tr.projectrow {
   width: 90vw;
   height: 5vh;
   vertical-align: top;
 }
-.projectrow:hover {
+
+tr.projectrow:hover {
   background-color: var(--primary-color);
   color: var(--secondary-color);
+  transition: color 250ms linear;
+  transition-property: background-color, color;
 }
 </style>

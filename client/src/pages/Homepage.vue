@@ -31,7 +31,9 @@
             </table>
           </div>
           <div id="newproj">
-            <a class="button" href="/project/new"> create a new Project </a>
+            <router-link class="button" to="/project/new">
+              create a new Project
+            </router-link>
           </div>
         </div>
       </div>

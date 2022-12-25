@@ -12,7 +12,7 @@ import type { Request } from "express";
 export const router = Router();
 
 // TODO: github social login
-// really? now? pre 1.0?
+// moved to post v1.0
 router.all("/githublogin", (req, res) => {
     console.log(req);
     console.log(req.body);
@@ -97,7 +97,7 @@ router.route("/login")
         res.sendStatus(200);
     });
 
-// TODO: spam protection (moved to post 1.0)
+// TODO: spam protection (optional feature, moved to post 1.0)
 // idea: maybe by allowing github registration only
 router.route("/register").post((req, res) => {
     getUserId(req.cookies["AuthToken"]).then(async r => {

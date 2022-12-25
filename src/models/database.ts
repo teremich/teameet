@@ -50,12 +50,12 @@ export class Database {
 
     async addUser(userdata: { uuid: number, name: string, email: string, passwordHash: string, bio: any, additional?: any }): Promise<{ code: statusCode, msg: string, detail: string, value?: any }> {
         /**
-        userdata={
-            name: String,
-            email: String,
-            passwordHash: String,
-            bio: Object // not nullable! pls empty Obj,
-            additional: Object?
+        type userdata{
+            name: string;
+            email: string;
+            passwordHash: string;
+            bio: any;
+            additional: any?;
         }
         **/
         for (let i = 0; i < 0x100; i++) {

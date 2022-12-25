@@ -9,7 +9,7 @@ export function requireAuth(lvl: level, projectId: number | undefined = undefine
             projectId ?? NaN
         ).then(user => {
             if (user.uuid) {
-                if (lvl > user.level) {
+                if (lvl & user.level) {
                     _403(res);
                     return;
                 }
