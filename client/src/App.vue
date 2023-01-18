@@ -40,10 +40,13 @@ body {
   color: var(--primary-color);
   background-color: var(--secondary-color);
 }
-.link {
+a {
   text-decoration: none;
-  color: var(--link-color);
+  color: var(--primary-color);
   cursor: pointer;
+}
+.link {
+  color: var(--link-color);
 }
 .textarea {
   margin: 10px;
@@ -51,5 +54,21 @@ body {
   width: 800px;
   max-width: 800px;
   font-size: 24pt;
+}
+
+main#desktop-version {
+  display: block;
+}
+main#mobile-version {
+  display: none;
+}
+
+@media only screen and (max-width: 600px) {
+  main#mobile-version {
+    display: block;
+  }
+  main#desktop-version {
+    display: none;
+  }
 }
 </style>

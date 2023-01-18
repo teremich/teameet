@@ -1,9 +1,9 @@
 <template>
   <div>
-    <header>
-      <h1>login to your Teameet accout</h1>
-    </header>
-    <main>
+    <main id="desktop-version">
+      <header>
+        <h1>login to your Teameet accout</h1>
+      </header>
       <form @submit.prevent="login()">
         <input id="email" ref="email" placeholder="E-Mail" type="email" />
         <br />
@@ -28,6 +28,9 @@
           >you can register a new one here</a
         >
       </div>
+    </main>
+    <main id="mobile-version">
+      mobile version of this site is not implemented yet
     </main>
   </div>
 </template>
@@ -78,13 +81,17 @@ function login() {
 
 <style scoped>
 input {
-  margin-bottom: 20px;
   font-size: large;
 }
 
 header {
-  margin-left: 20vw;
-  margin-bottom: 10vh;
+  /* do something */
+}
+
+body {
+  align-items: center;
+  align-content: center;
+  text-align: center;
 }
 
 main {

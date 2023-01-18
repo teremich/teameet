@@ -16,7 +16,9 @@
         <button type="submit">Register Now</button>
         <p>
           <span class="error" ref="wrong">something has gone wrong</span>
-          <span class="error" ref="diffpw">something has gone wrong</span>
+          <span class="error" ref="diffpw"
+            >please make sure you entered the same password twice</span
+          >
           <span class="error" ref="servererror"
             >Server responded with: {{ failed.msg }}</span
           >
@@ -38,15 +40,20 @@ const name = ref<HTMLInputElement | null>(null);
 const email = ref<HTMLInputElement | null>(null);
 const password = ref<HTMLInputElement | null>(null);
 const password2 = ref<HTMLInputElement | null>(null);
+const diffpw = ref<HTMLParagraphElement | null>(null);
 const failed = ref({
   error: false,
   msg: "",
 });
 
 // TODO: display error messages correctly
+
+// eslint-disable-next-line
 function register() {
   if (password.value?.value !== password2.value?.value) {
-    return;
+    if (diffpw.value !== null) {
+      diffpw.value.style.display = "";
+    }
   }
   fetch("/api/v0/register", {
     method: "POST",

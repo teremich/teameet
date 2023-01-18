@@ -3,42 +3,37 @@
     <header>
       <Navbar />
     </header>
-    <main>
+    <main id="desktop-version">
       <div>
-        <div>
-          <div>
-            <table id="projectstable">
-              <tbody>
-                <tr id="tableheaderrow">
-                  <th class="projecttableheader projectname">NAME</th>
-                  <th class="projecttableheader projectowner">OWNER</th>
-                  <th
-                    style="outline: white"
-                    class="projecttableheader projectdescription"
-                  >
-                    DESCRIPTION
-                  </th>
-                  <th class="projecttableheader projectlanguages">
-                    TECHNOLOGIES AND NOTES
-                  </th>
-                </tr>
-                <ProjectTableEntry
-                  v-for="p in projects"
-                  :project="p"
-                  :key="p.id"
-                />
-              </tbody>
-            </table>
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, auto));
+            grid-gap: 10px;
+          "
+        >
+          <div class="projecttableheader projectname">NAME</div>
+          <div class="projecttableheader projectowner">OWNER</div>
+          <div
+            style="outline: white"
+            class="projecttableheader projectdescription"
+          >
+            DESCRIPTION
           </div>
-          <div id="newproj">
-            <router-link class="button" to="/project/new">
-              create a new Project
-            </router-link>
+          <div class="projecttableheader projectlanguages">
+            TECHNOLOGIES AND NOTES
           </div>
+
+          <ProjectTableEntry v-for="p in projects" :key="p.id" :project="p" />
+        </div>
+        <div id="newproj">
+          <router-link class="button" to="/project/new">
+            create a new Project
+          </router-link>
         </div>
       </div>
     </main>
-    <div id="mobile-alternative"></div>
+    <main id="mobile-version"></main>
   </div>
 </template>
 
@@ -50,10 +45,6 @@ import Navbar from "@/components/Navbar.vue";
 import ProjectTableEntry from "@/components/ProjectTableEntry.vue";
 
 const projects = ref([]);
-// window.requestAnimationFrame(() => {
-//   (<HTMLElement>document.querySelector("#mobile-alternative")).innerText =
-//     innerWidth.toString();
-// });
 
 onMounted(async () => {
   const p = await fetch("/api/v0/project").then((r) => r.json());
@@ -83,16 +74,11 @@ h1 {
   border-spacing: 0 1vh;
 }
 
-#tableheaderrow {
-  outline: white;
-}
-
 .projecttableheader {
   text-align: left;
 }
 
 #newproj {
-  margin-left: 5vw;
-  margin-right: 0;
+  margin: 5vw 1vh;
 }
 </style>
