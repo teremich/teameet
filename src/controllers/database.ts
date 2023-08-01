@@ -1,9 +1,9 @@
 import type { Prisma } from "@prisma/client";
 import { Database } from "models/database";
-import { getUserObject } from "./auth";
+import { getUserObject, hash } from "./auth";
 
 export const db = new Database();
-export async function getProjects(where?: { id?: number }): Promise<{
+export async function getProjects(where?: { id?: number, skip?: number, take?: number }): Promise<{
     id: number;
     additional: Prisma.JsonValue;
     description: string;
@@ -30,6 +30,7 @@ export async function getProjects(where?: { id?: number }): Promise<{
         where: {
             id: where?.id
         },
+        skip: where?.skip ?? 0,
         select: {
             additional: true,
             description: true,
@@ -59,8 +60,17 @@ export async function getProjects(where?: { id?: number }): Promise<{
                     },
                     message: true
                 }
+            },
+            tasks: true,
+            banList: {
+                select: {
+                    name: true,
+                    uuid: true
+                }
             }
-        }
+        },
+        // returns at most 50 projects (use skip to paginate)
+        take: (where?.take && where.take < 50 && where.take > 0) ? where?.take : 50
     });
     return res;
 }
@@ -73,20 +83,20 @@ export async function postProject(data: projectData): Promise<number> {
         select: {
             ownerOf: {
                 select: {
-                    createdAt: true
+                    id: true
                 }
             }
         }
     });
-    if (previousProjects?.ownerOf?.length && previousProjects.ownerOf.length >= 255) {
-        return 0;
+    if (previousProjects?.ownerOf?.length && previousProjects.ownerOf.length > 255) {
+        return 0; // no one can have more than 255 projects
     }
     return (await db.prisma.project.create({
         data: {
             description: data.description,
             details: {},
             name: data.name,
-            tasks: {},
+            tasks: [],
             additional: data.additional,
             ownerId: data.ownerId
         },
@@ -122,7 +132,7 @@ export async function getJoinRequestsByUser(userId: number) {
 
 export async function makeJoinRequest(userId: number, projectId: number, message: string): Promise<boolean> {
     // if the user already made a jr
-    if (await db.prisma.joinRequest.findUnique({
+    if ((await db.prisma.joinRequest.findUnique({
         where: {
             senderId_receiverId: {
                 receiverId: projectId,
@@ -130,7 +140,7 @@ export async function makeJoinRequest(userId: number, projectId: number, message
             }
         }
         // or that user is banned from the project
-    }) || (await db.prisma.project.findUnique({
+    })) || (await db.prisma.project.findUnique({
         where: {
             id: projectId
         },
@@ -141,7 +151,7 @@ export async function makeJoinRequest(userId: number, projectId: number, message
                 }
             }
         }
-    }))?.banList) {
+    }))?.banList.length) {
         // dont create the join request
         return false;
     }
@@ -216,6 +226,14 @@ export async function leave(params: {
                 }
             });
             return true;
+        } else if (project.owner.uuid == leavingUser.uuid) {
+            // TODO: what if the owner leaves
+            // maybe the first member in the list becomes the new Owner
+            // what if the new Owner has too many projects and is the Admin treated equally in that case?
+            // what if all members either have too many projects
+            // TODO: delete project if there are no members and no one to become owner
+            // How about just letting members leave and owners can only delete projects not leave them?
+            return true;
         }
     } else {
         const leaveInitiator = await getUserObject(params.leaveInitiator);
@@ -274,6 +292,24 @@ export async function leave(params: {
         }
     }
     return false;
+}
+
+export async function updateUser(uuid: number, newData: { bio?: any; email?: string, name?: string; password?: string; additional?: any } ) {
+    await db.prisma.user.update({
+        where: {
+            uuid
+        },
+        data: {
+            bio: newData.bio,
+            email: newData.email,
+            name: newData.name
+        }
+    });
+    if (newData.password) {
+        console.log("wanting to update the user password");
+        let pwHash = hash(uuid + newData.password);
+        await db.updatePassword(uuid, pwHash);
+    }
 }
 
 export type { User, Project, JoinRequest } from "models/database";

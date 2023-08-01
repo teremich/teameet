@@ -1,7 +1,7 @@
 <template>
   <div>
     <header>
-      <Navbar />
+      <Navbar @loadfinished="onLoaded" />
     </header>
     <main>
       <form @submit.prevent="register()">
@@ -46,13 +46,18 @@ const failed = ref({
   msg: "",
 });
 
-// TODO: display error messages correctly
+// TODO (post v1.0): display error messages correctly
 
-// eslint-disable-next-line
+function onLoaded(event: { loggedIn: boolean }) {
+  if (event.loggedIn) {
+    location.href = referer;
+  }
+}
+
 function register() {
   if (password.value?.value !== password2.value?.value) {
     if (diffpw.value !== null) {
-      diffpw.value.style.display = "";
+      diffpw.value.style.display = "block";
     }
   }
   fetch("/api/v0/register", {
@@ -66,16 +71,16 @@ function register() {
       password: password.value?.value,
     }),
   })
-    .then((r) => r.json())
     .then((res) => {
-      console.log(res);
       if (res.status >= 200 && res.status < 300) {
         location.href = referer;
       } else {
-        failed.value = {
-          error: true,
-          msg: res.body.msg,
-        };
+        res.json().then(body => {
+          failed.value = {
+            error: true,
+            msg: body.msg,
+          };
+      });
       }
     });
 }

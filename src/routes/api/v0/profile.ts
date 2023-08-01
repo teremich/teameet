@@ -1,7 +1,7 @@
 import { Router } from "express";
 import type { Request } from "express";
-import { getUserId, getUserObject } from "controllers/auth";
-import { getProjects } from "controllers/database";
+import { _401, getUserId, getUserObject } from "controllers/auth";
+import { getProjects, updateUser } from "controllers/database";
 export const router = Router();
 
 interface Project {
@@ -55,104 +55,117 @@ router.route("/profile")
         if (!user) {
             res.status(404);
             res.json({
-                status: 404,
-                body: {
-                    msg: "user not found"
-                }
+                msg: "user not found"
             })
             return;
         }
-        res.status(200);
         // if you are not the person who's info we are getting, you get the public info
         if (req["useruuid"] !== Number.parseInt(req.query["id"]?.toString() ?? "")) {
             if (user.additional === null) {
                 user.additional = {};
             }
             (user.additional as any).private = {};
+            res.status(200);
             res.json({
-                status: 200, body: {
-                    ownInfo: false,
-                    payload: <publicInfo>{
-                        additional: user.additional,
-                        bio: user.bio,
-                        memberOf: user.memberOf.map(p => {
-                            return {
-                                id: p.id,
-                                ownerId: p.ownerId,
-                                name: p.name,
-                                description: p.description,
-                                createdAt: p.createdAt,
-                                additional: p.additional
-                            }
-                        }),
-                        name: user.name,
-                        ownerOf: user.ownerOf.map(p => {
-                            return {
-                                id: p.id,
-                                ownerId: p.ownerId,
-                                name: p.name,
-                                description: p.description,
-                                createdAt: p.createdAt,
-                                additional: p.additional
-                            }
-                        }),
-                        uuid: user.uuid
-                    }
+                ownInfo: false,
+                payload: <publicInfo>{
+                    additional: user.additional,
+                    bio: user.bio,
+                    memberOf: user.memberOf.map(p => {
+                        return {
+                            id: p.id,
+                            ownerId: p.ownerId,
+                            name: p.name,
+                            description: p.description,
+                            createdAt: p.createdAt,
+                            additional: p.additional
+                        }
+                    }),
+                    name: user.name,
+                    ownerOf: user.ownerOf.map(p => {
+                        return {
+                            id: p.id,
+                            ownerId: p.ownerId,
+                            name: p.name,
+                            description: p.description,
+                            createdAt: p.createdAt,
+                            additional: p.additional
+                        }
+                    }),
+                    uuid: user.uuid
                 }
             });
         } else {
             // otherwise the private info
+            res.status(200);
             res.json({
-                status: 200,
-                body: {
-                    ownInfo: true,
-                    payload: <privateInfo>{
-                        additional: user.additional,
-                        bio: user.bio,
-                        memberOf: user.memberOf.map(p => {
-                            return {
-                                id: p.id,
-                                ownerId: p.ownerId,
-                                name: p.name,
-                                description: p.description,
-                                createdAt: p.createdAt,
-                                additional: p.additional
-                            }
-                        }),
-                        name: user.name,
-                        ownerOf: user.ownerOf.map(p => {
-                            return {
-                                id: p.id,
-                                ownerId: p.ownerId,
-                                name: p.name,
-                                description: p.description,
-                                createdAt: p.createdAt,
-                                additional: p.additional
-                            }
-                        }),
-                        uuid: user.uuid,
-                        createdAt: user.createdAt,
-                        email: user.email,
-                        joins: await asyncmap(user.joins, async jr => {
-                            return {
-                                additional: jr.additional,
-                                createdAt: jr.createdAt,
-                                message: jr.message,
-                                receiver: await (async () => {
-                                    const p = (await getProjects({ id: jr.receiverId }))[0];
-                                    return {
-                                        id: p.id,
-                                        ownerId: p.owner.uuid,
-                                        description: p.description,
-                                        name: p.name,
-                                        createdAt: p.createdAt,
-                                        additional: p.additional
-                                    };
-                                })()
-                            }
-                        })
-                    }
+                ownInfo: true,
+                payload: <privateInfo>{
+                    additional: user.additional,
+                    bio: user.bio,
+                    memberOf: user.memberOf.map(p => {
+                        return {
+                            id: p.id,
+                            ownerId: p.ownerId,
+                            name: p.name,
+                            description: p.description,
+                            createdAt: p.createdAt,
+                            additional: p.additional
+                        }
+                    }),
+                    name: user.name,
+                    ownerOf: user.ownerOf.map(p => {
+                        return {
+                            id: p.id,
+                            ownerId: p.ownerId,
+                            name: p.name,
+                            description: p.description,
+                            createdAt: p.createdAt,
+                            additional: p.additional
+                        }
+                    }),
+                    uuid: user.uuid,
+                    createdAt: user.createdAt,
+                    email: user.email,
+                    joins: await asyncmap(user.joins, async jr => {
+                        return {
+                            additional: jr.additional,
+                            createdAt: jr.createdAt,
+                            message: jr.message,
+                            receiver: await (async () => {
+                                const p = (await getProjects({ id: jr.receiverId }))[0];
+                                return {
+                                    id: p.id,
+                                    ownerId: p.owner.uuid,
+                                    description: p.description,
+                                    name: p.name,
+                                    createdAt: p.createdAt,
+                                    additional: p.additional
+                                };
+                            })()
+                        }
+                    })
                 }
             });
         }
+    }).patch(async (req: Request & { "useruuid"?: number }, res) => {
+        // TODO:
+        // start with the api documentation,
+        // then implement a database controller function like `updateUser`,
+        // then pass suitable arguments from here to the new function
+        // updateable field are bio, name, password, email, additional
+        if (!req["useruuid"]) {
+            _401(res);
+            return;
+        }
+        updateUser(req["useruuid"], {
+            bio: req.body.bio,
+            name: <string>req.body.name,
+            password: <string>req.body.password,
+            additional: req.body.additional
+        });
+        res.status(200);
+        res.json({
+            uuid: req["useruuid"]
+        });
     });

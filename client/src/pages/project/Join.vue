@@ -1,24 +1,24 @@
 <template>
   <div>
     <header>
-      <Navbar />
+      <Navbar @loadfinished="onLoaded" />
     </header>
     <main>
       <p style="max-width: 800px">
         send a join request to the project "{{ project.name }}" <br />
-        <span style="opacity: 0.4"
+        <span class="opaque"
           ><span style="text-decoration: underline">Introduce yourself</span> to
           the others, tell them
           <span style="text-decoration: underline">how familiar</span> you are
           with the technologies and languages they use and
           <span style="text-decoration: underline">explain why</span> you'd like
           to join their project. <br />
-          Surely, they are waiting for someone just like you :)</span
+          Surely, they are waiting for someone just like you :&#41;</span
         >
       </p>
       <textarea rows="3" ref="message" class="textarea" placeholder="Hi..." />
       <br />
-      <button @click="sendJR()">JOIN NOW</button>
+      <button style="margin-top: 25px;" class="button" @click="sendJR()">SUBMIT JOIN REQUEST</button>
       <p class="error">
         Sorry, something went wrong <br />
         the server responded with: <span>nothing</span>
@@ -37,20 +37,26 @@ const project = ref({
   name: "...",
   id: 0,
 });
+
+function onLoaded(event: {loggedIn: boolean}) {
+  if (!event.loggedIn) {
+    window.location.href = "/login?href=/project/join" + document.location.search;
+  }
+}
+
 onMounted(() => {
   fetch("/api/v0/project?id=" + params.get("id"))
-    .then((r) => r.json())
-    .then((response) => {
-      if (
-        response.status !== 200 ||
-        response.body.projects[0]?.id != params.get("id")
-      ) {
+    .then(r => {
+      if (r.status !== 200) {
         window.location.href = "/";
+        return;
       }
-      project.value = {
-        name: response.body.projects[0].name,
-        id: response.body.projects[0].id,
-      };
+      r.json().then(body => {
+        project.value = {
+          name: body.projects[0].name,
+          id: body.projects[0].id,
+        };
+      });
     });
 });
 
@@ -72,13 +78,14 @@ function sendJR() {
       message: message.value?.value,
     }),
   })
-    .then((r) => r.json())
     .then((res) => {
       if (res.status == 201) {
         window.location.href = "/project/?id=" + params.get("id");
       } else {
-        errorElement.style.display = "block";
-        errorElement.getElementsByTagName("span")[0].innerText = res.body.msg;
+        res.json().then(body => {
+          errorElement.style.display = "block";
+          errorElement.getElementsByTagName("span")[0].innerText = body.msg;
+        });
       }
     });
 }

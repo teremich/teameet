@@ -12,12 +12,9 @@ router.post("/leave", // ?project=id&user=uuid&ban=boolean
         const projectId = Number.parseInt(req.query["project"]?.toString() ?? "");
         const ban = !!["1", "true"].find(r => r == req.query["ban"]);
         if (!projectId || !leavingUser) {
-            res.status(200);
+            res.status(400);
             res.json({
-                status: 400,
-                body: {
-                    msg: "please make sure to supply a project id"
-                }
+                msg: "please make sure to supply a project id"
             });
             return;
         }
@@ -32,10 +29,7 @@ router.post("/leave", // ?project=id&user=uuid&ban=boolean
         } else {
             res.status(400);
             res.json({
-                status: 400,
-                body: {
-                    msg: "something went wrong"
-                }
+                msg: "something went wrong"
             });
         }
     });

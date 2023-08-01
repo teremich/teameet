@@ -37,8 +37,8 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-// TODO: please fix this site for mobile
-// see a youtube tutorial how
+// TODO (post v1.0): please fix this site for mobile
+// see a youtube tutorial how <-- good idea (maybe)
 
 const params = new URLSearchParams(document.location.search);
 const referer = decodeURI(params.get("href") ?? "/");
@@ -49,7 +49,6 @@ const password = ref<HTMLInputElement | null>(null);
 const loginfailed = ref(false);
 
 fetch("/api/v0/login")
-  .then((r) => r.json())
   .then((res) => {
     if (res.status == 200) {
       window.location.href = referer;
@@ -67,15 +66,13 @@ function login() {
       password: password.value?.value,
     }),
   })
-    .then((r) => r.json())
-    .then((res) => {
-      console.log(res);
-      if (res.status == 200) {
-        location.href = referer;
-      } else {
-        loginfailed.value = true;
-      }
-    });
+  .then((res) => {
+    if (res.status == 200) {
+      location.href = referer;
+    } else {
+      loginfailed.value = true;
+    }
+  });
 }
 </script>
 
@@ -85,7 +82,7 @@ input {
 }
 
 header {
-  /* do something */
+  /* TODO: do something */
 }
 
 body {

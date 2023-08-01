@@ -26,35 +26,38 @@ const login = ref<HTMLLinkElement | null>(null);
 const profile = ref({
   loaded: false,
   name: "",
-  uuid: 0,
+  uuid: 0
 });
 
 const userInfo = defineEmits(["loadfinished"]);
 
-onMounted(() => {
-  (login as any).value.to.query = {
+async function handleLogin() {
+  const response = await fetch("/api/v0/login");
+  if (response.status != 200) {
+    userInfo("loadfinished", {
+      loggedIn: false,
+    });
+    return;
+  }
+  const body = await response.json();
+  profile.value = {
+    loaded: true,
+    name: body.name,
+    uuid: body.uuid
+  };
+  userInfo("loadfinished", {
+    loggedIn: true,
+    payload: body,
+  });
+}
+
+onMounted(async () => {
+  (<any>login).value.to.query = {
     href: encodeURI(window.location.pathname + window.location.search) || "/",
   };
-  fetch("/api/v0/login")
-    .then((r) => r.json())
-    .then((r) => {
-      if (r.status != 200) {
-        userInfo("loadfinished", {
-          loggedIn: false,
-        });
-      } else {
-        profile.value = {
-          loaded: true,
-          name: r.body.name,
-          uuid: r.body.uuid,
-        };
-        userInfo("loadfinished", {
-          loggedIn: true,
-          payload: r.body,
-        });
-      }
-    });
+  await handleLogin();
 });
+
 </script>
 
 <style scoped lang="scss">

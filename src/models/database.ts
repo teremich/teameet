@@ -1,6 +1,6 @@
 "use strict";
 import { PrismaClient } from "@prisma/client"
-import type { User, Project, joinRequest, Prisma, } from "@prisma/client";
+import type { User, Project, joinRequest, Prisma } from "@prisma/client";
 export type JsonObject = Prisma.JsonObject;
 export type { User, Project, joinRequest as JoinRequest };
 
@@ -94,5 +94,15 @@ export class Database {
             }
         }
         return { code: statusCode.ERROR_DB_FULL, msg: "failure", detail: "0x100 userids checked, non were available" };
+    }
+    async updatePassword(uuid: number, passwordHash: string) {
+        await this.prisma.user.update({
+            where: {
+                uuid
+            },
+            data: {
+                passwordHash
+            }
+        });
     }
 }

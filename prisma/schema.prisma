@@ -3,6 +3,7 @@
 
 generator client {
     provider = "prisma-client-js"
+    binaryTargets = ["native"]
 }
 
 datasource db {
@@ -56,10 +57,10 @@ model Project {
     // public
     ownerId Int
 
-    // public(public info)
+    // public
     owner User @relation(name: "owner", references: [uuid], fields: [ownerId])
 
-    // public([public info])
+    // public
     members User[] @relation(name: "members")
 
     // public
@@ -69,7 +70,7 @@ model Project {
     description String
 
     // private
-    tasks Json
+    tasks Json[]
 
     // private
     createdAt DateTime @default(now())
@@ -88,6 +89,7 @@ model Project {
 }
 
 // OMG I HATE this typo, why isn't it starting with a capital letter like the others!!!!
+// why not make a migration?
 model joinRequest {
     // project members
     senderId Int

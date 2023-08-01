@@ -2,12 +2,11 @@
   <div>
     <Navbar />
     <main>
-      <!-- TODO: feature to leave a project -->
       <h2 id="name">{{ project.name }}</h2>
       <div id="public">
         <div id="info">
           <label style="font-weight: bold">description:</label>
-          <p id="description">{{ project.description }}</p>
+          <p id="description" class="textbox">{{ project.description }}</p>
           <label
             style="font-weight: bold"
             v-if="project.additional?.links?.length"
@@ -50,19 +49,6 @@
               no members
             </span>
           </p>
-          <div v-if="user.level >= level.member">
-            <p style="font-weight: bold">Users who want to join this project</p>
-            <p v-for="jr in project.joinRequests" :key="jr.sender.uuid">
-              <router-link
-                class="link"
-                :to="{ path: '/profile', query: { id: jr.sender.uuid } }"
-                >{{ jr.sender.name }}</router-link
-              >: {{ jr.message }}
-            </p>
-            <p v-if="!project.joinRequests?.length">
-              there are no open join requests
-            </p>
-          </div>
         </div>
         <br />
         <div>
@@ -75,7 +61,7 @@
             v-if="user.level == level.owner"
             id="settings"
           >
-            settings
+            <a v-if="project.joinRequests.length" class="button" style="background-color: var(--error-color); margin: 5px; padding: 0; color: var(--secondary-color)" >{{ project.joinRequests.length || "" }}</a>settings
           </router-link>
           <router-link
             v-if="user.level == level.logged_out"
@@ -88,11 +74,11 @@
           >
           <router-link
             id="joinbutton"
-            class="link"
+            class="button"
             v-if="user.level == level.logged_in"
             :to="{ path: '/project/join/', query: { id: params.get('id') } }"
           >
-            become a member
+            JOIN
           </router-link>
           <button
             class="button"
@@ -104,7 +90,13 @@
         </div>
       </div>
       <div id="private">
-        <!-- TODO: display tasks (maybe interactive) -->
+        <div>
+          <label>tasks</label>
+        </div>
+        <!-- [ ] display tasks -->
+        <!-- [ ] show links and techstack -->
+        <!-- [ ] feature to leave a project -->
+        <!-- [ ] show the team more beautifully -->
       </div>
     </main>
   </div>
@@ -122,8 +114,9 @@ const project = ref({
     name: "",
     uuid: 0,
   },
-  members: [],
-  joinRequests: [],
+  members: <any[]>[],
+  joinRequests: <any[]>[],
+  additional: <any>null
 });
 
 enum level {
@@ -154,7 +147,11 @@ function isMember(
 }
 
 function leave() {
-  fetch(`/api/v0/leave?project=${params.get("id")}&user=${user.value.uuid}`, {
+  if (user.value.level != level.member) {
+    // TODO: display error message that only members can leave
+    return;
+  }
+  fetch(`/api/v0/leave?project=${params.get("id")}&ban=0`, {
     method: "POST",
   }).then((res) => {
     if (res.ok) {
@@ -166,16 +163,18 @@ function leave() {
 onMounted(() => {
   if (params.get("id")) {
     fetch("/api/v0/project?id=" + params.get("id"))
-      .then((r) => r.json())
-      .then((res) => {
-        if (res.status != 200) {
-          console.error(res);
-          return;
+      .then((r) => {
+        if (r.status != 200) {
+          console.error(r);
+          r.text().then(console.error);
+        } else {
+          return r.json();
         }
-        project.value = res.body.projects[0];
+      })
+      .then((body) => {
+        project.value = body.projects[0];
         document.title = `${project.value.name} | Teameet`;
         fetch("/api/v0/login")
-          .then((r) => r.json())
           .then(async (r) => {
             if (r.status != 200) {
               user.value = { level: level.logged_out, uuid: 0 };
@@ -184,16 +183,18 @@ onMounted(() => {
               };
               return;
             }
-            user.value.uuid = r.body.uuid;
-            if (r.body.uuid == project.value.owner.uuid) {
-              user.value.level = level.owner;
-              return;
-            }
-            if (isMember(r.body.uuid, project.value)) {
-              user.value.level = level.member;
-            } else {
-              user.value.level = level.logged_in;
-            }
+            r.json().then(body => {
+              user.value.uuid = body.uuid;
+              if (body.uuid == project.value.owner.uuid) {
+                user.value.level = level.owner;
+                return;
+              }
+              if (isMember(body.uuid, project.value)) {
+                user.value.level = level.member;
+              } else {
+                user.value.level = level.logged_in;
+              }
+            });
           });
       });
   } else {
@@ -211,10 +212,5 @@ onMounted(() => {
 #private {
   width: 50%;
   float: right;
-}
-
-#description {
-  background-color: var(--navbar-color);
-  padding: 1vw;
 }
 </style>

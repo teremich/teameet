@@ -6,6 +6,10 @@
 </script>
 
 <style>
+ul{
+  text-decoration: none;
+  list-style: none;
+}
 .button {
   text-decoration: none;
   background-color: var(--link-color);
@@ -14,6 +18,7 @@
   border: none;
   font-size: 16pt;
   font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
 }
 .button:hover {
   cursor: pointer;
@@ -27,6 +32,7 @@ main {
   margin: 15px;
 }
 body {
+  --success-color: #41aa41;
   --primary-color: #f0f6f6;
   --secondary-color: #26292c;
   --navbar-color: #1c1f21;
@@ -63,12 +69,20 @@ main#mobile-version {
   display: none;
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (orientation: portrait) {
   main#mobile-version {
     display: block;
   }
   main#desktop-version {
     display: none;
   }
+}
+.opaque{
+  opacity: 0.4;
+}
+.textbox {
+  background-color: var(--navbar-color);
+  padding: 15px;
+  cursor: default;
 }
 </style>

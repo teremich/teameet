@@ -14,7 +14,7 @@ export class Server {
     }
     async middleware() {
         if (process.env.NODE_ENV == "dev") {
-            console.log("cors is used");
+            console.log("cors is used (bad, only allowed in dev)");
             this.app.use((await import("cors")).default());
         }
         this.app.use(CookieParser());

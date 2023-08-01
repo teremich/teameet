@@ -39,15 +39,19 @@ const props = defineProps(["project"]);
 <style scoped>
 @import "@/assets/tablestyle.css";
 
-span.projectcolumnspan {
+.projectcolumnspan {
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: 5vh;
+  max-height: 1vh;
   min-width: 200px;
 }
 
-span.projectcolumnspan:hover {
+.projectcolumnspan:hover {
   cursor: default;
+}
+
+.projectcolumn{
+  padding: 15px 0px;
 }
 
 .projectrow {

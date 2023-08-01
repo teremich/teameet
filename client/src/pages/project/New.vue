@@ -21,9 +21,15 @@
           placeholder="Tell us about your project…"
         ></textarea>
         <p>
-          <span :style="failed" class="error"
+          <span class="error" id="nd"
             >Please provide a name for your project as well as a
             description.</span
+          >
+          <span class="error" id="ntoolong"
+            >Please make sure that your project name is at most 255 characters long.</span
+          >
+          <span class="error" id="ptoomany"
+            >You can only have up to 255 projects.</span
           >
         </p>
         <button style="margin-left: 30px; font-size: larger">CREATE</button>
@@ -39,7 +45,6 @@ import Navbar from "@/components/Navbar.vue";
 
 const name = ref<HTMLInputElement | null>(null);
 const description = ref<HTMLInputElement | null>(null);
-const failed = ref("display: none");
 
 function onLoaded(event: { loggedIn: boolean }) {
   if (!event.loggedIn) {
@@ -61,18 +66,26 @@ function submit() {
         description: d,
       }),
     })
-      .then((r) => r.json())
-      .then((r) => {
-        if (r.status == 201) {
-          window.location.href = "/project/?id=" + r.id;
-        } else if (r.status == 401) {
-          window.location.href = "/login?href=/project/new";
-        } else {
-          console.error(r);
+      .then(async (r) => {
+        switch (r.status) {
+          case 201:
+            window.location.href = "/project/?id=" + (await r.json()).id;
+            break;
+          case 401:
+            window.location.href = "/login?href=/project/new";
+            break;
+          case 403:
+            document.getElementById("ptoomany")!.style.display = "block";
+            break;
+          case 413:
+            document.getElementById("ntoolong")!.style.display = "block";
+            break;
+          default:
+            console.error(r);
         }
       });
   } else {
-    failed.value = "display: block";
+    document.getElementById("nd")!.style.display = "block";
   }
 }
 </script>

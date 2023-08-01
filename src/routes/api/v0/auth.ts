@@ -33,16 +33,13 @@ router.route("/login")
         if (req["useruuid"]) {
             getUserObject(req["useruuid"]).then(user => {
                 res.status(200);
-                res.json({ status: 200, body: user });
+                res.json(user);
             });
         } else {
             // user gets an error in the console if this is status 401
-            res.status(200);
+            res.status(401);
             res.json({
-                // front end will try to load user info if this is 200
-                status: 401, body: {
-                    msg: "you are not logged in"
-                }
+                msg: "you are not logged in"
             })
         }
     })
@@ -52,10 +49,7 @@ router.route("/login")
         if (req["useruuid"]) {
             res.status(200);
             res.json({
-                status: 200,
-                body: {
-                    id: req["useruuid"]
-                }
+                id: req["useruuid"]
             });
             return;
         }
@@ -64,10 +58,7 @@ router.route("/login")
             if (creds == null) {
                 res.status(400);
                 res.json({
-                    status: 400,
-                    body: {
-                        msg: "wrong credentials"
-                    }
+                    msg: "wrong credentials"
                 });
                 return;
             }
@@ -75,20 +66,14 @@ router.route("/login")
                 if (loginRes === null) {
                     res.status(400);
                     res.json({
-                        status: 400,
-                        body: {
-                            msg: "no user with that credentials"
-                        }
+                        msg: "no user with that credentials"
                     });
                     return;
                 }
                 res.cookie("AuthToken", loginRes.token, { maxAge: 0x2932e00/*12 Hours*/ });
                 res.status(200);
                 res.json({
-                    status: 200,
-                    body: {
-                        id: loginRes.uuid
-                    }
+                    id: loginRes.uuid
                 });
             });
         });
@@ -104,22 +89,14 @@ router.route("/register").post((req, res) => {
         // if logged in send current user id
         if (r !== null) {
             res.status(200);
-            res.json({
-                status: 200,
-                body: {
-                    id: r
-                }
-            });
+            res.json({id: r});
             return;
         }
         const creds = await getCredsFromRegisterReq(req);
         if (creds == null) {
             res.status(400);
             res.json({
-                status: 400,
-                body: {
-                    msg: "wrong credentials"
-                }
+                msg: "wrong credentials"
             });
             return;
         }
@@ -127,34 +104,23 @@ router.route("/register").post((req, res) => {
         switch (regRes.code) {
             case statusCode.ERROR_DUPLICATE_EMAIL:
                 res.status(400);
-                res.json({
-                    status: 400,
-                    body: { msg: "this email is already registered" }
-                });
+                res.json({ msg: "this email is already registered"});
                 break;
             case statusCode.ERROR_NAME_TOO_LONG:
                 res.status(400);
-                res.json({
-                    status: 400,
-                    body: { msg: "your name is too long" }
-                });
+                res.json({ msg: "your name is too long" });
                 break;
             case statusCode.SUCCESS:
                 res.cookie("AuthToken", regRes.token, { maxAge: 0x2932e00/*12 Hours*/ });
                 res.status(201);
                 res.json({
-                    status: 201, body: {
-                        body: { msg: "successfully registered" }
-                    }
+                    msg: "successfully registered"
                 });
                 break;
             default:
                 console.error(regRes);
                 res.status(500);
-                res.json({
-                    status: 500,
-                    body: { msg: "internal server error" }
-                });
+                res.json({ msg: "internal server error" });
         }
     });
 }).delete(async (req, res) => {

@@ -24,21 +24,21 @@
         <p v-if="!user.payload.ownerOf.length">no projects</p>
         <p v-else v-for="p in user.payload.ownerOf" :key="p.id">
           <a class="link" :href="'/project/?id=' + p.id">{{ p.name }}</a
-          >: {{ truncate(p.description, 100) }}
+          >: {{ truncate(p.description) }}
         </p>
         <p style="font-weight: bold">member of</p>
         <p v-if="!user.payload.memberOf.length">no projects</p>
         <p v-else v-for="p in user.payload.memberOf" :key="p.id">
           <a class="link" :href="'/project/?id=' + p.id">{{ p.name }}</a
-          >: {{ truncate(p.description, 100) }}
+          >: {{ truncate(p.description) }}
         </p>
       </div>
       <div v-if="user?.ownInfo">
         <p style="font-weight: bold">your join requests</p>
-        <p v-if="!user.payload.joins.length">
+        <p v-if="!(<privateInfo>user.payload).joins.length">
           you have no unanswered join requests
         </p>
-        <p v-else v-for="(j, i) in user.payload.joins" :key="i">
+        <p v-else v-for="(j, i) in (<privateInfo>user.payload).joins" :key="i">
           <a class="link" :href="'/project/?id=' + j.receiver.id">{{
             j.receiver.name
           }}</a
@@ -139,21 +139,18 @@ const user = ref<{
 const params = new URLSearchParams(document.location.search);
 
 fetch("/api/v0/profile/?id=" + params.get("id"))
-  .then((r) => r.json())
   .then(
-    async (r: {
-      status: number;
-      body: {
-        ownInfo: boolean;
-        payload: publicInfo | privateInfo;
-      };
-    }) => {
+    async r => {
       if (r.status != 200) {
         console.error(r);
+        r.text().then(console.error);
         return;
       }
-      document.title = `Profile of ${r.body.payload.name} | Teameet`;
-      user.value = r.body;
+      r.json().then(body => {
+        console.log(body);
+        document.title = `Profile of ${body.payload.name} | Teameet`;
+        user.value = body;
+      });
     }
   );
 </script>

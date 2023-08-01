@@ -22,12 +22,9 @@ router.route("/join") // ?project=id&user=uuid
                 const joinRequests = await getJoinRequestsByProject(projectId);
                 res.status(200);
                 res.json({
-                    status: 200,
-                    body: {
-                        userid,
-                        projectId,
-                        joinRequests
-                    }
+                    userid,
+                    projectId,
+                    joinRequests
                 });
             } else {
                 _403(res);
@@ -37,11 +34,8 @@ router.route("/join") // ?project=id&user=uuid
             const jrs = await getJoinRequestsByUser(userid);
             res.status(200);
             res.json({
-                status: 200,
-                body: {
-                    userid,
-                    joinRequests: jrs
-                }
+                userid,
+                joinRequests: jrs
             });
         }
     })
@@ -49,34 +43,26 @@ router.route("/join") // ?project=id&user=uuid
         const userid = req.userid;
         const projectid = Number.parseInt(req.query["project"]?.toString() ?? "");
         if (!userid || !projectid || !(req.body.message?.trim())) {
-            res.status(200);
+            res.status(400);
             res.json({
-                status: 400,
-                body: {
-                    msg: "wrong parameters"
-                }
+                msg: "wrong parameters"
             });
             return;
         }
         if (await makeJoinRequest(
             userid,
             projectid,
-            req.body.message.trim())) {
+            req.body.message.trim()
+        )) {
             res.status(201);
             res.json({
-                status: 201,
-                body: {
-                    userid,
-                    projectid
-                }
+                userid,
+                projectid
             });
         } else {
             res.status(400);
             res.json({
-                status: 400,
-                body: {
-                    msg: "you already sent a join request"
-                }
+                msg: "you already sent a join request"
             });
         }
     }).delete(async (req, res) => {
@@ -84,10 +70,7 @@ router.route("/join") // ?project=id&user=uuid
         if (!projectId) {
             res.status(400);
             res.json({
-                status: 400,
-                body: {
-                    msg: "you are trying to delete a joinRequest but you don't specify a project"
-                }
+                msg: "you are trying to delete a joinRequest but you don't specify a project"
             });
             return;
         }
@@ -96,10 +79,7 @@ router.route("/join") // ?project=id&user=uuid
         if (!senderId) {
             res.status(400);
             res.json({
-                status: 400,
-                body: {
-                    msg: "no `user` specified"
-                }
+                msg: "no `user` specified"
             });
             return;
         }

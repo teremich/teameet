@@ -9,7 +9,7 @@
           style="
             display: grid;
             grid-template-columns: repeat(4, minmax(0, auto));
-            grid-gap: 10px;
+            grid-gap: 0;
           "
         >
           <div class="projecttableheader projectname">NAME</div>
@@ -21,7 +21,7 @@
             DESCRIPTION
           </div>
           <div class="projecttableheader projectlanguages">
-            TECHNOLOGIES AND NOTES
+            TECHSTACK AND NOTES
           </div>
 
           <ProjectTableEntry v-for="p in projects" :key="p.id" :project="p" />
@@ -44,22 +44,24 @@ import Navbar from "@/components/Navbar.vue";
 // @ts-ignore
 import ProjectTableEntry from "@/components/ProjectTableEntry.vue";
 
-const projects = ref([]);
+const projects = ref<any[]>([]);
 
 onMounted(async () => {
-  const p = await fetch("/api/v0/project").then((r) => r.json());
-  projects.value = p.body["projects"];
+  const p = await fetch("/api/v0/project", {
+    method: "SEARCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      skip: 0,
+      take: 50
+    })
+  }).then((r) => r.json());
+  projects.value = p.projects;
+  document.title = "Teameet";
 });
 </script>
 
 <style scoped lang="scss">
 @import "@/assets/tablestyle.css";
-
-@media only screen and (max-device-width: 900px) {
-  main {
-    display: none;
-  }
-}
 
 h1 {
   text-align: center;
@@ -76,6 +78,7 @@ h1 {
 
 .projecttableheader {
   text-align: left;
+  padding-bottom: 15px;
 }
 
 #newproj {

@@ -14,15 +14,18 @@ feel free to open an issue and ask as many of them as you want to
     - setting up the databases:
         - `docker compose up` (the easiest way to get the databases running)
     - building the backend:
+        - (beware of the node version in the .nvmrc file)
         - `npm install`
         - `npx prisma generate`
         - `npm run build`
     - building the frontend:
+        - (beware of the node version in the .nvmrc file)
         - `cd client`
         - `npm i --legacy-peer-deps`
         - `npm run build`
         - `cd ..`
     - running teameet:
+        - (cwd is the project root)
         - `npx prisma migrate deploy`
         - `npm start`
 - now you have a porduction build of teameet
@@ -32,14 +35,17 @@ feel free to open an issue and ask as many of them as you want to
 - find bugs and fix them
 - Front end:
     - finish the web pages
-    - make them more beautiful
+- Back end:
+    - project crud
+    - features like baning/kicking users or leaving projects
+    - Testing: user crud and joining projects
+
+## TODO post v1.0 update:
+- Front end:
+    - make the pages more beautiful
     - update the api paths (v1 :D)
     - make it usable on mobile
-- Back end:
-    - testing user crud
-    - project crud
-    - joining projects
-    - features like baning/kicking users or leaving projects
+    - implement all possible error messages
 - documentation:
-    - api (moved to post v1.0 update)
+    - api
     - project (optional)

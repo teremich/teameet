@@ -12,32 +12,32 @@ export function randomToken(): string {
 
 export function hash(password: string): string {
     const sha = createHash("SHA256");
-    sha.update(process.env.SALT + password);
+    sha.update(process.env.PEPPER + password);
     return sha.digest("hex");
 }
 
 export enum level {
-    LOGGED_OUT = 0b0,
-    LOGGED_IN = 0b1,
-    MEMBER = 0b10,
-    OWNER = 0b100,
-    ADMIN = 0b1000
+    LOGGED_OUT =    0b0000,
+    LOGGED_IN =     0b0001,
+    MEMBER =        0b0010,
+    OWNER =         0b0100,
+    ADMIN =         0b1000
 };
 
 export async function getUserLevel(userToken: string, projectId: number): Promise<{ uuid: number; level: level }> {
     const uuid = await getUserId(userToken) ?? 0;
     let lvl: level = level.LOGGED_OUT;
     if (uuid === Number.parseInt(process.env.ADMIN_ID ?? "")) {
-        lvl &= level.ADMIN;
+        lvl |= level.ADMIN;
     }
     if (uuid !== 0) {
-        lvl &= level.LOGGED_IN;
+        lvl |= level.LOGGED_IN;
     }
     if (projectId && await db.isMember(uuid, projectId)) {
-        lvl &= level.MEMBER;
+        lvl |= level.MEMBER;
     }
     if (projectId && await db.isOwner(uuid, projectId)) {
-        lvl &= level.OWNER;
+        lvl |= level.OWNER;
     }
     return { uuid, level: lvl };
 }
@@ -45,20 +45,14 @@ export async function getUserLevel(userToken: string, projectId: number): Promis
 export function _401(res: Response) {
     res.status(401);
     res.json({
-        status: 401,
-        body: {
-            msg: "You are not authorized to do this action. maybe try logging in"
-        }
+        msg: "You are not authorized to do this action. maybe try logging in"
     });
 }
 
 export function _403(res: Response) {
     res.status(403);
     res.json({
-        status: 403,
-        body: {
-            msg: "you are not allowed to do this action"
-        }
+        msg: "you are not allowed to do this action"
     });
 }
 
@@ -124,10 +118,16 @@ export async function getUserObject(uuid: number) {
         where: {
             uuid
         },
-        include: {
+        select: {
+            additional: true,
+            bio: true,
             memberOf: true,
             ownerOf: true,
-            joins: true
+            joins: true,
+            createdAt: true,
+            email: true,
+            name: true,
+            uuid: true
         }
     });
     return ret;
