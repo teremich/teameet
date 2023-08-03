@@ -83,7 +83,12 @@
       <div id="private" :style="'display: ' + ((user.level == level.member || user.level == level.owner ) ? 'block' : 'none')">
         <div>
           <label style="font-weight: bold">tasks</label>
-          <div>
+          <div v-if="project.tasks.length">
+            <div v-for="(task, index) in project.tasks" style="background-color: var(--navbar-color); border-radius: 15px; padding: 1em" :key="index">
+              <label style="font-weight: bolder;">{{ task.name }}</label>
+              <p>{{ task.details }}</p>
+              <a v-for="uuid of task.users" :key="uuid" class="link" :href="'/profile?id=' + uuid">{{ getUserName(uuid) }}</a>
+            </div>
           </div>
           <br />
         </div>
@@ -118,16 +123,27 @@ import { ref, onMounted } from "vue";
 // @ts-ignore
 import Navbar from "@/components/Navbar.vue";
 
+function getUserName(uuid: number) {
+  const req = new XMLHttpRequest();
+  req.open("GET", "/api/v0/profile?id=" + uuid, false);
+  req.send();
+  const body = JSON.parse(req.responseText);
+  return body.payload.name;
+}
+
 const project = ref({
-  name: "sorry, we coudn't find this project",
+  additional: <any>null,
   description: "you can go back to the homepage",
+  id: 0,
+  name: "sorry, we coudn't find this project",
+  details: {},
   owner: {
     name: "",
     uuid: 0,
   },
   members: <any[]>[],
   joinRequests: <any[]>[],
-  additional: <any>null
+  tasks: <any[]>[],
 });
 
 enum level {

@@ -1,4 +1,5 @@
 <template>
+  <!-- TODO: add script for global functions like getUser, getProject, leaveProject -->
   <router-view />
 </template>
 
