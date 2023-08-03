@@ -3,13 +3,14 @@ import type { Request } from "express";
 import { getProjects, postProject, deleteProject, leave } from "controllers/database";
 import { getUserLevel } from "controllers/auth";
 import { requireAuth, level } from "middleware/auth";
+// import type Prisma.JsonObject as JsonObject from "@prisma/client";
 
 export const router = Router();
 
 router.route("/project")
     .get((req, res) => {
         const id = Number.parseInt(req.query["id"]?.toString() ?? "");
-        getProjects({ id: id || undefined }).then(async projects => {
+        getProjects({ id: id || undefined, take: 1 }).then(async projects => {
             projects.sort((a, b) => {
                 if ((<any>a.additional)?.pinned && !(<any>b.additional)?.pinned) {
                     return -1;
@@ -18,18 +19,23 @@ router.route("/project")
                 }
                 return a.createdAt.getTime() - b.createdAt.getTime();
             });
-            if ((await getUserLevel(req.cookies?.["AuthToken"], id)).level < level.MEMBER) {
+            if ((await getUserLevel(req.cookies?.["AuthToken"], id)).level < level.OWNER) {
                 // public information
-                projects = projects.map(p => ({
-                    id: p.id,
-                    additional: p.additional,
-                    description: p.description,
-                    name: p.name,
-                    details: p.details,
-                    createdAt: p.createdAt,
-                    owner: p.owner,
-                    members: p.members,
-                }));
+                projects = projects.map(p => {
+                    if (p.additional) {
+                        (<any>p.additional).private! = {}
+                    }
+                    return {
+                        id: p.id,
+                        additional: p.additional,
+                        description: p.description,
+                        name: p.name,
+                        details: p.details,
+                        createdAt: p.createdAt,
+                        owner: p.owner,
+                        members: p.members,
+                    }
+                });
             }
             res.status(200);
             res.json({

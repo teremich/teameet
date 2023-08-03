@@ -13,7 +13,7 @@
         <br />
         <input ref="password2" placeholder="repeat password" type="password" />
         <br />
-        <button type="submit">Register Now</button>
+        <button class="button" type="submit">Register Now</button>
         <p>
           <span class="error" ref="wrong">something has gone wrong</span>
           <span class="error" ref="diffpw"

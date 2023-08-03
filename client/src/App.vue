@@ -28,9 +28,6 @@ ul{
   display: none;
   width: fit-content;
 }
-main {
-  margin: 15px;
-}
 body {
   --success-color: #41aa41;
   --primary-color: #f0f6f6;
@@ -61,7 +58,9 @@ a {
   max-width: 800px;
   font-size: 24pt;
 }
-
+main{
+  margin: 15px 5vw 1vh 5vw;
+}
 main#desktop-version {
   display: block;
 }

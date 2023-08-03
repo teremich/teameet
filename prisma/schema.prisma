@@ -82,6 +82,7 @@ model Project {
     details Json
 
     // public
+    // additional.private is private
     additional Json?
 
     // owner-only    

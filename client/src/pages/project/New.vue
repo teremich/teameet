@@ -32,7 +32,7 @@
             >You can only have up to 255 projects.</span
           >
         </p>
-        <button style="margin-left: 30px; font-size: larger">CREATE</button>
+        <button class="button">CREATE</button>
       </form>
     </main>
   </div>

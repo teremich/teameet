@@ -3,7 +3,9 @@ import { randomToken } from "controllers/auth";
 const TWELVE_HOURS = 0xa8c0; // 12*60*60 seconds
 
 const c = {
-    client: createClient(),
+    client: createClient({
+        url: "redis://127.0.0.1:6379"
+    }),
     connected: false,
     connect: async function () {
         if (this.connected) {

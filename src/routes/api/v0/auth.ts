@@ -82,7 +82,7 @@ router.route("/login")
         res.sendStatus(200);
     });
 
-// TODO: spam protection (optional feature, moved to post 1.0)
+// TODO: spam protection (optional feature, moved to post v1.0)
 // idea: maybe by allowing github registration only
 router.route("/register").post((req, res) => {
     getUserId(req.cookies["AuthToken"]).then(async r => {

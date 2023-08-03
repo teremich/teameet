@@ -1,3 +1,6 @@
+# prisma
+prisma/migrations/migration_lock.toml
+
 # Logs
 logs
 *.log
@@ -8,6 +11,7 @@ lerna-debug.log*
 
 public/
 .vscode
+.vsls.json
 __pycache__
 
 # Diagnostic reports (https://nodejs.org/api/report.html)

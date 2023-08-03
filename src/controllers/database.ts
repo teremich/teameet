@@ -2,6 +2,9 @@ import type { Prisma } from "@prisma/client";
 import { Database } from "models/database";
 import { getUserObject, hash } from "./auth";
 
+// TODO (post v1.0): create and use helper functions for private, public and owner-only data, so the api doesnt have to sanitize
+// additionally maybe make the calls to the functions in this file standardized
+
 export const db = new Database();
 export async function getProjects(where?: { id?: number, skip?: number, take?: number }): Promise<{
     id: number;
