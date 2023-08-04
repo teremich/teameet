@@ -3,6 +3,7 @@ import { randomBytes, createHash } from "crypto";
 import type { Request, Response } from "express";
 import { db, statusCode } from "./database";
 import { getUserId, setUserId, removeUserId } from "models/redis";
+import { privateUser, publicUser } from "./scope";
 
 export function randomToken(): string {
     let token: string = "";
@@ -113,22 +114,12 @@ export async function login(email: string, password: string): Promise<{ token: s
 
 export { getUserId, setUserId, removeUserId };
 
-export async function getUserObject(uuid: number) {
+export async function getUserObject(lvl: level, uuid: number) {
     const ret = await db.prisma.user.findUnique({
         where: {
             uuid
         },
-        select: {
-            additional: true,
-            bio: true,
-            memberOf: true,
-            ownerOf: true,
-            joins: true,
-            createdAt: true,
-            email: true,
-            name: true,
-            uuid: true
-        }
+        select: lvl >= level.OWNER ? privateUser : publicUser,
     });
     return ret;
 }

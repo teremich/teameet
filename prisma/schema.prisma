@@ -20,7 +20,7 @@ model User {
     // public
     name String @db.VarChar(63)
 
-    // private
+    // public
     createdAt DateTime @default(now())
 
     // private
@@ -69,13 +69,13 @@ model Project {
     // public
     description String
 
-    // private
+    // public
     tasks Json[]
 
-    // private
+    // public
     createdAt DateTime @default(now())
 
-    // private
+    // owner-only
     joinRequests joinRequest[]
 
     // public

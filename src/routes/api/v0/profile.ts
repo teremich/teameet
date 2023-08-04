@@ -1,6 +1,6 @@
 import { Router } from "express";
 import type { Request } from "express";
-import { _401, getUserId, getUserObject } from "controllers/auth";
+import { _401, level, getUserId, getUserLevel, getUserObject } from "controllers/auth";
 import { getProjects, updateUser } from "controllers/database";
 export const router = Router();
 
@@ -51,7 +51,8 @@ router.route("/profile")
         });
     })
     .get(async (req: Request & { "useruuid"?: number }, res) => {
-        const user = await getUserObject(Number.parseInt(req.query["id"]?.toString() ?? ""));
+        const requestedUserId = Number.parseInt(req.query["id"]?.toString() ?? "");
+        const user = await getUserObject(requestedUserId == req["useruuid"] ? level.OWNER : level.LOGGED_OUT, requestedUserId);
         if (!user) {
             res.status(404);
             res.json({
@@ -59,95 +60,7 @@ router.route("/profile")
             })
             return;
         }
-        // if you are not the person who's info we are getting, you get the public info
-        if (req["useruuid"] !== Number.parseInt(req.query["id"]?.toString() ?? "")) {
-            if (user.additional === null) {
-                user.additional = {};
-            }
-            (user.additional as any).private = {};
-            res.status(200);
-            res.json({
-                ownInfo: false,
-                payload: <publicInfo>{
-                    additional: user.additional,
-                    bio: user.bio,
-                    memberOf: user.memberOf.map(p => {
-                        return {
-                            id: p.id,
-                            ownerId: p.ownerId,
-                            name: p.name,
-                            description: p.description,
-                            createdAt: p.createdAt,
-                            additional: p.additional
-                        }
-                    }),
-                    name: user.name,
-                    ownerOf: user.ownerOf.map(p => {
-                        return {
-                            id: p.id,
-                            ownerId: p.ownerId,
-                            name: p.name,
-                            description: p.description,
-                            createdAt: p.createdAt,
-                            additional: p.additional
-                        }
-                    }),
-                    uuid: user.uuid
-                }
-            });
-        } else {
-            // otherwise the private info
-            res.status(200);
-            res.json({
-                ownInfo: true,
-                payload: <privateInfo>{
-                    additional: user.additional,
-                    bio: user.bio,
-                    memberOf: user.memberOf.map(p => {
-                        return {
-                            id: p.id,
-                            ownerId: p.ownerId,
-                            name: p.name,
-                            description: p.description,
-                            createdAt: p.createdAt,
-                            additional: p.additional
-                        }
-                    }),
-                    name: user.name,
-                    ownerOf: user.ownerOf.map(p => {
-                        return {
-                            id: p.id,
-                            ownerId: p.ownerId,
-                            name: p.name,
-                            description: p.description,
-                            createdAt: p.createdAt,
-                            additional: p.additional
-                        }
-                    }),
-                    uuid: user.uuid,
-                    createdAt: user.createdAt,
-                    email: user.email,
-                    joins: await asyncmap(user.joins, async jr => {
-                        return {
-                            additional: jr.additional,
-                            createdAt: jr.createdAt,
-                            message: jr.message,
-                            receiver: await (async () => {
-                                const p = (await getProjects({ id: jr.receiverId }))[0];
-                                return {
-                                    id: p.id,
-                                    ownerId: p.owner.uuid,
-                                    description: p.description,
-                                    name: p.name,
-                                    createdAt: p.createdAt,
-                                    additional: p.additional
-                                };
-                            })()
-                        }
-                    })
-                }
-            });
-        }
+        
     }).patch(async (req: Request & { "useruuid"?: number }, res) => {
         // TODO:
         // start with the api documentation,

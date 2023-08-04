@@ -5,7 +5,8 @@ import {
     getCredsFromRegisterReq,
     login, logout,
     register, deleteUser,
-    getUserObject
+    getUserObject,
+    level
 } from "controllers/auth";
 import { statusCode } from "controllers/database";
 import type { Request } from "express";
@@ -31,7 +32,7 @@ router.route("/login")
     // returns whether you're already loggeed in
     .get((req: Request & { "useruuid"?: number | null }, res) => {
         if (req["useruuid"]) {
-            getUserObject(req["useruuid"]).then(user => {
+            getUserObject(level.OWNER, req["useruuid"]).then(user => {
                 res.status(200);
                 res.json(user);
             });

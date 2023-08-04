@@ -1,80 +1,26 @@
-import type { Prisma } from "@prisma/client";
+import { publicProject, ownerOnlyProject, Additional } from "./scope";
 import { Database } from "models/database";
-import { getUserObject, hash } from "./auth";
+import { getUserObject, hash, level } from "./auth";
 
 // TODO (post v1.0): create and use helper functions for private, public and owner-only data, so the api doesnt have to sanitize
 // additionally maybe make the calls to the functions in this file standardized
 
 export const db = new Database();
-export async function getProjects(where?: { id?: number, skip?: number, take?: number }): Promise<{
-    id: number;
-    additional: Prisma.JsonValue;
-    description: string;
-    name: string;
-    details: Prisma.JsonValue;
-    createdAt: Date;
-    owner: {
-        name: string;
-        uuid: number;
-    };
-    members: {
-        name: string;
-        uuid: number;
-    }[];
-    joinRequests?: {
-        sender: {
-            name: string;
-            uuid: number;
-        },
-        message: string;
-    }[];
-}[]> {
+export async function getProjects(scope: level, where?: { id?: number, skip?: number, take?: number }) {
     const res = await db.prisma.project.findMany({
         where: {
             id: where?.id
         },
         skip: where?.skip ?? 0,
-        select: {
-            additional: true,
-            description: true,
-            id: true,
-            name: true,
-            details: true,
-            createdAt: true,
-            owner: {
-                select: {
-                    name: true,
-                    uuid: true
-                }
-            },
-            members: {
-                select: {
-                    uuid: true,
-                    name: true
-                }
-            },
-            joinRequests: {
-                select: {
-                    sender: {
-                        select: {
-                            uuid: true,
-                            name: true
-                        }
-                    },
-                    message: true
-                }
-            },
-            tasks: true,
-            banList: {
-                select: {
-                    name: true,
-                    uuid: true
-                }
-            }
-        },
+        select: scope >= level.OWNER ? ownerOnlyProject : publicProject,
         // returns at most 50 projects (use skip to paginate)
         take: (where?.take && where.take < 50 && where.take > 0) ? where?.take : 50
     });
+    for (let p of res) {
+        if (scope < level.MEMBER) {
+            (<Additional>p.additional).private = {};
+        }
+    }
     return res;
 }
 export type projectData = { description: string, name: string, additional?: any, ownerId: number };
@@ -107,6 +53,10 @@ export async function postProject(data: projectData): Promise<number> {
             id: true
         }
     })).id;
+}
+
+export async function patchProject() {
+    // TODO: implement
 }
 
 export async function deleteProject(id: number) {
@@ -202,11 +152,11 @@ export async function leave(params: {
     message?: string,
     ban: boolean
 }) {
-    const project = (await getProjects({ id: params.projectId }))[0];
+    const project = (await getProjects(level.ADMIN, { id: params.projectId }))[0];
     if (project === undefined) {
         return false;
     }
-    const leavingUser = await getUserObject(params.leavingUser);
+    const leavingUser = await getUserObject(level.ADMIN, params.leavingUser);
     if (!leavingUser) {
         return false;
     }
@@ -239,7 +189,7 @@ export async function leave(params: {
             return true;
         }
     } else {
-        const leaveInitiator = await getUserObject(params.leaveInitiator);
+        const leaveInitiator = await getUserObject(level.ADMIN, params.leaveInitiator);
         if (!leaveInitiator) {
             return false;
         }
@@ -277,10 +227,10 @@ export async function leave(params: {
                 if (leavingUser.additional === null) {
                     leavingUser.additional = { private: {} };
                 }
-                if ((leavingUser.additional as any).private["kickmsgs"]) {
-                    ((leavingUser.additional as any).private["kickmsgs"] as { projectid: number, msg: string }[]).push(newEntry)
+                if ((<Additional>leavingUser.additional).private.kickmsgs) {
+                    ((<Additional>leavingUser.additional).private.kickmsgs as { projectid: number, msg: string }[]).push(newEntry)
                 } else {
-                    ((leavingUser.additional as any).private["kickmsgs"] as { projectid: number, msg: string }[]) = [newEntry];
+                    ((<Additional>leavingUser.additional).private.kickmsgs as { projectid: number, msg: string }[]) = [newEntry];
                 }
                 await db.prisma.user.update({
                     where: {
@@ -309,11 +259,10 @@ export async function updateUser(uuid: number, newData: { bio?: any; email?: str
         }
     });
     if (newData.password) {
-        console.log("wanting to update the user password");
         let pwHash = hash(uuid + newData.password);
         await db.updatePassword(uuid, pwHash);
     }
 }
 
 export type { User, Project, JoinRequest } from "models/database";
-export { statusCode } from "models/database"
+export { statusCode } from "models/database";

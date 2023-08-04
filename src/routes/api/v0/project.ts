@@ -3,44 +3,27 @@ import type { Request } from "express";
 import { getProjects, postProject, deleteProject, leave } from "controllers/database";
 import { getUserLevel } from "controllers/auth";
 import { requireAuth, level } from "middleware/auth";
+import { Additional } from "controllers/scope";
 // import type Prisma.JsonObject as JsonObject from "@prisma/client";
 
 export const router = Router();
 
 router.route("/project")
-    .get((req, res) => {
+    .get(async (req, res) => {
         const id = Number.parseInt(req.query["id"]?.toString() ?? "");
-        getProjects({ id: id || undefined, take: 1 }).then(async projects => {
-            projects.sort((a, b) => {
-                if ((<any>a.additional)?.pinned && !(<any>b.additional)?.pinned) {
-                    return -1;
-                } else if (!(<any>a.additional)?.pinned && (<any>b.additional)?.pinned) {
-                    return 1;
-                }
-                return a.createdAt.getTime() - b.createdAt.getTime();
-            });
-            if ((await getUserLevel(req.cookies?.["AuthToken"], id)).level < level.OWNER) {
-                // public information
-                projects = projects.map(p => {
-                    if (p.additional) {
-                        (<any>p.additional).private! = {}
-                    }
-                    return {
-                        id: p.id,
-                        additional: p.additional,
-                        description: p.description,
-                        name: p.name,
-                        details: p.details,
-                        createdAt: p.createdAt,
-                        owner: p.owner,
-                        members: p.members,
-                    }
-                });
+        const user = await getUserLevel(req.cookies?.["AuthToken"], id)
+        const projects = await getProjects(user.level, { id: id || undefined, take: 1 });
+        projects.sort((a, b) => {
+            if ((<Additional>a.additional).public.pinned && !(<Additional>b.additional).public.pinned) {
+                return -1;
+            } else if (!(<Additional>a.additional).public.pinned && (<any>b.additional)?.pinned) {
+                return 1;
             }
-            res.status(200);
-            res.json({
-                projects
-            });
+            return a.createdAt.getTime() - b.createdAt.getTime();
+        });
+        res.status(200);
+        res.json({
+            projects
         });
     })
     .post(requireAuth(level.LOGGED_IN), async (req: Request & { userid?: number }, res) => {
@@ -67,6 +50,10 @@ router.route("/project")
         res.status(201);
         res.json({ id });
     })
+    .patch((req, res) => {
+        // TODO: make changes
+        // TODO: alter additional so pinned can't be set by anyone
+    })
     .delete(
         (req, res, next) => {
             requireAuth(
@@ -80,7 +67,7 @@ router.route("/project")
     )
     .search(async (req: Request, res) => {
         const id = Number.parseInt(req.query["id"]?.toString() ?? "");
-        getProjects({ id: id || undefined, skip: req.body.skip, take: req.body.take }).then(async projects => {
+        getProjects(level.LOGGED_OUT, { id: id || undefined, skip: req.body.skip, take: req.body.take }).then(async projects => {
             projects.sort((a, b) => {
                 if ((<any>a.additional)?.pinned && !(<any>b.additional)?.pinned) {
                     return -1;
@@ -89,19 +76,6 @@ router.route("/project")
                 }
                 return a.createdAt.getTime() - b.createdAt.getTime();
             });
-            if ((await getUserLevel(req.cookies?.["AuthToken"], id)).level < level.MEMBER) {
-                // public information
-                projects = projects.map(p => ({
-                    id: p.id,
-                    additional: p.additional,
-                    description: p.description,
-                    name: p.name,
-                    details: p.details,
-                    createdAt: p.createdAt,
-                    owner: p.owner,
-                    members: p.members,
-                }));
-            }
             res.status(200);
             res.json({
                 projects
