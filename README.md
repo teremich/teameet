@@ -2,6 +2,9 @@
 
 A website to find and join interesting projects or to post your projects and find people to work with
 
+<img alt="A Screenshot of the Teameet Homepage" src="Homepage.png" width="45%" min-width="600px" />
+<img alt="A Screenshot of the Profile Settings Page" src="profilesettings.png" width="45%" min-width="600px" />
+
 ## if you have any questions…
 feel free to open an issue and ask as many of them as you want to
 
@@ -25,7 +28,7 @@ feel free to open an issue and ask as many of them as you want to
         - `npm run build`
         - `cd ..`
     - running teameet:
-        - (cwd is the project root)
+        - (cwd is the project's root folder)
         - `npx prisma migrate deploy`
         - `npm start`
 - now you have a porduction build of teameet
