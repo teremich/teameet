@@ -3,7 +3,7 @@ import { randomBytes, createHash } from "crypto";
 import type { Request, Response } from "express";
 import { db, statusCode } from "./database";
 import { getUserId, setUserId, removeUserId } from "models/redis";
-import { privateUser, publicUser } from "./scope";
+import { Additional, privateUser, publicUser } from "./scope";
 
 export function randomToken(): string {
     let token: string = "";
@@ -121,6 +121,13 @@ export async function getUserObject(lvl: level, uuid: number) {
         },
         select: lvl >= level.OWNER ? privateUser : publicUser,
     });
+    if (ret && lvl < level.OWNER) {
+        (<Additional>ret.additional).private = {};
+        for (let p of [...ret.memberOf, ...ret.ownerOf]) {
+            (<Additional>p.additional).private = {};
+            (<Additional>p.additional).public = {};
+        }
+    }
     return ret;
 }
 

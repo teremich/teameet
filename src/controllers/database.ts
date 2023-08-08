@@ -20,6 +20,10 @@ export async function getProjects(scope: level, where?: { id?: number, skip?: nu
         if (scope < level.MEMBER) {
             (<Additional>p.additional).private = {};
         }
+        for (let u of [...p.members, p.owner]) {
+            (<Additional>u.additional).private = {};
+            (<Additional>u.additional).public = {};
+        }
     }
     return res;
 }

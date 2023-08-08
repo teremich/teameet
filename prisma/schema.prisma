@@ -2,116 +2,116 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
-    binaryTargets = ["native"]
+  provider      = "prisma-client-js"
+  binaryTargets = ["native"]
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // private: user themselves
 // public: everyone
 model User {
-    // public
-    uuid Int @id
+  // public
+  uuid Int @id
 
-    // public
-    name String @db.VarChar(63)
+  // public
+  name String @db.VarChar(63)
 
-    // public
-    createdAt DateTime @default(now())
+  // public
+  createdAt DateTime @default(now())
 
-    // private
-    email String @unique
+  // private
+  email String @unique
 
-    // public
-    ownerOf Project[] @relation(name: "owner")
+  // public
+  ownerOf Project[] @relation(name: "owner")
 
-    // public
-    memberOf Project[] @relation(name: "members")
+  // public
+  memberOf Project[] @relation(name: "members")
 
-    // hidden
-    bannedFrom Project[] @relation(name: "ban")
+  // hidden
+  bannedFrom Project[] @relation(name: "ban")
 
-    // private
-    joins joinRequest[]
+  // private
+  joins joinRequest[]
 
-    // hidden
-    passwordHash String
+  // hidden
+  passwordHash String
 
-    // public
-    bio Json
+  // public
+  bio Json
 
-    // public
-    additional Json?
+  // public
+  additional Json @default("{\"public\": {}, \"private\": {}, \"limited\": {}}")
 }
 
 // private: project members
 // public: everyone
 model Project {
-    // public
-    id Int @id @default(autoincrement())
+  // public
+  id Int @id @default(autoincrement())
 
-    // public
-    ownerId Int
+  // public
+  ownerId Int
 
-    // public
-    owner User @relation(name: "owner", references: [uuid], fields: [ownerId])
+  // public
+  owner User @relation(name: "owner", references: [uuid], fields: [ownerId])
 
-    // public
-    members User[] @relation(name: "members")
+  // public
+  members User[] @relation(name: "members")
 
-    // public
-    name String @db.VarChar(255)
+  // public
+  name String @db.VarChar(255)
 
-    // public
-    description String
+  // public
+  description String
 
-    // public
-    tasks Json[]
+  // public
+  tasks Json[]
 
-    // public
-    createdAt DateTime @default(now())
+  // public
+  createdAt DateTime @default(now())
 
-    // owner-only
-    joinRequests joinRequest[]
+  // owner-only
+  joinRequests joinRequest[]
 
-    // public
-    details Json
+  // public
+  details Json
 
-    // public
-    // additional.private is private
-    additional Json?
+  // public
+  // additional.private is private
+  additional Json @default("{\"public\": {}, \"private\": {}, \"limited\": {}}")
 
-    // owner-only    
-    banList User[] @relation(name: "ban")
+  // owner-only    
+  banList User[] @relation(name: "ban")
 }
 
 // OMG I HATE this typo, why isn't it starting with a capital letter like the others!!!!
 // why not make a migration?
 model joinRequest {
-    // project members
-    senderId Int
+  // project members
+  senderId Int
 
-    // project members(public info)
-    sender User @relation(fields: [senderId], references: [uuid])
+  // project members(public info)
+  sender User @relation(fields: [senderId], references: [uuid])
 
-    // project members and sender
-    createdAt DateTime @default(now())
+  // project members and sender
+  createdAt DateTime @default(now())
 
-    // sender
-    receiverId Int
+  // sender
+  receiverId Int
 
-    // sender(public info)
-    receiver Project @relation(fields: [receiverId], references: [id])
+  // sender(public info)
+  receiver Project @relation(fields: [receiverId], references: [id])
 
-    // project members and sender
-    message String
+  // project members and sender
+  message String
 
-    // project members and sender
-    additional Json?
+  // project members and sender
+  additional Json @default("{\"public\": {}, \"private\": {}, \"limited\": {}}")
 
-    @@id([senderId, receiverId])
+  @@id([senderId, receiverId])
 }

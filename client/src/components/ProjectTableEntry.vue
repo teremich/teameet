@@ -22,7 +22,7 @@
     <div class="projectcolumn">
       <span class="projectcolumnspan projectlanguages">{{
         props.project.details.languages ??
-        "no languages or technologies defined"
+        "no languages or technologies specified"
       }}</span>
     </div>
   </router-link>

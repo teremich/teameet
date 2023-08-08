@@ -11,8 +11,15 @@ export const limitedUser = {
     additional: true
 };
 
-export const publicProject = {
+export const limitedProject = {
     id: true,
+    name: true,
+    additional: true,
+    description: true,
+}
+
+export const publicProject = {
+    ...limitedProject,
     ownerId: true,
     owner: {
         select: limitedUser
@@ -20,32 +27,33 @@ export const publicProject = {
     members: {
         select: limitedUser
     },
-    name: true,
-    description: true,
     tasks: true,
     createdAt: true,
     details: true,
-    additional: true,
 };
 
 export const publicUser = {
     ...limitedUser,
     createdAt: true,
     ownerOf: {
-        select: publicProject
+        select: limitedProject
     },
     memberOf: {
-        select: publicProject
+        select: limitedProject
     },
     bio: true,
 };
 
 export const publicJoinRequest = {
     senderId: true,
-    sender: limitedUser,
+    sender: {
+        select: limitedUser
+    },
     createdAt: true,
     receiverId: true,
-    receiver: publicProject,
+    receiver: {
+        select: limitedProject
+    },
     message: true,
     additional: true
 };

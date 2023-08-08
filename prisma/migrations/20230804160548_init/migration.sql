@@ -6,7 +6,7 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
     "bio" JSONB NOT NULL,
-    "additional" JSONB,
+    "additional" JSONB NOT NULL DEFAULT '{"public": {}, "private": {}, "limited": {}}',
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("uuid")
 );
@@ -17,7 +17,7 @@ CREATE TABLE "Project" (
     "ownerId" INTEGER NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "description" TEXT NOT NULL,
-    "tasks" JSONB NOT NULL,
+    "tasks" JSONB[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "details" JSONB NOT NULL,
     "additional" JSONB,

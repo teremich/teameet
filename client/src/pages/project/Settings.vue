@@ -3,7 +3,7 @@
     <header>
       <Navbar @loadfinished="onLoaded"/>
     </header>
-    <main>
+    <main class="desktop-version">
       <h2>configure the project <a id="projectname" class="link"></a></h2>
       <div id="left">
         <!--
@@ -17,7 +17,6 @@
             [ ] hide jr (like banning without letting them in)
             [ ] unban people
         -->
-
       </div>
       <div id="right">
           <p style="font-weight: bold">Users who want to join this project:</p>
@@ -27,7 +26,7 @@
               :to="{ path: '/profile', query: { id: jr.sender.uuid } }"
               >{{ jr.sender.name }}</router-link
             > <button @click="answerJR(jr.sender.uuid, true);" class="button">ACCEPT</button> <button @click="answerJR(jr.sender.uuid, false);" class="button" style="background-color: var(--error-color);">DENY</button>
-            <p style="margin-top: 30px;"><a class="textbox"> {{ jr.message }}</a></p>
+            <p style="margin-top: 10px;" class="textbox"><span> {{ jr.message }}</span></p>
           </div>
           <p v-if="!project.joinRequests?.length">
             there are no open join requests
@@ -60,8 +59,6 @@ const project = ref({
   tasks: <any>null,
   banList: <any[]>[]
 });
-
-let meId;
 
 function onLoaded(event: { loggedIn: boolean, payload?: any }) {
   if (!event.loggedIn) {

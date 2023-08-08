@@ -6,12 +6,17 @@ import { leave } from "controllers/database";
 export const router = Router();
 
 router.post("/leave", // ?project=id&user=uuid&ban=boolean
-    requireAuth(level.LOGGED_IN), async (req: Request & { userid?: number }, res) => {
+    (req, res, next) => {
+        requireAuth(
+            level.MEMBER,
+            Number.parseInt(req.query["project"]?.toString() ?? "")
+        )(req, res, next)
+    }, async (req: Request & { userid?: number }, res) => {
         const leaveInitiator = req.userid as number;
         const leavingUser = Number.parseInt(req.query["user"]?.toString() ?? "") || leaveInitiator;
         const projectId = Number.parseInt(req.query["project"]?.toString() ?? "");
         const ban = !!["1", "true"].find(r => r == req.query["ban"]);
-        if (!projectId || !leavingUser) {
+        if (!projectId) {
             res.status(400);
             res.json({
                 msg: "please make sure to supply a project id"

@@ -3,7 +3,7 @@
     <header>
       <Navbar />
     </header>
-    <main id="desktop-version">
+    <main class="desktop-version">
       <div>
         <div
           style="
@@ -33,7 +33,7 @@
         </div>
       </div>
     </main>
-    <main id="mobile-version"></main>
+    <main class="mobile-version"></main>
   </div>
 </template>
 

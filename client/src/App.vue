@@ -36,10 +36,11 @@ body {
   --navbar-color: #1c1f21;
   --link-color: #85dcfe;
   --error-color: #ff4f79;
+  --font-size: 16pt;
 
   padding: 0;
   margin: 0;
-  font-size: 16pt;
+  font-size: var(--font-size);
   font-family: Arial, Helvetica, sans-serif;
   color: var(--primary-color);
   background-color: var(--secondary-color);
@@ -60,20 +61,20 @@ a {
   font-size: 24pt;
 }
 main{
-  margin: 15px 5vw 1vh 5vw;
+  margin: 15px 5vw 10px 5vw;
 }
-main#desktop-version {
+main.desktop-version {
   display: block;
 }
-main#mobile-version {
+main.mobile-version {
   display: none;
 }
 
 @media only screen and (orientation: portrait) {
-  main#mobile-version {
+  main.mobile-version {
     display: block;
   }
-  main#desktop-version {
+  main.desktop-version {
     display: none;
   }
 }

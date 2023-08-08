@@ -20,20 +20,3 @@ router.use(project.router);
 router.use(join.router);
 // /leave
 router.use(leave.router);
-
-router.route("/")
-    .all(requireAuth(level.ADMIN))
-    .get((req: Request, res: Response) => {
-        res.send("get api");
-    })
-    .post((req: Request, res: Response) => {
-        res.send("post api");
-    })
-    .put((req: Request, res: Response) => {
-        res.send("put api");
-    })
-    .delete((req: Request, res: Response) => {
-        res.send("delete api");
-    });
-
-
