@@ -1,5 +1,5 @@
 # Teameet
-
+ 
 A website to find and join interesting projects or to post your projects and find people to work with
 
 <img alt="A Screenshot of the Teameet Homepage" src="Homepage.png" width="45%" min-width="320px" />
