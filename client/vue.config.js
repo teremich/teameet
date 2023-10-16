@@ -7,7 +7,7 @@ module.exports = defineConfig({
   devServer: {
     proxy: {
       "/api": {
-        target: "http://teameet.localhost:3006"
+        target: "http://127.0.0.1:3006"
       }
     },
     allowedHosts: "all"

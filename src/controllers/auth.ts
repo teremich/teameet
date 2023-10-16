@@ -78,6 +78,7 @@ export async function deleteUser(id: number) {
     if (!id) {
         return false;
     }
+    // TODO: delete all projects and everything else first
     await db.prisma.user.delete({
         where: {
             uuid: id
