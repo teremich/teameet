@@ -12,35 +12,34 @@ feel free to open an issue and ask as many of them as you want to
 - clone the github repo
 - rename the example.env file to .env and fill in the right values
 - optionally change the username, password & postgresql-port in the docker-compose.yml file
-- instead of running the postgresql and redis databases in a docker container you can set it up yourself
-- run following commands:
-    - setting up the databases:
+- instead of running the postgresql and redis databases in a docker container you can set it up manually
+- run the following commands:
+    - setting up the databases in a docker container:
         - `docker compose up` (the easiest way to get the databases running)
     - building the backend:
-        - (beware of the node version in the .nvmrc file)
+        - (beware of the node version in the `.nvmrc` file)
         - `npm install`
         - `npx prisma generate`
         - `npm run build`
     - building the frontend:
-        - (beware of the node version in the .nvmrc file)
+        - (beware of the node version in the `client/.nvmrc` file)
         - `cd client`
         - `npm i --legacy-peer-deps`
         - `npm run build`
         - `cd ..`
     - running teameet:
-        - (cwd is the project's root folder)
         - `npx prisma migrate deploy`
         - `npm start`
 - now you have a porduction build of teameet
-- for development use `npm run dev` in the root folder and `npm run serve` in the client folder
+- for development use `npm run dev` in the root folder and `npm run serve` in the `client` folder
 
 ## TODO:
 - find bugs and fix them
 - Front end:
     - finish the web pages
 - Back end:
-    - project crud
-    - features like baning/kicking users or leaving projects
+    - crud operation for project entries
+    - features like banning/kicking users or leaving projects
     - Testing: user crud and joining projects
 
 ## TODO post v1.0 update:
